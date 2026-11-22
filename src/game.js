@@ -646,7 +646,7 @@ function answer(i){if(!TV||TV.answered)return;const q=TV.qs[TV.k],ok=TV.opts[i]=
  $('#tvOpts').querySelectorAll('button').forEach((b,j)=>{b.disabled=true;if(TV.opts[j]===q.a[0])b.classList.add('right');else if(j===i)b.classList.add('wrong')});
  if(ok){TV.score++;S.stars++;SFX.ok()}else SFX.bad();updHud();save();
  const f=$('#tvFact');f.innerHTML=(ok?'<b class="good">Correct!</b> ':'<b class="bad">Not quite.</b> ')+(q.f?esc(q.f):ok?'':'The answer was '+esc(q.a[0])+'.');f.classList.remove('hidden');
- $('#tvNext').textContent=TV.k+1<TV.qs.length?'Next ▶':'Finish ▶';$('#tvNext').classList.remove('hidden')}
+ $('#tvNext').textContent=TV.k+1<TV.qs.length?'Next ▶':'Finish ▶';$('#tvNext').classList.remove('hidden');try{$('#tvNext').scrollIntoView({block:'nearest'})}catch(e){}}
 function nextQ(){if(!TV||!TV.answered)return;TV.k++;if(TV.k<TV.qs.length)renderQ();else endTrivia()}
 function endTrivia(){const won=TV.score>=TV.need;$('#tvBody').classList.add('hidden');const r=$('#tvRes');r.classList.remove('hidden');
  $('#tvProg').innerHTML=TV.qs.map((_,i)=>`<i class="${TV.res[i]?'ok':'no'}"></i>`).join('');
@@ -829,8 +829,10 @@ $('#btnNew').onclick=()=>{let nm=($('#pName').value||'').trim().slice(0,14)||'Fr
 function confirmNew(){const b=$('#btnNew');if(b.dataset.arm){delete b.dataset.arm;return true}b.dataset.arm=1;b.textContent='Overwrite saved game? Click again';setTimeout(()=>{delete b.dataset.arm;b.textContent='New Game ▶'},3000);return false}
 
 
-function fit(){const s=Math.min(innerWidth/640,innerHeight/416);const g=$('#game');g.style.transform=`scale(${s})`;$('#holder').style.width=640*s+'px';$('#holder').style.height=416*s+'px'}
-addEventListener('resize',fit);
+// Size the game to the part of the screen that's actually visible (mobile browser toolbars cover the rest)
+function fit(){const vv=window.visualViewport,w=vv?vv.width:innerWidth,h=vv?vv.height:innerHeight;const s=Math.min(w/640,h/416)*.98;const g=$('#game');g.style.transform=`scale(${s})`;$('#holder').style.width=640*s+'px';$('#holder').style.height=416*s+'px';
+ const wr=$('#wrap');wr.style.height=h+'px';wr.style.top=(vv?vv.offsetTop:0)+'px'}
+addEventListener('resize',fit);addEventListener('orientationchange',()=>setTimeout(fit,300));if(window.visualViewport){visualViewport.addEventListener('resize',fit);visualViewport.addEventListener('scroll',fit)}
 let last=performance.now(),saveT=0;
 function loop(now){const dt=Math.min(.05,(now-last)/1000);last=now;clock+=dt;
  if(Zn&&state!=='title'){updPlayer(dt);updNpcs(dt);updTaxis(dt);updDialog(dt);saveT+=dt;if(saveT>5){saveT=0;save()}draw()}

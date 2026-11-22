@@ -1,12 +1,12 @@
 <!DOCTYPE html>
 <html lang="en"><head><meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="theme-color" content="#1b1228">
 <title>The One With The Trivia Game</title>
 <style>
 *{box-sizing:border-box}
 html,body{margin:0;height:100%;background:radial-gradient(ellipse at center,#3a2456 0%,#140c1e 78%);overflow:hidden;touch-action:none;-webkit-user-select:none;user-select:none;-webkit-tap-highlight-color:transparent}
-#wrap{position:fixed;inset:0;display:flex;align-items:center;justify-content:center}
+#wrap{position:fixed;left:0;right:0;top:0;height:100vh;height:100dvh;display:flex;align-items:center;justify-content:center;padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left)}
 #holder{position:relative}
 #game{position:absolute;left:0;top:0;width:640px;height:416px;transform-origin:0 0;background:#000;border-radius:6px;overflow:hidden;font-family:ui-monospace,"SF Mono","Cascadia Mono",Menlo,Consolas,monospace;color:#2a1a3a;font-size:12px;box-shadow:0 0 0 4px #5b3a8c,0 0 0 8px #120a1a,0 18px 50px rgba(0,0,0,.6)}
 #cv{position:absolute;inset:0;width:640px;height:416px;image-rendering:pixelated;cursor:pointer}
@@ -37,6 +37,9 @@ button:disabled{cursor:default}
 #dlgChoices button.sel{background:#ffe48a;outline:2px solid #5b3a8c;outline-offset:1px}
 /* Trivia */
 #triv{position:absolute;inset:14px;padding:14px 18px;display:flex;flex-direction:column}
+#tvBody{flex:1;min-height:0;overflow-y:auto;display:flex;flex-direction:column}
+#tvFoot{position:sticky;bottom:0;background:#fdf6e6;padding-top:6px;margin-top:auto}
+#tvRes{flex:1;min-height:0;overflow-y:auto}
 #triv.quick{inset:60px 70px}
 #tvHead{display:flex;align-items:center;gap:12px;border-bottom:2px dashed #d9c49a;padding-bottom:8px}
 #tvPortrait{width:48px;height:48px;image-rendering:pixelated;background:#f2e2c0;border:2px solid #2a1a3a;border-radius:6px}

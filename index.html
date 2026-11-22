@@ -1,12 +1,12 @@
 <!DOCTYPE html>
 <html lang="en"><head><meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="theme-color" content="#1b1228">
 <title>The One With The Trivia Game</title>
 <style>
 *{box-sizing:border-box}
 html,body{margin:0;height:100%;background:radial-gradient(ellipse at center,#3a2456 0%,#140c1e 78%);overflow:hidden;touch-action:none;-webkit-user-select:none;user-select:none;-webkit-tap-highlight-color:transparent}
-#wrap{position:fixed;inset:0;display:flex;align-items:center;justify-content:center}
+#wrap{position:fixed;left:0;right:0;top:0;height:100vh;height:100dvh;display:flex;align-items:center;justify-content:center;padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left)}
 #holder{position:relative}
 #game{position:absolute;left:0;top:0;width:640px;height:416px;transform-origin:0 0;background:#000;border-radius:6px;overflow:hidden;font-family:ui-monospace,"SF Mono","Cascadia Mono",Menlo,Consolas,monospace;color:#2a1a3a;font-size:12px;box-shadow:0 0 0 4px #5b3a8c,0 0 0 8px #120a1a,0 18px 50px rgba(0,0,0,.6)}
 #cv{position:absolute;inset:0;width:640px;height:416px;image-rendering:pixelated;cursor:pointer}
@@ -37,6 +37,9 @@ button:disabled{cursor:default}
 #dlgChoices button.sel{background:#ffe48a;outline:2px solid #5b3a8c;outline-offset:1px}
 /* Trivia */
 #triv{position:absolute;inset:14px;padding:14px 18px;display:flex;flex-direction:column}
+#tvBody{flex:1;min-height:0;overflow-y:auto;display:flex;flex-direction:column}
+#tvFoot{position:sticky;bottom:0;background:#fdf6e6;padding-top:6px;margin-top:auto}
+#tvRes{flex:1;min-height:0;overflow-y:auto}
 #triv.quick{inset:60px 70px}
 #tvHead{display:flex;align-items:center;gap:12px;border-bottom:2px dashed #d9c49a;padding-bottom:8px}
 #tvPortrait{width:48px;height:48px;image-rendering:pixelated;background:#f2e2c0;border:2px solid #2a1a3a;border-radius:6px}
@@ -1689,7 +1692,7 @@ function answer(i){if(!TV||TV.answered)return;const q=TV.qs[TV.k],ok=TV.opts[i]=
  $('#tvOpts').querySelectorAll('button').forEach((b,j)=>{b.disabled=true;if(TV.opts[j]===q.a[0])b.classList.add('right');else if(j===i)b.classList.add('wrong')});
  if(ok){TV.score++;S.stars++;SFX.ok()}else SFX.bad();updHud();save();
  const f=$('#tvFact');f.innerHTML=(ok?'<b class="good">Correct!</b> ':'<b class="bad">Not quite.</b> ')+(q.f?esc(q.f):ok?'':'The answer was '+esc(q.a[0])+'.');f.classList.remove('hidden');
- $('#tvNext').textContent=TV.k+1<TV.qs.length?'Next ▶':'Finish ▶';$('#tvNext').classList.remove('hidden')}
+ $('#tvNext').textContent=TV.k+1<TV.qs.length?'Next ▶':'Finish ▶';$('#tvNext').classList.remove('hidden');try{$('#tvNext').scrollIntoView({block:'nearest'})}catch(e){}}
 function nextQ(){if(!TV||!TV.answered)return;TV.k++;if(TV.k<TV.qs.length)renderQ();else endTrivia()}
 function endTrivia(){const won=TV.score>=TV.need;$('#tvBody').classList.add('hidden');const r=$('#tvRes');r.classList.remove('hidden');
  $('#tvProg').innerHTML=TV.qs.map((_,i)=>`<i class="${TV.res[i]?'ok':'no'}"></i>`).join('');
@@ -1872,8 +1875,10 @@ $('#btnNew').onclick=()=>{let nm=($('#pName').value||'').trim().slice(0,14)||'Fr
 function confirmNew(){const b=$('#btnNew');if(b.dataset.arm){delete b.dataset.arm;return true}b.dataset.arm=1;b.textContent='Overwrite saved game? Click again';setTimeout(()=>{delete b.dataset.arm;b.textContent='New Game ▶'},3000);return false}
 
 
-function fit(){const s=Math.min(innerWidth/640,innerHeight/416);const g=$('#game');g.style.transform=`scale(${s})`;$('#holder').style.width=640*s+'px';$('#holder').style.height=416*s+'px'}
-addEventListener('resize',fit);
+// Size the game to the part of the screen that's actually visible (mobile browser toolbars cover the rest)
+function fit(){const vv=window.visualViewport,w=vv?vv.width:innerWidth,h=vv?vv.height:innerHeight;const s=Math.min(w/640,h/416)*.98;const g=$('#game');g.style.transform=`scale(${s})`;$('#holder').style.width=640*s+'px';$('#holder').style.height=416*s+'px';
+ const wr=$('#wrap');wr.style.height=h+'px';wr.style.top=(vv?vv.offsetTop:0)+'px'}
+addEventListener('resize',fit);addEventListener('orientationchange',()=>setTimeout(fit,300));if(window.visualViewport){visualViewport.addEventListener('resize',fit);visualViewport.addEventListener('scroll',fit)}
 let last=performance.now(),saveT=0;
 function loop(now){const dt=Math.min(.05,(now-last)/1000);last=now;clock+=dt;
  if(Zn&&state!=='title'){updPlayer(dt);updNpcs(dt);updTaxis(dt);updDialog(dt);saveT+=dt;if(saveT>5){saveT=0;save()}draw()}
