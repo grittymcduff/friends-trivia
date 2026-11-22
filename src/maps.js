@@ -335,7 +335,7 @@ street('soho','SoHo',40,{cross:[24],subway:{x:14,y:26,label:'SPRING ST',spawn:[1
  south:[
   {x:0,w:10,style:'cream',fire:true,doors:[{x:5,kind:'stoop',msg:"A cast-iron loft building. Very SoHo. Very expensive. Very locked."}]},
   {x:10,w:8,style:'brick',shop:true,awning:'#d48a2a',signBg:'#2a1a0a',sign:'GALLERY',doors:[{x:4,msg:"An art gallery. Tonight's show: 'Paintings That Stare Back.' Phoebe would love this."}]},
-  {x:18,w:12,style:'cream',fire:true,doors:[{x:6,kind:'stoop',msg:"Nobody's home."}]},
+  {x:20,w:10,style:'cream',fire:true,doors:[{x:5,kind:'stoop',msg:"Nobody's home."}]},
   {x:30,w:10,style:'brown',tower:true,doors:[{x:5,kind:'stoop',msg:"A doorbell plays a little tune when you press it. Nobody answers."}]}],
  extra(z){
   townie(z,'s1',6,10,F('#c68a5a','#2a1d17','long','#d0a040',{fem:true,outfit:'skirt'}),["The diner across the street has waitresses in wigs. One of them is an incredible chef. Long story."],true);
