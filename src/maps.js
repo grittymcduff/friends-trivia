@@ -470,3 +470,46 @@ scene('montauk','Montauk, Long Island',24,14,'sand',{extra(z){
   offer:"Five questions about me. Four right and you get my favorite seashell. If you hold it to your ear, it says nice things about you.",yes:'Listen to the shell',no:'Walk on the beach',noReply:"Okay! Watch out for crabs. They're judgmental.",
   win:"Yay! Here's the shell. Listen… it says you're wonderful.",lose:"Hmm. The shell says to try again. It's very honest."});
 }});
+
+/* =====================================================================
+ *  v0.4: supporting characters with SUPERFAN quizzes (bonus collectibles)
+ * ===================================================================== */
+function superfan(zid,id,name,x,y,dir,look,tag,reward,greet,offer,win,lose,extra){
+ cast(ZONES[zid],id,name,x,y,dir,look,{reward,tags:tag+' hard',prefer:tag,n:5,need:3,greet,offer:offer+" Superfan questions only. Get three of five.",yes:"Bring it on",no:'Not right now',noReply:'Okay! I\'ll be right here.',win,lose,again:"Back for more superfan questions? Just for fun."},extra);
+}
+superfan('hall','eddie','Eddie',11,6,'left',F('#e8bf9a','#2a1d17','short','#6a6a5a',{pants:'#3a3a44'}),'eddie','cracker',
+ ["Oh, hey. I'm Eddie. I live in 19. I've always lived in 19. Ask Chandler. Actually, don't ask Chandler.","I'm making dried fruit. You want some dried fruit? It's mango. Or it was."],
+ "Answer some questions about me and you can have Chandler. My fish. He's a cracker. It's complicated.",
+ "Okay. Take Chandler. Take good care of him. Don't let anybody eat him.","You don't know me. Nobody knows me. That's fine. I'll be in the hallway. Watching.");
+superfan('hall','heckles','Mr. Heckles',2,6,'right',F('#e8d4b8','#d8d8d0','bald','#7a6a5a',{pants:'#4a4a3a'}),'heckles','broom',
+ ["You're disturbing me. I can hear everything. I could hear you walking up the stairs.","I was going to complain about the noise, but you seem like a nice young person. Quiet. Nicely quiet."],
+ "You want my broom? You'll have to earn it.",
+ "Fine. Take the broom. Bang on whatever you want. I'll complain about it later.","Wrong! Too loud, AND wrong. Come back when you've studied. Quietly.");
+superfan('monica','jack','Jack Geller',12,8,'up',F('#efc9a8','#d8d8d0','bald','#5a6a8a',{pants:'#3a3a44'}),'geller','porsche',
+ ["Well, hello there! I'm Jack Geller. Monica's father. Ross's too, I'm told.","Judy and I came over for dinner. Monica's been 'resting' the roast for forty-five minutes."],
+ "Tell you what: get these right and I'll give you the keys to the Porsche. The keychain, anyway.",
+ "Hey, you're sharp! Here's the keychain. Don't tell Ross.","Close! That's okay. Nobody gets the Chi-Chi question right.");
+superfan('monica','judy','Judy Geller',9,9,'right',F('#efc9a8','#8a8a8a','bob','#8e4a6a',{fem:true,outfit:'skirt',pants:'#3a3a44'}),'geller','album',
+ ["Oh, hello, dear. I'm Judy. Monica's mother. You must be one of her friends. She has so many now.","I brought the family album. Mostly so everyone can see Ross's graduation. Again."],
+ "Answer a few questions and you can have the album. Ross is in most of the pictures, of course.",
+ "Well! Aren't you clever. Here's the album. Monica is in it… somewhere.","Oh, that's all right, dear. Not everybody can be a doctor.");
+superfan('village','frankjr','Frank Jr.',24,26,'down',F('#e8bf9a','#2a1d17','short','#c0573a',{pants:'#3a3a44'}),'frank','bootie',
+ ["Whoa! Hey! I'm Frank. Phoebe's brother. Half-brother. Whole brother? We're working on it.","Alice and I have triplets now. That's like three babies. At once!"],
+ "Get some questions right and you can have a set of triplet booties. I wanted to melt them, but Alice said no.",
+ "Whoa! You're like a genius! Here, take the booties. Don't melt them. Unless you want to.","Whoa. That's okay. I don't know stuff all the time.");
+superfan('bloomies','janice','Janice',16,10,'left',F('#efc9a8','#2a1d17','long','#c0574a',{fem:true,outfit:'dress',pants:'#2a2a2a'}),'janice','purse',
+ ["OH. MY. GOD. Hiiii! I'm Janice! Are you a friend of Chandler Bing's? Everybody's a friend of Chandler Bing's.","I'm just shopping. Retail therapy. Gary has the house, I have the purses. Ha ha ha!"],
+ "Ooh, let's play a game! Answer some questions about little old me, and you can have my purse!",
+ "OH. MY. GOD. You know everything! Take the purse. It's so you. Ha ha ha!","Oh, you were SO close. Come back! I'll be here. I'm always here.");
+superfan('uptown','richard','Richard',14,22,'down',F('#efc9a8','#4a3426','short','#3a4a5a',{pants:'#2b2b30'}),'richard','comb',
+ ["Hello. Richard Burke. I'm a friend of the Gellers. A good friend. It's a long story.","I come to the park to think. And to people-watch. Mostly to think."],
+ "Answer a few questions correctly and I'll give you my mustache comb. I have several.",
+ "Impressive. Here, take the comb. A distinguished mustache needs a distinguished comb.","Not quite. It's all right. I'm a patient man. Very patient.");
+superfan('studio','estelle','Estelle',18,9,'left',F('#e8c8a8','#b5462a','bob','#5a4a7a',{fem:true,outfit:'skirt',pants:'#2a2a2a'}),'estelle','ashtray',
+ ["Estelle Leonard. Talent agent. Joey's my client. Well, one of my clients. One of two.","You got a lighter? No? That's fine. I've got six."],
+ "Answer some questions and you get my ashtray. It's a collector's item. It's full.",
+ "Kid, you've got talent. Here's the ashtray. Don't tell my other client, he'll eat it.","Eh, that's showbiz. Come back when you're ready. I'm always here, I never leave.");
+superfan('barbados','mike','Mike',12,8,'left',F('#efc9a8','#4a3426','short','#5b9bd5',{pants:'#e8e2d4'}),'mike','nametag',
+ ["Hi, I'm Mike. Phoebe's… boyfriend? Fiancé? I came all the way to Barbados to find out.","Also, I'm very good at ping-pong. Monica says she's better. We'll see."],
+ "Answer some questions and you can have my name tag. Long story. It says 'Crap Bag.'",
+ "Ha! You're good. Here's the name tag. Wear it with pride.","Ooh, tough break. Want to play ping-pong instead? …Kidding. Try again!");

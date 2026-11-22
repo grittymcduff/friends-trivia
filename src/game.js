@@ -303,6 +303,15 @@ function itemIcon(id){if(itemCache[id])return itemCache[id];const[c,g]=mk(32,32)
  case'veil':px(g,'#f4f1ea',10,4,12,4);px(g,'#e8b820',11,3,10,2);for(let i=0;i<20;i++)px(g,i%2?'#ffffff':'#e8e8f0',8-i/4,8+i,16+i/2,1);ell(g,'#ff9ad0',16,6,2,2);break;
  case'paddle':ell(g,'#c0262c',13,13,10,10);ell(g,'#e04a4a',11,11,5,5);px(g,'#9a6438',19,20,4,9);px(g,'#7a4a28',20,22,3,8);ell(g,'#f4f1ea',27,6,3,3);break;
  case'shell':for(let i=0;i<9;i++)px(g,i%2?'#f2c0a0':'#f8dcc4',16-i*1.4,6+i*1.6,3+i*2.8,2);px(g,'#e0a080',13,22,6,4);for(let i=0;i<5;i++)px(g,'#d08a6a',8+i*4,9+Math.abs(i-2)*2,1,12-Math.abs(i-2)*2);break;
+ case'cracker':ell(g,'#cfe6ef',16,18,12,11);ell(g,'#e6f4fa',16,18,10,9);px(g,'#5aa0d0',6,22,20,6);ell(g,'#e8a84a',16,18,6,3);px(g,'#e8a84a',21,16,4,5);px(g,'#24222a',13,17,1,1);px(g,'#ffffff',8,9,16,2);break;
+ case'broom':for(let i=0;i<20;i++)px(g,'#9a6438',6+i,3+i,2,2);for(let i=0;i<8;i++)px(g,i%2?'#d8b050':'#c8a040',22+i*.5-4+i,20+i/2,3,10-i/2);px(g,'#7a4a28',20,20,6,3);break;
+ case'porsche':px(g,'#c0262c',4,4,10,10);px(g,'#e8b820',7,7,4,4);px(g,'#8a8a92',14,8,6,2);px(g,'#c0c0c8',20,6,6,6);px(g,'#9a9aa4',22,12,3,14);px(g,'#9a9aa4',24,18,4,2);px(g,'#9a9aa4',24,22,3,2);break;
+ case'album':px(g,'#5a2a3a',4,4,24,24);px(g,'#7a3a4a',4,4,24,3);px(g,'#3a1a2a',4,4,3,24);px(g,'#e8d8b0',11,10,12,10);px(g,'#9cc8e6',13,12,8,6);px(g,'#c9a24a',11,23,12,2);break;
+ case'bootie':for(let i=0;i<3;i++){const x=3+i*9,c=['#9cc8e6','#ffb0c8','#f2d45a'][i];px(g,c,x,10+i*2,7,10);px(g,c,x,18+i*2,10,5);px(g,'#ffffff',x,10+i*2,7,2)}break;
+ case'purse':px(g,'#e8c070',4,12,24,15);for(let k=0;k<14;k++)ell(g,'#3a2414',6+((k*7)%21),14+((k*5)%11),1,1);px(g,'#3a2414',10,5,2,8);px(g,'#3a2414',20,5,2,8);px(g,'#3a2414',10,5,12,2);px(g,'#c9a24a',14,12,4,3);break;
+ case'comb':px(g,'#8a5a2a',4,10,24,6);px(g,'#b07a3a',4,10,24,2);for(let x=5;x<28;x+=2)px(g,'#8a5a2a',x,16,1,8);px(g,'#4a3426',8,26,16,3);px(g,'#4a3426',6,27,4,2);px(g,'#4a3426',22,27,4,2);break;
+ case'ashtray':ell(g,'#6a8aa8',16,20,13,6);ell(g,'#4a6a88',16,18,10,4);px(g,'#f4f1ea',8,15,9,2);px(g,'#e05a2a',16,15,1,2);px(g,'#c0c0c8',18,4,1,10);px(g,'#d8d8e0',17,2,2,3);px(g,'#f4f1ea',14,17,6,1);break;
+ case'nametag':px(g,'#c0262c',2,6,28,20);px(g,'#ffffff',4,13,24,11);px(g,'#ffffff',4,8,24,3);px(g,'#24222a',7,16,4,4);px(g,'#24222a',13,16,4,4);px(g,'#24222a',19,16,4,4);px(g,'#24222a',7,21,16,1);break;
  case'key':px(g,'#e2b82a',4,10,12,12);px(g,'#f2d45a',4,10,12,2);px(g,'#5b3a8c',8,14,4,4);px(g,'#e2b82a',16,14,13,4);px(g,'#e2b82a',22,18,3,5);px(g,'#e2b82a',27,18,2,4);px(g,'#c89a1a',16,17,13,1);break;
  }
  outline(c);return itemCache[id]=c}
@@ -427,7 +436,7 @@ const TALK={
  gunther(n){const won=S.items.mug;
   if(!won)say([{who:'Gunther',text:"…Yeah?"},{who:'Gunther',text:"You're new. Okay. You want the big mug? Everybody wants the big mug."},
    {who:'Gunther',text:"Answer five questions about this place. Get four right and it's yours.",choices:[{label:"Let's do it",fn:()=>startTrivia({who:n,tags:'perk',n:5,need:4,reward:'mug',win:"…Fine. You earned it. Don't drop it.",lose:"Not bad. Not good either. Come back when you've been paying attention."})},{label:'Just a coffee, thanks',fn:()=>say([{who:'Gunther',text:"Coming up. Don't even think about the couch. It's always taken. Somehow."}])}]}]);
-  else say([{who:'Gunther',text:"You again."},{who:'Gunther',text:"Want another round? No prizes. Just… for fun, I guess.",choices:[{label:'Quiz me',fn:()=>startTrivia({who:n,tags:'perk',n:5,need:4})},{label:'Maybe later',fn:()=>{}}]}])},
+  else say([{who:'Gunther',text:"You again."},{who:'Gunther',text:"Want another round? No prizes. Just… for fun, I guess.",choices:[{label:'Quiz me (superfan round)',fn:()=>startTrivia({who:n,tags:'perk gunther',prefer:'gunther',n:5,need:4})},{label:'Maybe later',fn:()=>{}}]}])},
  rachel(n){const won=S.items.trifle;
   if(!won)say([{who:'Rachel',text:"Oh, hi! Sorry, I'm supposed to be working. I've been carrying this same latte around for twenty minutes."},
    {who:'Rachel',text:"Ooh, you want to do trivia? Okay, five questions, mostly about me. Get four and I'll give you something I made. With my own hands!",choices:[{label:'Bring it on',fn:()=>startTrivia({who:n,tags:'rachel',n:5,need:4,reward:'trifle',win:"You totally know me! Here, take this trifle. I made it from a recipe… mostly.",lose:"Aw, so close! Okay, go study and come back. I'll be here. Not working."})},{label:'Let you get back to work',fn:()=>say([{who:'Rachel',text:"Ha. Good one."}])}]}]);
@@ -456,7 +465,7 @@ const TALK={
  duck(n){say([{who:'Duck',text:"Quack."},{text:"(The duck looks at you like it knows something you don't.)"}])},
  chick(n){say([{who:'Chick',text:"Peep!"},{text:"(The chick runs a lap around your feet, then sits on your shoe.)"}])},
  cast(n){const sc=n.script,won=sc.reward&&S.items[sc.reward],who=sc.narrate?null:n.name;
-  const go=rew=>startTrivia({who:n,tags:sc.tags,n:sc.n||5,need:sc.need||4,reward:rew,win:sc.win,lose:sc.lose});
+  const go=rew=>startTrivia({who:n,tags:sc.tags,prefer:sc.prefer,n:sc.n||5,need:sc.need||4,reward:rew,win:sc.win,lose:sc.lose});
   if(!won){const L=sc.greet.map(t=>({who,text:t}));L.push({who,text:sc.offer,choices:[{label:sc.yes||"Let's do it",fn:()=>go(sc.reward)},{label:sc.no||'Not right now',fn:()=>say([{who,text:sc.noReply||'Okay, maybe later!'}])}]});say(L)}
   else say([{who,text:sc.again||(sc.narrate?"Try the challenge again, just for fun?":"Want to go again? Just for fun."),choices:[{label:'Sure',fn:()=>go(null)},{label:'Later',fn:()=>{}}]}])},
  townie(n){const lines=n.lines.map(t=>({text:t}));
@@ -492,7 +501,7 @@ function standUp(){const s=player.sit;if(!s)return;let tx=s.x,ty=9;if(blocked(tx
 let TV=null;
 function startTrivia(o){const tags=o.tags==='all'?null:o.tags.split(' ');
  const pool=QB.map((q,i)=>Object.assign({i},q)).filter(q=>!tags||tags.some(t=>q.t.split(' ').includes(t)));
- shuffle(pool);pool.sort((a,b)=>(S.seen[a.i]||0)-(S.seen[b.i]||0));
+ shuffle(pool);const pk=q=>(o.prefer&&q.t.split(' ').includes(o.prefer)?0:1000)+(S.seen[q.i]||0);pool.sort((a,b)=>pk(a)-pk(b));
  TV=Object.assign({qs:pool.slice(0,o.n),k:0,score:0,answered:false,res:[]},o);state='trivia';
  $('#triv').classList.remove('hidden');$('#triv').classList.toggle('quick',!!o.quick);$('#tvRes').classList.add('hidden');$('#tvBody').classList.remove('hidden');
  $('#tvName').textContent=o.who.name||(o.quick?'Quick Question':'Trivia');
@@ -534,20 +543,21 @@ function travel(text,to,x,y,dir){state='fade';const t=$('#travel');$('#travelTex
  setTimeout(()=>{loadZone(to,x,y,dir);},700);setTimeout(()=>{t.classList.remove('on');state='world';const intro=INTROS[to];if(intro&&!S.talked[to+'Intro']){S.talked[to+'Intro']=1;save();say(intro)}},1600)}
 
 /* ===================== Finale ===================== */
-function finaleReady(){return ITEMS.every(i=>i.id==='key'||S.items[i.id])}
+function finaleReady(){return ITEMS.every(i=>i.id==='key'||i.bonus||S.items[i.id])}
 const FINALE_CAST=[['monica_f','Monica',3,8,'down',{skin:'#efc9a8',hair:'#2a1d17',style:'bob',fem:true,shirt:'#c0573a',pants:'#2b2b30'}],['chandler_f','Chandler',3,10,'right',{skin:'#efc9a8',hair:'#4a3426',style:'short',shirt:'#5a7a5a',pants:'#3b3b4a'}],
  ['joey_f','Joey',8,10,'left',{skin:'#e8bf9a',hair:'#2a1d17',style:'short',shirt:'#4a5a8a',pants:'#2b2b30'}],['ross_f','Ross',9,8,'down',{skin:'#efc9a8',hair:'#4a3426',style:'short',shirt:'#7a8a6a',pants:'#3b3b4a'}]];
 function addFinaleCast(){if(Zn.id!=='perk'||!finaleReady())return;for(const[id,name,x,y,dir,look]of FINALE_CAST)if(!npcs.some(n=>n.id===id))npcs.push({id,name,cast:true,x,y,dir,look,seated:x===3&&y===10||x===8&&y===10,px:x*16,py:y*16,home:{x,y,dir},moving:false,t:0,wait:9,spr:charSprites(look),lines:["Go sit on the couch. Everybody's waiting!"]})}
 function showCredits(){state='menu';const c=$('#credits');c.classList.remove('hidden');
- $('#crStats').innerHTML=`<b>${itemCount()}</b> of ${ITEMS.length} collectibles · <b>${S.stars}</b> correct answers`;
+ const main=ITEMS.filter(i=>!i.bonus),bon=ITEMS.filter(i=>i.bonus);$('#crStats').innerHTML=`<b>${main.filter(i=>S.items[i.id]).length}</b> of ${main.length} story collectibles · <b>${bon.filter(i=>S.items[i.id]).length}</b> of ${bon.length} superfan extras · <b>${S.stars}</b> correct answers`;
  $('#crNote').classList.toggle('hidden',!PERSONAL_NOTE);$('#crNote').textContent=PERSONAL_NOTE;$('#crBy').textContent=MADE_BY;
- const g=$('#crCv').getContext('2d');g.imageSmoothingEnabled=false;g.clearRect(0,0,320,48);ITEMS.forEach((it,i)=>{if(S.items[it.id])g.drawImage(itemIcon(it.id),(i%11)*29,(i/11|0)*24,24,24)});
+ const g=$('#crCv').getContext('2d');g.imageSmoothingEnabled=false;g.clearRect(0,0,320,48);ITEMS.filter(it=>S.items[it.id]).forEach((it,i)=>g.drawImage(itemIcon(it.id),(i%13)*24+2,(i/13|0)*16,22,22));
  [523,659,784,659,784,1047].forEach((f,i)=>beep(f,.22,'triangle',.06,i*.18))}
 
 /* ===================== Collection & help ===================== */
 function openColl(){state='menu';$('#coll').classList.remove('hidden');const got=ITEMS.filter(i=>S.items[i.id]).length;
  $('#collCount').textContent=`${got} / ${ITEMS.length}`;
- $('#collGrid').innerHTML=ITEMS.map(it=>{const has=S.items[it.id];return`<div class="card ${has?'got':''}"><canvas data-id="${it.id}" width="64" height="64"></canvas><b>${has?esc(it.name):'???'}</b><small>${has?esc(it.desc):esc(it.hint)}</small><em>${esc(it.from)}</em></div>`}).join('');
+ const card=it=>{const has=S.items[it.id];return`<div class="card ${has?'got':''} ${it.bonus?'bonus':''}"><canvas data-id="${it.id}" width="64" height="64"></canvas><b>${has?esc(it.name):'???'}</b><small>${has?esc(it.desc):esc(it.hint)}</small><em>${esc(it.from)}</em></div>`};
+ $('#collGrid').innerHTML='<h3>The Story</h3>'+ITEMS.filter(i=>!i.bonus).map(card).join('')+'<h3>Superfan Extras <small>(optional, very hard)</small></h3>'+ITEMS.filter(i=>i.bonus).map(card).join('');
  $('#collGrid').querySelectorAll('canvas').forEach(c=>{const g=c.getContext('2d');g.imageSmoothingEnabled=false;const ic=itemIcon(c.dataset.id);g.drawImage(S.items[c.dataset.id]?ic:silhouette(ic),0,0,64,64)})}
 function closePanels(){for(const id of['#coll','#help','#subway','#credits'])$(id).classList.add('hidden');state='world'}
 function openHelp(){state='menu';$('#help').classList.remove('hidden')}

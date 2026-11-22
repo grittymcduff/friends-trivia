@@ -70,6 +70,8 @@ button:disabled{cursor:default}
 .ph .close{margin-left:auto}
 #collGrid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
 .card{border:2px solid #cbb890;border-radius:8px;padding:6px;text-align:center;background:#f6ecd4;display:flex;flex-direction:column;align-items:center;gap:2px;min-height:132px}
+.card.bonus{background:#f2eaf8;border-color:#c9b0e0}
+#collGrid h3{grid-column:1/-1;margin:6px 0 0;font-size:13px;color:#5b3a8c}#collGrid h3 small{font-weight:600;color:#8a7a9a}
 .card.got{background:#fff;border-color:#e2b82a;box-shadow:0 0 0 2px #fff2b8}
 .card canvas{width:48px;height:48px;image-rendering:pixelated}
 .card b{font-size:11px}.card small{font-size:9px;line-height:1.3;color:#5a4a6a}.card em{font-size:9px;font-style:normal;font-weight:800;color:#8a6aa8;margin-top:auto}
@@ -273,6 +275,67 @@ const QB = [
 {t:'phoebe', q:"Where do Phoebe and Mike get married?", a:["On the street outside Central Perk, in the snow","In Central Park","In Montauk","At the Plaza Hotel"]},
 {t:'joey', q:"What is the name of the musical Joey stars in, about a famous psychiatrist?", a:["Freud!","Jung at Heart","Doctor Dreams","Couch!"]},
 {t:'joey', q:"How does Joey's Days of Our Lives character come back to the show?", a:["He gets a brain transplant","He was actually his twin","He wakes up from a dream","He returns from Paris"], f:"Dr. Drake Ramoray returns with the brain of Jessica Lockhart."},
+// ---- v0.4: SUPERFAN questions (tag 'hard') ----
+{t:'hard gunther perk', q:"Gunther says he used to play Bryce on which soap opera?", a:["All My Children","Days of Our Lives","General Hospital","The Young and the Restless"]},
+{t:'hard gunther perk', q:"How was Gunther's soap character, Bryce, killed off?", a:["Buried in an avalanche","Fell down an elevator shaft","Lost at sea","Struck by lightning"], f:"He tells Joey this right after Dr. Drake Ramoray falls down an elevator shaft."},
+{t:'hard gunther chandler', q:"When Chandler jokes that Gunther will be his best man, Gunther asks 'What's my last name?' What does Chandler guess?", a:["\"Central Perk?\"","\"Gunther?\"","\"Coffee?\"","\"Perkins?\""]},
+{t:'hard gunther', q:"Which language does Gunther turn out to speak fluently?", a:["Dutch","German","Swedish","French"]},
+{t:'hard gunther rachel', q:"Who ends up buying Mrs. Whiskerson, Rachel's hairless cat?", a:["Gunther","Mr. Heckles","Phoebe","Janice"]},
+{t:'hard janice', q:"What is Janice's maiden name?", a:["Hosenstein","Litman","Goralnik","Bernstein"]},
+{t:'hard janice chandler', q:"What does Janice's ex-husband, Gary Litman, call himself?", a:["The Mattress King","The Sofa Sultan","The Carpet Czar","The Pillow Prince"]},
+{t:'hard janice', q:"Janice has a child with Gary. Is it a son or a daughter?", a:["A daughter","A son","Twin boys","Triplets"]},
+{t:'hard janice ross', q:"Besides Chandler, which friend briefly dates Janice?", a:["Ross","Joey","Gunther","Mike"]},
+{t:'hard janice chandler', q:"In season 3, Joey sees Janice kissing someone, which ends things with Chandler. Who?", a:["Her ex-husband, Gary","Ross","Gunther","Her dentist"]},
+{t:'hard janice monica', q:"In season 10, Janice is thinking of buying a house where?", a:["Right next door to Monica and Chandler's new house","Across the hall from Joey","In Montauk","Above Central Perk"]},
+{t:'hard janice chandler', q:"In 'The One with Unagi,' Janice is only heard, not seen. Through what?", a:["A mixtape she made for Chandler","A voicemail","A radio ad","A singing telegram"]},
+{t:'hard mike phoebe', q:"What did Mike do for a living before becoming a piano player?", a:["Lawyer","Doctor","Teacher","Accountant"]},
+{t:'hard mike phoebe', q:"When Phoebe changes her name to Princess Consuela Banana-Hammock, what does Mike change his to?", a:["Crap Bag","Prince Mike","Valhalla","Mister Hammock"]},
+{t:'hard mike phoebe joey', q:"How does Phoebe end up on her first date with Mike?", a:["Joey yells 'Mike!' in a coffee shop and grabs whoever answers","Ross sets them up from work","They meet at her massage studio","Monica caters his party"]},
+{t:'hard mike phoebe places', q:"Who does Phoebe bring to Barbados before Mike shows up?", a:["David","Gary","Duncan","Jason"]},
+{t:'hard mike phoebe', q:"What's the name of the dog in Mike and Phoebe's wedding party?", a:["Chappy","Clunkers","Chi-Chi","Hugsy"]},
+{t:'hard geller ross monica', q:"Where did Jack and Judy tell Ross their dog Chi-Chi went?", a:["To the Milners' farm in Connecticut","To live with Grandma","To a dog show in Paris","To a firehouse"]},
+{t:'hard geller ross monica', q:"What really happened to the Geller family dog, Chi-Chi?", a:["She died","She ran away with a poodle","The Milners kept her","Jack gave her to Richard"]},
+{t:'hard geller monica', q:"What did a young Monica reportedly use to ride around on?", a:["Chi-Chi, the family dog","Ross's bike","A pony named Fluffy","Jack's lawnmower"]},
+{t:'hard geller', q:"What was the name of the Geller family cat?", a:["Fluffy Meowington","Mrs. Whiskerson","Smelly Cat","Julio"]},
+{t:'hard geller monica', q:"What car does Jack Geller give Monica to make up for ruining her childhood things?", a:["His Porsche","His station wagon","His golf cart","His Cadillac"]},
+{t:'hard geller monica', q:"What is Monica's middle initial?", a:["E","K","J","M"]},
+{t:'hard richard monica', q:"How much older than Monica is Richard?", a:["21 years","15 years","18 years","25 years"]},
+{t:'hard richard monica', q:"In season 6, Monica briefly dates Richard's son. What's his name?", a:["Timothy","Michael","Tyler","Ben"]},
+{t:'hard richard monica', q:"How does Monica know Richard before they date?", a:["He's a close friend of her parents","He was her chemistry teacher","He's Rachel's uncle","He's her dentist"]},
+{t:'hard estelle joey', q:"Who is Estelle's only other client?", a:["Al Zebooker","Ken Adams","Holden McGroin","Leonard Hayes"]},
+{t:'hard estelle joey', q:"What is Al Zebooker's special talent?", a:["He eats paper","He juggles knives","He can lick his elbow","He sings opera backward"]},
+{t:'hard estelle joey phoebe', q:"After Estelle dies, who pretends to be her on the phone with Joey?", a:["Phoebe","Rachel","Janice","Monica"]},
+{t:'hard estelle joey', q:"Estelle gets Joey an early film role as whose 'butt double'?", a:["Al Pacino","Robert De Niro","Tom Cruise","Jean-Claude Van Damme"]},
+{t:'hard frank phoebe', q:"When Phoebe asks Frank Jr. what he likes to do at home, what does he say?", a:["Melt stuff","Build birdhouses","Watch Baywatch","Collect spoons"]},
+{t:'hard frank phoebe', q:"Who does Frank Jr. marry?", a:["Alice, his former home-ec teacher","Ursula","His Spanish tutor","Phoebe's massage client"]},
+{t:'hard frank phoebe chandler', q:"Phoebe's triplet named Chandler turns out to be…", a:["A girl","A boy","A dog","Joey's idea"], f:"The ultrasound was wrong, but Frank and Alice keep the name."},
+{t:'hard eddie chandler', q:"What is the name of Eddie's goldfish?", a:["Buddy","Chandler","Fishy","Goldie"]},
+{t:'hard eddie chandler', q:"What does Eddie replace his goldfish with?", a:["A fish-shaped cracker, which he names Chandler","A rubber duck","A second fishbowl","A photo of a fish"]},
+{t:'hard eddie chandler', q:"What is the name of Eddie's ex-girlfriend?", a:["Tilly","Tina","Lily","Janice"]},
+{t:'hard eddie chandler', q:"What does Eddie steal out of all of Chandler's shoes?", a:["The insoles","The laces","Left shoes only","His socks"]},
+{t:'hard eddie chandler joey', q:"How do Chandler and Joey finally get rid of Eddie?", a:["They pretend they've never met him","They move apartments","They call his mother","They hire Mr. Heckles"]},
+{t:'hard eddie', q:"What does Eddie spend his time making in the apartment?", a:["Dried fruit","Model ships","Scented candles","Ice sculptures"]},
+{t:'hard heckles monica rachel', q:"In his will, who does Mr. Heckles leave all his possessions to?", a:["\"The noisy girls upstairs\"","Chandler","The building super","His cat"]},
+{t:'hard heckles', q:"What does Mr. Heckles bang on his ceiling with?", a:["A broom","A cane","A frying pan","A tennis racket"]},
+{t:'hard heckles chandler', q:"After Mr. Heckles dies, which friend panics that he'll end up just like him?", a:["Chandler","Ross","Joey","Gunther"]},
+{t:'hard rachel', q:"What is Rachel's middle name?", a:["Karen","Kathleen","Jennifer","Amy"]},
+{t:'hard ross', q:"What is Ross's middle name?", a:["Eustace","Ernest","Edward","Elliott"]},
+{t:'hard joey', q:"What is Joey's middle name?", a:["Francis","Frank","Anthony","Salvatore"]},
+{t:'hard rachel', q:"How much does Rachel pay for Mrs. Whiskerson?", a:["$1,000","$300","$50","$2,500"]},
+{t:'hard chandler', q:"Whose name is on the address label of Chandler's TV Guide?", a:["Miss Chanandler Bong","Mr. Chandler Bang","Ms. Chandelier Bing","Mrs. Muriel Bing"]},
+{t:'hard joey', q:"What product does Joey advertise in a commercial that only airs in Japan?", a:["Ichiban, lipstick for men","Milk Master 2000","Hugsy cologne","Drake Ramoray hair gel"]},
+{t:'hard joey', q:"In Joey's TV show Mac and C.H.E.E.S.E., what is C.H.E.E.S.E.?", a:["A robot","A dog","A computer virus","A sandwich"]},
+{t:'hard joey chandler', q:"Which of Joey's sisters does Chandler fool around with at Joey's birthday party?", a:["Mary Angela","Mary Therese","Dina","Gina"]},
+{t:'hard ross', q:"What is Marcel's favorite song?", a:["The Lion Sleeps Tonight","Smelly Cat","Walking on Sunshine","Monkey Business"]},
+{t:'hard phoebe', q:"Phoebe believes her mother's spirit lives on in what?", a:["A cat","A tree in Central Park","Her guitar","A seashell"]},
+{t:'hard joey', q:"What does Joey wear to eat an entire Thanksgiving turkey?", a:["Phoebe's maternity pants","His Drake Ramoray scrubs","A bib and a fez","Chandler's sweatpants"]},
+{t:'hard monica chandler', q:"In a Thanksgiving flashback, what does Monica accidentally cut off?", a:["The tip of Chandler's toe","Ross's ponytail","Joey's eyebrow","The tip of her finger"]},
+{t:'hard monica', q:"Before the numbers were changed, what number was Monica's apartment in season 1?", a:["5","2","9","15"]},
+{t:'hard monica', q:"What fake chocolate product does Monica have to create Thanksgiving recipes for?", a:["Mockolate","Chocolite","Faux-co","Cocoa-ish"]},
+{t:'hard chandler', q:"What does Chandler's mother do for a living?", a:["Writes steamy romance novels","Hosts a cooking show","Sells real estate","Teaches ballroom dancing"]},
+{t:'hard chandler', q:"What is the name of the Las Vegas show Chandler's father stars in?", a:["Viva Las Gaygas","Vegas Nights","Glitter & Gold","The Bing Bang Show"]},
+{t:'hard ross', q:"Why do Ross's teeth glow on a date?", a:["He used too much teeth whitener","He ate glow sticks","He got veneers","A dentist's mistake"]},
+{t:'hard rachel', q:"Who was Rachel's senior prom date?", a:["Chip Matthews","Barry Farber","Joshua Bergin","Paolo"]},
 ];
 
 /* ===== A personal touch =====
@@ -313,6 +376,16 @@ const ITEMS = [
  {id:'veil',     name:'The Vegas Veil',             from:'Rachel · Las Vegas',     desc:"Nobody remembers where it came from. That's Vegas.", hint:"Catch a flight to Las Vegas from JFK."},
  {id:'paddle',   name:"Monica's Ping-Pong Paddle",  from:'Monica · Barbados',      desc:"Nine hours of competitive ping-pong. It's seen things.", hint:"Catch a flight to Barbados from JFK."},
  {id:'shell',    name:"Phoebe's Seashell",          from:'Phoebe · Montauk',       desc:"Hold it to your ear. It says nice things about you.", hint:"Take the bus to Montauk from JFK."},
+ // Superfan extras (bonus: not needed for the finale)
+ {id:'cracker',  name:"Eddie's Fish Cracker",       from:'Eddie · Upstairs Hallway', desc:"His name is Chandler. Please don't eat him.", hint:"Someone is lurking in the upstairs hallway. Staring.", bonus:true},
+ {id:'broom',    name:"Mr. Heckles' Broom",         from:'Mr. Heckles · Upstairs Hallway', desc:"For banging on the ceiling. You're disturbing his broom.", hint:"Monica's downstairs neighbor has complaints.", bonus:true},
+ {id:'porsche',  name:"Jack's Porsche Keychain",    from:"Jack Geller · Monica's Apartment", desc:"Comes with a very nice car, if Ross doesn't find out.", hint:"Monica's parents are visiting.", bonus:true},
+ {id:'album',    name:'The Geller Family Album',    from:"Judy Geller · Monica's Apartment", desc:"Mostly photos of Ross. A few of Monica, mostly by accident.", hint:"Monica's parents are visiting.", bonus:true},
+ {id:'bootie',   name:'Triplet Booties',            from:'Frank Jr. · Greenwich Village', desc:"Three pairs. Frank Jr. wanted to melt them. Alice said no.", hint:"Phoebe's half-brother is hanging around the Village.", bonus:true},
+ {id:'purse',    name:"Janice's Leopard-Print Purse",from:"Janice · Bloomingdale's", desc:"OH. MY. GOD. It's so you.", hint:"A very recognizable laugh is coming from Bloomingdale's.", bonus:true},
+ {id:'comb',     name:"Richard's Mustache Comb",    from:'Richard · Central Park', desc:"Tortoiseshell. Very distinguished. Very Richard.", hint:"An ophthalmologist is enjoying the park Uptown.", bonus:true},
+ {id:'ashtray',  name:"Estelle's Ashtray",          from:'Estelle · Silvercup Studios', desc:"Never empty. Estelle Leonard Talent Agency.", hint:"Joey's agent is on set in Queens.", bonus:true},
+ {id:'nametag',  name:"'Crap Bag' Name Tag",        from:'Mike · Barbados', desc:"'Hello, my name is Crap Bag.' Mike is very committed to the bit.", hint:"Phoebe's favorite piano player is in Barbados.", bonus:true},
  // Finale
  {id:'key',      name:"The Key to Apartment 20",    from:'The Last One · Central Perk', desc:"Everyone leaves their keys on the counter one last time. You get to keep this one.", hint:"Collect everything else, then head to the orange couch."},
 ];
@@ -790,6 +863,49 @@ scene('montauk','Montauk, Long Island',24,14,'sand',{extra(z){
   win:"Yay! Here's the shell. Listen… it says you're wonderful.",lose:"Hmm. The shell says to try again. It's very honest."});
 }});
 
+/* =====================================================================
+ *  v0.4: supporting characters with SUPERFAN quizzes (bonus collectibles)
+ * ===================================================================== */
+function superfan(zid,id,name,x,y,dir,look,tag,reward,greet,offer,win,lose,extra){
+ cast(ZONES[zid],id,name,x,y,dir,look,{reward,tags:tag+' hard',prefer:tag,n:5,need:3,greet,offer:offer+" Superfan questions only. Get three of five.",yes:"Bring it on",no:'Not right now',noReply:'Okay! I\'ll be right here.',win,lose,again:"Back for more superfan questions? Just for fun."},extra);
+}
+superfan('hall','eddie','Eddie',11,6,'left',F('#e8bf9a','#2a1d17','short','#6a6a5a',{pants:'#3a3a44'}),'eddie','cracker',
+ ["Oh, hey. I'm Eddie. I live in 19. I've always lived in 19. Ask Chandler. Actually, don't ask Chandler.","I'm making dried fruit. You want some dried fruit? It's mango. Or it was."],
+ "Answer some questions about me and you can have Chandler. My fish. He's a cracker. It's complicated.",
+ "Okay. Take Chandler. Take good care of him. Don't let anybody eat him.","You don't know me. Nobody knows me. That's fine. I'll be in the hallway. Watching.");
+superfan('hall','heckles','Mr. Heckles',2,6,'right',F('#e8d4b8','#d8d8d0','bald','#7a6a5a',{pants:'#4a4a3a'}),'heckles','broom',
+ ["You're disturbing me. I can hear everything. I could hear you walking up the stairs.","I was going to complain about the noise, but you seem like a nice young person. Quiet. Nicely quiet."],
+ "You want my broom? You'll have to earn it.",
+ "Fine. Take the broom. Bang on whatever you want. I'll complain about it later.","Wrong! Too loud, AND wrong. Come back when you've studied. Quietly.");
+superfan('monica','jack','Jack Geller',12,8,'up',F('#efc9a8','#d8d8d0','bald','#5a6a8a',{pants:'#3a3a44'}),'geller','porsche',
+ ["Well, hello there! I'm Jack Geller. Monica's father. Ross's too, I'm told.","Judy and I came over for dinner. Monica's been 'resting' the roast for forty-five minutes."],
+ "Tell you what: get these right and I'll give you the keys to the Porsche. The keychain, anyway.",
+ "Hey, you're sharp! Here's the keychain. Don't tell Ross.","Close! That's okay. Nobody gets the Chi-Chi question right.");
+superfan('monica','judy','Judy Geller',9,9,'right',F('#efc9a8','#8a8a8a','bob','#8e4a6a',{fem:true,outfit:'skirt',pants:'#3a3a44'}),'geller','album',
+ ["Oh, hello, dear. I'm Judy. Monica's mother. You must be one of her friends. She has so many now.","I brought the family album. Mostly so everyone can see Ross's graduation. Again."],
+ "Answer a few questions and you can have the album. Ross is in most of the pictures, of course.",
+ "Well! Aren't you clever. Here's the album. Monica is in it… somewhere.","Oh, that's all right, dear. Not everybody can be a doctor.");
+superfan('village','frankjr','Frank Jr.',24,26,'down',F('#e8bf9a','#2a1d17','short','#c0573a',{pants:'#3a3a44'}),'frank','bootie',
+ ["Whoa! Hey! I'm Frank. Phoebe's brother. Half-brother. Whole brother? We're working on it.","Alice and I have triplets now. That's like three babies. At once!"],
+ "Get some questions right and you can have a set of triplet booties. I wanted to melt them, but Alice said no.",
+ "Whoa! You're like a genius! Here, take the booties. Don't melt them. Unless you want to.","Whoa. That's okay. I don't know stuff all the time.");
+superfan('bloomies','janice','Janice',16,10,'left',F('#efc9a8','#2a1d17','long','#c0574a',{fem:true,outfit:'dress',pants:'#2a2a2a'}),'janice','purse',
+ ["OH. MY. GOD. Hiiii! I'm Janice! Are you a friend of Chandler Bing's? Everybody's a friend of Chandler Bing's.","I'm just shopping. Retail therapy. Gary has the house, I have the purses. Ha ha ha!"],
+ "Ooh, let's play a game! Answer some questions about little old me, and you can have my purse!",
+ "OH. MY. GOD. You know everything! Take the purse. It's so you. Ha ha ha!","Oh, you were SO close. Come back! I'll be here. I'm always here.");
+superfan('uptown','richard','Richard',14,22,'down',F('#efc9a8','#4a3426','short','#3a4a5a',{pants:'#2b2b30'}),'richard','comb',
+ ["Hello. Richard Burke. I'm a friend of the Gellers. A good friend. It's a long story.","I come to the park to think. And to people-watch. Mostly to think."],
+ "Answer a few questions correctly and I'll give you my mustache comb. I have several.",
+ "Impressive. Here, take the comb. A distinguished mustache needs a distinguished comb.","Not quite. It's all right. I'm a patient man. Very patient.");
+superfan('studio','estelle','Estelle',18,9,'left',F('#e8c8a8','#b5462a','bob','#5a4a7a',{fem:true,outfit:'skirt',pants:'#2a2a2a'}),'estelle','ashtray',
+ ["Estelle Leonard. Talent agent. Joey's my client. Well, one of my clients. One of two.","You got a lighter? No? That's fine. I've got six."],
+ "Answer some questions and you get my ashtray. It's a collector's item. It's full.",
+ "Kid, you've got talent. Here's the ashtray. Don't tell my other client, he'll eat it.","Eh, that's showbiz. Come back when you're ready. I'm always here, I never leave.");
+superfan('barbados','mike','Mike',12,8,'left',F('#efc9a8','#4a3426','short','#5b9bd5',{pants:'#e8e2d4'}),'mike','nametag',
+ ["Hi, I'm Mike. Phoebe's… boyfriend? Fiancé? I came all the way to Barbados to find out.","Also, I'm very good at ping-pong. Monica says she's better. We'll see."],
+ "Answer some questions and you can have my name tag. Long story. It says 'Crap Bag.'",
+ "Ha! You're good. Here's the name tag. Wear it with pride.","Ooh, tough break. Want to play ping-pong instead? …Kidding. Try again!");
+
 'use strict';
 /* =====================================================================
  *  The One With The Trivia Game: engine
@@ -1095,6 +1211,15 @@ function itemIcon(id){if(itemCache[id])return itemCache[id];const[c,g]=mk(32,32)
  case'veil':px(g,'#f4f1ea',10,4,12,4);px(g,'#e8b820',11,3,10,2);for(let i=0;i<20;i++)px(g,i%2?'#ffffff':'#e8e8f0',8-i/4,8+i,16+i/2,1);ell(g,'#ff9ad0',16,6,2,2);break;
  case'paddle':ell(g,'#c0262c',13,13,10,10);ell(g,'#e04a4a',11,11,5,5);px(g,'#9a6438',19,20,4,9);px(g,'#7a4a28',20,22,3,8);ell(g,'#f4f1ea',27,6,3,3);break;
  case'shell':for(let i=0;i<9;i++)px(g,i%2?'#f2c0a0':'#f8dcc4',16-i*1.4,6+i*1.6,3+i*2.8,2);px(g,'#e0a080',13,22,6,4);for(let i=0;i<5;i++)px(g,'#d08a6a',8+i*4,9+Math.abs(i-2)*2,1,12-Math.abs(i-2)*2);break;
+ case'cracker':ell(g,'#cfe6ef',16,18,12,11);ell(g,'#e6f4fa',16,18,10,9);px(g,'#5aa0d0',6,22,20,6);ell(g,'#e8a84a',16,18,6,3);px(g,'#e8a84a',21,16,4,5);px(g,'#24222a',13,17,1,1);px(g,'#ffffff',8,9,16,2);break;
+ case'broom':for(let i=0;i<20;i++)px(g,'#9a6438',6+i,3+i,2,2);for(let i=0;i<8;i++)px(g,i%2?'#d8b050':'#c8a040',22+i*.5-4+i,20+i/2,3,10-i/2);px(g,'#7a4a28',20,20,6,3);break;
+ case'porsche':px(g,'#c0262c',4,4,10,10);px(g,'#e8b820',7,7,4,4);px(g,'#8a8a92',14,8,6,2);px(g,'#c0c0c8',20,6,6,6);px(g,'#9a9aa4',22,12,3,14);px(g,'#9a9aa4',24,18,4,2);px(g,'#9a9aa4',24,22,3,2);break;
+ case'album':px(g,'#5a2a3a',4,4,24,24);px(g,'#7a3a4a',4,4,24,3);px(g,'#3a1a2a',4,4,3,24);px(g,'#e8d8b0',11,10,12,10);px(g,'#9cc8e6',13,12,8,6);px(g,'#c9a24a',11,23,12,2);break;
+ case'bootie':for(let i=0;i<3;i++){const x=3+i*9,c=['#9cc8e6','#ffb0c8','#f2d45a'][i];px(g,c,x,10+i*2,7,10);px(g,c,x,18+i*2,10,5);px(g,'#ffffff',x,10+i*2,7,2)}break;
+ case'purse':px(g,'#e8c070',4,12,24,15);for(let k=0;k<14;k++)ell(g,'#3a2414',6+((k*7)%21),14+((k*5)%11),1,1);px(g,'#3a2414',10,5,2,8);px(g,'#3a2414',20,5,2,8);px(g,'#3a2414',10,5,12,2);px(g,'#c9a24a',14,12,4,3);break;
+ case'comb':px(g,'#8a5a2a',4,10,24,6);px(g,'#b07a3a',4,10,24,2);for(let x=5;x<28;x+=2)px(g,'#8a5a2a',x,16,1,8);px(g,'#4a3426',8,26,16,3);px(g,'#4a3426',6,27,4,2);px(g,'#4a3426',22,27,4,2);break;
+ case'ashtray':ell(g,'#6a8aa8',16,20,13,6);ell(g,'#4a6a88',16,18,10,4);px(g,'#f4f1ea',8,15,9,2);px(g,'#e05a2a',16,15,1,2);px(g,'#c0c0c8',18,4,1,10);px(g,'#d8d8e0',17,2,2,3);px(g,'#f4f1ea',14,17,6,1);break;
+ case'nametag':px(g,'#c0262c',2,6,28,20);px(g,'#ffffff',4,13,24,11);px(g,'#ffffff',4,8,24,3);px(g,'#24222a',7,16,4,4);px(g,'#24222a',13,16,4,4);px(g,'#24222a',19,16,4,4);px(g,'#24222a',7,21,16,1);break;
  case'key':px(g,'#e2b82a',4,10,12,12);px(g,'#f2d45a',4,10,12,2);px(g,'#5b3a8c',8,14,4,4);px(g,'#e2b82a',16,14,13,4);px(g,'#e2b82a',22,18,3,5);px(g,'#e2b82a',27,18,2,4);px(g,'#c89a1a',16,17,13,1);break;
  }
  outline(c);return itemCache[id]=c}
@@ -1219,7 +1344,7 @@ const TALK={
  gunther(n){const won=S.items.mug;
   if(!won)say([{who:'Gunther',text:"…Yeah?"},{who:'Gunther',text:"You're new. Okay. You want the big mug? Everybody wants the big mug."},
    {who:'Gunther',text:"Answer five questions about this place. Get four right and it's yours.",choices:[{label:"Let's do it",fn:()=>startTrivia({who:n,tags:'perk',n:5,need:4,reward:'mug',win:"…Fine. You earned it. Don't drop it.",lose:"Not bad. Not good either. Come back when you've been paying attention."})},{label:'Just a coffee, thanks',fn:()=>say([{who:'Gunther',text:"Coming up. Don't even think about the couch. It's always taken. Somehow."}])}]}]);
-  else say([{who:'Gunther',text:"You again."},{who:'Gunther',text:"Want another round? No prizes. Just… for fun, I guess.",choices:[{label:'Quiz me',fn:()=>startTrivia({who:n,tags:'perk',n:5,need:4})},{label:'Maybe later',fn:()=>{}}]}])},
+  else say([{who:'Gunther',text:"You again."},{who:'Gunther',text:"Want another round? No prizes. Just… for fun, I guess.",choices:[{label:'Quiz me (superfan round)',fn:()=>startTrivia({who:n,tags:'perk gunther',prefer:'gunther',n:5,need:4})},{label:'Maybe later',fn:()=>{}}]}])},
  rachel(n){const won=S.items.trifle;
   if(!won)say([{who:'Rachel',text:"Oh, hi! Sorry, I'm supposed to be working. I've been carrying this same latte around for twenty minutes."},
    {who:'Rachel',text:"Ooh, you want to do trivia? Okay, five questions, mostly about me. Get four and I'll give you something I made. With my own hands!",choices:[{label:'Bring it on',fn:()=>startTrivia({who:n,tags:'rachel',n:5,need:4,reward:'trifle',win:"You totally know me! Here, take this trifle. I made it from a recipe… mostly.",lose:"Aw, so close! Okay, go study and come back. I'll be here. Not working."})},{label:'Let you get back to work',fn:()=>say([{who:'Rachel',text:"Ha. Good one."}])}]}]);
@@ -1248,7 +1373,7 @@ const TALK={
  duck(n){say([{who:'Duck',text:"Quack."},{text:"(The duck looks at you like it knows something you don't.)"}])},
  chick(n){say([{who:'Chick',text:"Peep!"},{text:"(The chick runs a lap around your feet, then sits on your shoe.)"}])},
  cast(n){const sc=n.script,won=sc.reward&&S.items[sc.reward],who=sc.narrate?null:n.name;
-  const go=rew=>startTrivia({who:n,tags:sc.tags,n:sc.n||5,need:sc.need||4,reward:rew,win:sc.win,lose:sc.lose});
+  const go=rew=>startTrivia({who:n,tags:sc.tags,prefer:sc.prefer,n:sc.n||5,need:sc.need||4,reward:rew,win:sc.win,lose:sc.lose});
   if(!won){const L=sc.greet.map(t=>({who,text:t}));L.push({who,text:sc.offer,choices:[{label:sc.yes||"Let's do it",fn:()=>go(sc.reward)},{label:sc.no||'Not right now',fn:()=>say([{who,text:sc.noReply||'Okay, maybe later!'}])}]});say(L)}
   else say([{who,text:sc.again||(sc.narrate?"Try the challenge again, just for fun?":"Want to go again? Just for fun."),choices:[{label:'Sure',fn:()=>go(null)},{label:'Later',fn:()=>{}}]}])},
  townie(n){const lines=n.lines.map(t=>({text:t}));
@@ -1284,7 +1409,7 @@ function standUp(){const s=player.sit;if(!s)return;let tx=s.x,ty=9;if(blocked(tx
 let TV=null;
 function startTrivia(o){const tags=o.tags==='all'?null:o.tags.split(' ');
  const pool=QB.map((q,i)=>Object.assign({i},q)).filter(q=>!tags||tags.some(t=>q.t.split(' ').includes(t)));
- shuffle(pool);pool.sort((a,b)=>(S.seen[a.i]||0)-(S.seen[b.i]||0));
+ shuffle(pool);const pk=q=>(o.prefer&&q.t.split(' ').includes(o.prefer)?0:1000)+(S.seen[q.i]||0);pool.sort((a,b)=>pk(a)-pk(b));
  TV=Object.assign({qs:pool.slice(0,o.n),k:0,score:0,answered:false,res:[]},o);state='trivia';
  $('#triv').classList.remove('hidden');$('#triv').classList.toggle('quick',!!o.quick);$('#tvRes').classList.add('hidden');$('#tvBody').classList.remove('hidden');
  $('#tvName').textContent=o.who.name||(o.quick?'Quick Question':'Trivia');
@@ -1326,20 +1451,21 @@ function travel(text,to,x,y,dir){state='fade';const t=$('#travel');$('#travelTex
  setTimeout(()=>{loadZone(to,x,y,dir);},700);setTimeout(()=>{t.classList.remove('on');state='world';const intro=INTROS[to];if(intro&&!S.talked[to+'Intro']){S.talked[to+'Intro']=1;save();say(intro)}},1600)}
 
 /* ===================== Finale ===================== */
-function finaleReady(){return ITEMS.every(i=>i.id==='key'||S.items[i.id])}
+function finaleReady(){return ITEMS.every(i=>i.id==='key'||i.bonus||S.items[i.id])}
 const FINALE_CAST=[['monica_f','Monica',3,8,'down',{skin:'#efc9a8',hair:'#2a1d17',style:'bob',fem:true,shirt:'#c0573a',pants:'#2b2b30'}],['chandler_f','Chandler',3,10,'right',{skin:'#efc9a8',hair:'#4a3426',style:'short',shirt:'#5a7a5a',pants:'#3b3b4a'}],
  ['joey_f','Joey',8,10,'left',{skin:'#e8bf9a',hair:'#2a1d17',style:'short',shirt:'#4a5a8a',pants:'#2b2b30'}],['ross_f','Ross',9,8,'down',{skin:'#efc9a8',hair:'#4a3426',style:'short',shirt:'#7a8a6a',pants:'#3b3b4a'}]];
 function addFinaleCast(){if(Zn.id!=='perk'||!finaleReady())return;for(const[id,name,x,y,dir,look]of FINALE_CAST)if(!npcs.some(n=>n.id===id))npcs.push({id,name,cast:true,x,y,dir,look,seated:x===3&&y===10||x===8&&y===10,px:x*16,py:y*16,home:{x,y,dir},moving:false,t:0,wait:9,spr:charSprites(look),lines:["Go sit on the couch. Everybody's waiting!"]})}
 function showCredits(){state='menu';const c=$('#credits');c.classList.remove('hidden');
- $('#crStats').innerHTML=`<b>${itemCount()}</b> of ${ITEMS.length} collectibles · <b>${S.stars}</b> correct answers`;
+ const main=ITEMS.filter(i=>!i.bonus),bon=ITEMS.filter(i=>i.bonus);$('#crStats').innerHTML=`<b>${main.filter(i=>S.items[i.id]).length}</b> of ${main.length} story collectibles · <b>${bon.filter(i=>S.items[i.id]).length}</b> of ${bon.length} superfan extras · <b>${S.stars}</b> correct answers`;
  $('#crNote').classList.toggle('hidden',!PERSONAL_NOTE);$('#crNote').textContent=PERSONAL_NOTE;$('#crBy').textContent=MADE_BY;
- const g=$('#crCv').getContext('2d');g.imageSmoothingEnabled=false;g.clearRect(0,0,320,48);ITEMS.forEach((it,i)=>{if(S.items[it.id])g.drawImage(itemIcon(it.id),(i%11)*29,(i/11|0)*24,24,24)});
+ const g=$('#crCv').getContext('2d');g.imageSmoothingEnabled=false;g.clearRect(0,0,320,48);ITEMS.filter(it=>S.items[it.id]).forEach((it,i)=>g.drawImage(itemIcon(it.id),(i%13)*24+2,(i/13|0)*16,22,22));
  [523,659,784,659,784,1047].forEach((f,i)=>beep(f,.22,'triangle',.06,i*.18))}
 
 /* ===================== Collection & help ===================== */
 function openColl(){state='menu';$('#coll').classList.remove('hidden');const got=ITEMS.filter(i=>S.items[i.id]).length;
  $('#collCount').textContent=`${got} / ${ITEMS.length}`;
- $('#collGrid').innerHTML=ITEMS.map(it=>{const has=S.items[it.id];return`<div class="card ${has?'got':''}"><canvas data-id="${it.id}" width="64" height="64"></canvas><b>${has?esc(it.name):'???'}</b><small>${has?esc(it.desc):esc(it.hint)}</small><em>${esc(it.from)}</em></div>`}).join('');
+ const card=it=>{const has=S.items[it.id];return`<div class="card ${has?'got':''} ${it.bonus?'bonus':''}"><canvas data-id="${it.id}" width="64" height="64"></canvas><b>${has?esc(it.name):'???'}</b><small>${has?esc(it.desc):esc(it.hint)}</small><em>${esc(it.from)}</em></div>`};
+ $('#collGrid').innerHTML='<h3>The Story</h3>'+ITEMS.filter(i=>!i.bonus).map(card).join('')+'<h3>Superfan Extras <small>(optional, very hard)</small></h3>'+ITEMS.filter(i=>i.bonus).map(card).join('');
  $('#collGrid').querySelectorAll('canvas').forEach(c=>{const g=c.getContext('2d');g.imageSmoothingEnabled=false;const ic=itemIcon(c.dataset.id);g.drawImage(S.items[c.dataset.id]?ic:silhouette(ic),0,0,64,64)})}
 function closePanels(){for(const id of['#coll','#help','#subway','#credits'])$(id).classList.add('hidden');state='world'}
 function openHelp(){state='menu';$('#help').classList.remove('hidden')}

@@ -4,6 +4,12 @@ A private, Pokémon-style pixel-art trivia adventure set in Friends' Greenwich V
 
 **Play:** open `index.html` in a browser, or turn on GitHub Pages for this repo (Settings → Pages → deploy from `main`, root folder).
 
+## v0.4: "The One for the Superfan"
+
+- **60 superfan questions** (153 total), covering middle names, Mrs. Whiskerson, Chi-Chi, Al Zebooker, Ichiban, Mac and C.H.E.E.S.E. and much more. They're mixed into every deck, so every round is tougher.
+- **Supporting characters** with superfan-only quizzes and 9 bonus collectibles: Eddie and Mr. Heckles (upstairs hallway), Jack and Judy Geller (Monica's apartment), Frank Jr. (the Village), Janice (Bloomingdale's), Richard (Central Park), Estelle (Silvercup) and Mike (Barbados). Gunther's replay round is now a superfan round too.
+- Superfan extras get their own section on the shelf. They're optional, so they don't block the finale.
+
 ## v0.3: "The One With the Whole City"
 
 - **The subway:** the entrance at Bleecker St (and in every neighborhood) opens a subway map: Greenwich Village, SoHo, Midtown, Uptown, Queens and, once you have 10 collectibles, the AirTrain to JFK.
