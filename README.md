@@ -4,6 +4,21 @@ A private, Pokémon-style pixel-art trivia adventure set in Friends' Greenwich V
 
 **Play:** open `index.html` in a browser, or turn on GitHub Pages for this repo (Settings → Pages → deploy from `main`, root folder).
 
+## v0.3: "The One With the Whole City"
+
+- **The subway:** the entrance at Bleecker St (and in every neighborhood) opens a subway map: Greenwich Village, SoHo, Midtown, Uptown, Queens and, once you have 10 collectibles, the AirTrain to JFK.
+- **Midtown:** Chandler's office (9 West 57th), Bloomingdale's, Riff's, Ralph Lauren, Saks, the Plaza, the Pierre, Madison Square Garden and Times Square.
+- **SoHo:** the Moondance Diner, Fortuna Fashions, Alessandro's and Iridium.
+- **Uptown:** the Museum of Prehistoric History and the Central Park fountain.
+- **Queens:** Silvercup Studios and the Days of Our Lives set, on the East River.
+- **Ross's apartment:** across the street from Monica's (yes, that apartment).
+- **JFK Airport and four trips:** London, Las Vegas, Barbados and Montauk.
+- **22 collectibles** in all, ending with the Key to Apartment 20 in a finale on the orange couch with all six friends, followed by credits.
+- **93 questions**, plus original background music for each kind of area (press M or the speaker button to mute).
+
+### Adding a personal message
+Open `src/questions.js`, scroll to `PERSONAL_NOTE`, and type a message between the quotes. It appears on the credits screen after the finale. `MADE_BY` is the sign-off line under it.
+
 ## v0.2: "The One Upstairs"
 
 - **New:** the upstairs hallway, **Monica's apartment (20)** and **Joey & Chandler's (19)**, entered through the stoop door next to Central Perk.
@@ -57,8 +72,8 @@ Cast members currently use generic placeholder sprites with name tags. To swap i
    ```
 4. Rebuild. (Custom sprites load from files, so they work on GitHub Pages but not when the page is opened from a single-file copy.)
 
-## Roadmap
+## Ideas for later
 
-1. The subway as fast travel: SoHo, Midtown, Uptown, Queens
-2. Ross's apartment, the Museum, Silvercup Studios
-3. Airports and "postcard" trips (London, Vegas, Barbados, Montauk)
+- Picture questions ("Which apartment is this?")
+- More trips: Atlantic City, Tulsa
+- Hand-drawn sprites for the cast (see above)

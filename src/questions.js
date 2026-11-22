@@ -85,23 +85,73 @@ const QB = [
 {t:'joey', q:"What is the name of Joey's imaginary childhood friend?", a:["Maurice","Mr. Peanut","Ken Adams","Hugsy"]},
 {t:'joey chandler', q:"To get back at Chandler, Joey puts on what?", a:["Every piece of Chandler's clothing","Chandler's bathrobe","A wedding dress","A duck costume"]},
 {t:'joey', q:"What name does Joey give his favorite recliner?", a:["Rosita","Big Leather","Barcalounger Bob","Sandra"]},
+// ---- v0.3: Ross ----
+{t:'ross easy', q:"What is the name of Ross's second wife?", a:["Emily","Carol","Rachel","Julie"]},
+{t:'ross', q:"Ross's first wife, Carol, leaves him for whom?", a:["Susan","Emily","Janice","Kathy"]},
+{t:'ross', q:"On a date, what does Ross wear that gets him into trouble in the bathroom?", a:["Leather pants","A velvet suit","A kilt","A tuxedo"], f:"Lotion plus leather pants: a combination Ross does not recommend."},
+{t:'ross places', q:"What hits Ross in the face at a Rangers game?", a:["A hockey puck","A foam finger","A hot dog","A beach ball"]},
+{t:'ross', q:"Where does Ross teach in the later seasons?", a:["NYU","Columbia","Harvard","The museum's night school"]},
+{t:'ross', q:"According to Ross, what is 'unagi'?", a:["A state of total awareness","A karate kick","A type of dinosaur","A sushi chef's knife"], f:"Phoebe and Rachel point out that unagi is actually a kind of eel."},
+{t:'ross', q:"Where do Ross and Rachel go on their first date?", a:["The museum, after hours","Central Perk","A fancy restaurant","A Rangers game"]},
+{t:'ross', q:"Where does Marcel end up after Ross gives him away?", a:["The San Diego Zoo","The Bronx Zoo","A circus","Ross's parents' house"]},
+// ---- v0.3: places & trips ----
+{t:'places', q:"Where does Joey work as a gladiator?", a:["Caesars Palace, Las Vegas","The Plaza Hotel","Madison Square Garden","Atlantic City"]},
+{t:'places', q:"Why is the whole gang in Barbados?", a:["Ross is giving a keynote speech at a paleontology conference","Monica and Chandler's honeymoon","Phoebe's wedding","Joey is filming a movie"]},
+{t:'places monica', q:"In Barbados, what does Monica play for hours against Mike?", a:["Ping-pong","Tennis","Poker","Volleyball"]},
+{t:'places phoebe', q:"In which beach town does Phoebe meet her birth mother?", a:["Montauk","Atlantic City","The Hamptons","Coney Island"]},
+{t:'places joey', q:"What does Joey buy and proudly wear in London?", a:["A hat with the British flag on it","A bowler hat","A royal guard's tall fur hat","A tweed cap"]},
+{t:'places rachel ross', q:"What do Ross and Rachel do in Las Vegas after a lot of drinks?", a:["Get married","Get matching tattoos","Buy a casino","Adopt a dog"]},
+{t:'places rachel', q:"In the finale, Rachel is moving to Paris for a job with which company?", a:["Louis Vuitton","Chanel","Ralph Lauren","Gucci"]},
+{t:'places rachel', q:"In the finale, which airport is Rachel's Paris flight leaving from?", a:["Newark","JFK","LaGuardia","Philadelphia"]},
+// ---- v0.3: more of everyone ----
+{t:'rachel', q:"Who is Rachel's demanding boss at Bloomingdale's?", a:["Joanna","Janice","Estelle","Emily"]},
+{t:'rachel', q:"At Ralph Lauren, Rachel hires an assistant she has a crush on. What's his name?", a:["Tag","Joshua","Paolo","Mark"]},
+{t:'monica', q:"At the Moondance Diner, what does Monica have to wear?", a:["A blonde wig","A chef's hat","A pirate hat","A clown nose"]},
+{t:'phoebe easy', q:"What kind of car does Phoebe drive?", a:["Her grandmother's old taxi","A yellow Beetle","A convertible","A tour bus"]},
+{t:'phoebe', q:"What is the name of Phoebe's birth mother?", a:["Phoebe Abbott","Ursula Buffay","Lily Buffay","Frances Abbott"]},
+{t:'phoebe', q:"Where do Phoebe and Mike get married?", a:["On the street outside Central Perk, in the snow","In Central Park","In Montauk","At the Plaza Hotel"]},
+{t:'joey', q:"What is the name of the musical Joey stars in, about a famous psychiatrist?", a:["Freud!","Jung at Heart","Doctor Dreams","Couch!"]},
+{t:'joey', q:"How does Joey's Days of Our Lives character come back to the show?", a:["He gets a brain transplant","He was actually his twin","He wakes up from a dream","He returns from Paris"], f:"Dr. Drake Ramoray returns with the brain of Jessica Lockhart."},
 ];
+
+/* ===== A personal touch =====
+ * Write a message here and it appears on the final credits screen. Leave it empty to skip it.
+ */
+const PERSONAL_NOTE = "";
+const MADE_BY = "Made with love by Tim";
 
 /* ===== Collectibles =====
  * from: who/where awards it. hint: shown on the shelf while it's still locked.
  * Items with a zone other than the current build are locked until that zone is added.
  */
 const ITEMS = [
+ // Greenwich Village
  {id:'mug',      name:'Giant Coffee Mug',          from:'Gunther · Central Perk', desc:"Practically a soup bowl with a handle. Gunther doesn't hand these out lightly.", hint:"Gunther might part with one, if you know your Central Perk."},
  {id:'trifle',   name:"Rachel's Trifle",           from:'Rachel · Central Perk',  desc:"Ladyfingers, jam, custard, raspberries… then beef sautéed with peas and onions.", hint:"Rachel is between tables. Maybe she'll quiz you."},
  {id:'painting', name:"Phoebe's Creepy Painting",  from:'Phoebe · Central Perk',  desc:"It's staring at you. It's definitely staring at you.", hint:"Phoebe is tuning her guitar in the corner."},
  {id:'turkey',   name:'The Thanksgiving Turkey',   from:'Couch Challenge',        desc:"Comes with sunglasses and a little fez. Not optional.", hint:"Sit on the orange couch and see who joins you."},
+ {id:'cup',      name:'The Geller Cup',            from:'Monica · Apt 20',        desc:"A troll doll nailed to a block of wood. The most fought-over trophy in the Geller family.", hint:"Monica is in the kitchen. She's very competitive."},
+ {id:'frame',    name:'The Yellow Peephole Frame', from:'The Apartment Quiz · Apt 20', desc:"The little yellow frame from around Monica's peephole. It never looked right anywhere else.", hint:"Ross is running a quiz in apartment 20."},
  {id:'dog',      name:'The White Dog Statue',      from:'Chandler · Apt 19',      desc:"Big, white, ceramic and staring. Joey thinks it's the classiest thing they own.", hint:"Chandler is hanging around the foosball table in apartment 19."},
  {id:'hugsy',    name:'Hugsy',                     from:'Joey · Apt 19',          desc:"Joey's bedtime penguin pal. You can borrow him. Borrow.", hint:"Joey might share him. Might."},
- {id:'frame',    name:'The Yellow Peephole Frame', from:'The Apartment Quiz · Apt 20', desc:"The little yellow frame from around Monica's peephole. It never looked right anywhere else.", hint:"Ross is running a quiz in apartment 20."},
- {id:'cup',      name:'The Geller Cup',            from:'Monica · Apt 20',        desc:"A troll doll nailed to a block of wood. The most fought-over trophy in the Geller family.", hint:"Monica is in the kitchen. She's very competitive."},
- {id:'pants',    name:"Ross's Leather Pants",      from:"Ross's Apartment",       desc:"", hint:"Coming soon: across the street."},
- {id:'armadillo',name:'Holiday Armadillo Costume', from:"Ross's Apartment",       desc:"", hint:"Coming soon: across the street."},
- {id:'headshot', name:"Joey's Headshot",           from:'Silvercup Studios',      desc:"", hint:"Coming soon: take the subway to Queens."},
- {id:'bone',     name:'Dinosaur Bone',             from:'The Museum',             desc:"", hint:"Coming soon: take the subway Uptown."},
+ {id:'pants',    name:"Ross's Leather Pants",      from:"Ross · Ross's Apartment", desc:"Do not, under any circumstances, apply lotion while wearing these.", hint:"Ross lives across the street from Monica now."},
+ {id:'armadillo',name:'Holiday Armadillo Costume', from:"The Costume Trunk · Ross's Apartment", desc:"Half man, half armadillo, all Hanukkah.", hint:"There's a trunk in Ross's apartment marked DO NOT OPEN."},
+ // Midtown
+ {id:'card',     name:"Chandler's Business Card",  from:'Chandler · Midtown Office', desc:"'Statistical Analysis and Data Reconfiguration.' Nobody knows what it means.", hint:"Take the subway to Midtown. Chandler's office is at 9 West 57th."},
+ {id:'bag',      name:"Bloomingdale's Shopping Bag",from:"Rachel · Bloomingdale's", desc:"Empty, but it's the BAG that matters.", hint:"Rachel has a new job in Midtown. In fashion!"},
+ {id:'puck',     name:'Rangers Hockey Puck',        from:'The Usher · Madison Square Garden', desc:"Lightly used. Mostly on Ross's face.", hint:"There's an usher outside Madison Square Garden."},
+ // SoHo
+ {id:'wig',      name:"Monica's Diner Wig",         from:'Monica · Moondance Diner', desc:"Big, blonde, and extremely 1950s. Monica would like it never mentioned again.", hint:"Take the subway to SoHo and grab a booth at the diner."},
+ // Uptown
+ {id:'bone',     name:'Dinosaur Bone',              from:'Ross · The Museum',      desc:"A very nice cast of a very old bone. Ross would like you to know it's a cast.", hint:"Take the subway Uptown to the Museum of Prehistoric History."},
+ {id:'umbrella', name:'The Fountain Umbrella',      from:'The Fountain · Central Park', desc:"For dancing in fountains with five of your closest friends.", hint:"There's a famous fountain in the park Uptown."},
+ // Queens
+ {id:'headshot', name:"Joey's Headshot",            from:'Joey · Silvercup Studios', desc:"Signed 'To my biggest fan, love, Drake Ramoray.' He's doing the look.", hint:"Take the subway to Queens. Joey is on set."},
+ // Trips
+ {id:'hat',      name:"Joey's London Hat",          from:'Joey · London',          desc:"Covered in the British flag. Joey bought nine of them.", hint:"Catch a flight to London from JFK."},
+ {id:'veil',     name:'The Vegas Veil',             from:'Rachel · Las Vegas',     desc:"Nobody remembers where it came from. That's Vegas.", hint:"Catch a flight to Las Vegas from JFK."},
+ {id:'paddle',   name:"Monica's Ping-Pong Paddle",  from:'Monica · Barbados',      desc:"Nine hours of competitive ping-pong. It's seen things.", hint:"Catch a flight to Barbados from JFK."},
+ {id:'shell',    name:"Phoebe's Seashell",          from:'Phoebe · Montauk',       desc:"Hold it to your ear. It says nice things about you.", hint:"Take the bus to Montauk from JFK."},
+ // Finale
+ {id:'key',      name:"The Key to Apartment 20",    from:'The Last One · Central Perk', desc:"Everyone leaves their keys on the counter one last time. You get to keep this one.", hint:"Collect everything else, then head to the orange couch."},
 ];
