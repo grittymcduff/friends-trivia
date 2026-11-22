@@ -477,8 +477,7 @@ function updPlayer(dt){
  if(blocked(tx,ty)){if(clickPath){clickPath.wait+=dt;if(clickPath.wait>.6){const g=clickPath.goal;clickPath=null;if(clickPath===null&&g)planPath(g.x,g.y,g.act,true)}return}bumpT-=dt;if(bumpT<=0){SFX.bump();bumpT=.35}return}
  if(clickPath)clickPath.wait=0;
  player.fx=player.x;player.fy=player.y;player.x=tx;player.y=ty;player.t=0;player.moving=true;player.step^=1}
-let joyRun=false;
-function running(){return keys.Shift||joyRun}
+function running(){return keys.Shift}
 function arrive(){const d=Zn.doors.find(d=>d.x===player.x&&d.y===player.y);if(d){warp(d.to,d.tx,d.ty,d.dir);return true}return false}
 const INTROS={perk:["Central Perk. It smells like coffee and muffins, and the orange couch is right there.","Talk to people (Space) to get quizzed. Win rounds to earn collectibles for your shelf."],
  hall:["Up the stairs. Apartment 20 is on the left (the purple door). Apartment 19 is on the right.","Nobody here ever seems to lock their door."],
@@ -798,13 +797,13 @@ addEventListener('blur',()=>{dirStack=[];for(const k in keys)keys[k]=false});
 function toggleMute(){muted=!muted;$('#btnSnd').textContent=muted?'🔇':'🔊';toast(muted?'Sound off':'Sound on')}
 let coarse=false,lastTS='';function syncTouch(){const k=state+coarse;if(k===lastTS)return;lastTS=k;$('#touch').classList.toggle('hidden',!coarse||!['world','dialog','fade'].includes(state))}
 function setupTouch(){coarse=matchMedia('(pointer:coarse)').matches;$('#game').classList.toggle('touch',coarse);
- // Virtual joystick: drag the knob; the strongest axis picks the direction, pushing to the edge makes you hurry
+ // Virtual joystick: drag the knob; the strongest axis picks the direction (always normal walking speed)
  const base=$('#joy'),knob=$('#joyKnob');let jid=null,jdir=null;
  const setDir=d=>{if(d===jdir)return;if(jdir)popDir(jdir);jdir=d;if(d){if(state==='dialog')moveSel(d==='up'||d==='left'?-1:1);else{pushDir(d);clickPath=null}}};
  const move=e=>{const r=base.getBoundingClientRect(),cx=r.left+r.width/2,cy=r.top+r.height/2,R=r.width/2;let dx=e.clientX-cx,dy=e.clientY-cy;const dist=Math.hypot(dx,dy),max=R*.62;
   if(dist>max){dx*=max/dist;dy*=max/dist}const k=r.width/110;knob.style.transform=`translate(${dx/k}px,${dy/k}px)`;
-  joyRun=dist>R*.85;setDir(dist<R*.22?null:Math.abs(dx)>Math.abs(dy)?(dx>0?'right':'left'):(dy>0?'down':'up'))};
- const end=e=>{if(e.pointerId!==jid)return;jid=null;knob.style.transform='';joyRun=false;setDir(null);base.classList.remove('on')};
+  setDir(dist<R*.22?null:Math.abs(dx)>Math.abs(dy)?(dx>0?'right':'left'):(dy>0?'down':'up'))};
+ const end=e=>{if(e.pointerId!==jid)return;jid=null;knob.style.transform='';setDir(null);base.classList.remove('on')};
  base.addEventListener('pointerdown',e=>{e.preventDefault();jid=e.pointerId;try{base.setPointerCapture(jid)}catch(_){}base.classList.add('on');move(e)});
  base.addEventListener('pointermove',e=>{if(e.pointerId===jid){e.preventDefault();move(e)}});
  base.addEventListener('pointerup',end);base.addEventListener('pointercancel',end);base.addEventListener('lostpointercapture',end);
