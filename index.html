@@ -9,7 +9,7 @@ html,body{margin:0;height:100%;background:radial-gradient(ellipse at center,#3a2
 #wrap{position:fixed;inset:0;display:flex;align-items:center;justify-content:center}
 #holder{position:relative}
 #game{position:absolute;left:0;top:0;width:640px;height:416px;transform-origin:0 0;background:#000;border-radius:6px;overflow:hidden;font-family:ui-monospace,"SF Mono","Cascadia Mono",Menlo,Consolas,monospace;color:#2a1a3a;font-size:12px;box-shadow:0 0 0 4px #5b3a8c,0 0 0 8px #120a1a,0 18px 50px rgba(0,0,0,.6)}
-#cv{position:absolute;inset:0;width:640px;height:416px;image-rendering:pixelated}
+#cv{position:absolute;inset:0;width:640px;height:416px;image-rendering:pixelated;cursor:pointer}
 .hidden{display:none!important}
 .box{background:#fdf6e6;border:3px solid #2a1a3a;border-radius:8px;box-shadow:inset 0 0 0 2px #ecdcb8,0 3px 0 rgba(0,0,0,.35)}
 button{font-family:inherit;font-weight:700;cursor:pointer;border:2px solid #2a1a3a;border-radius:6px;background:#fff4d6;color:#2a1a3a;font-size:11px;padding:5px 9px;box-shadow:0 2px 0 #2a1a3a}
@@ -147,7 +147,7 @@ kbd{background:#fff;border:1px solid #2a1a3a;border-radius:3px;padding:0 4px;fon
  </div>
  <div id="coll" class="box hidden"><div class="ph"><canvas id="doll" width="66" height="48"></canvas><h2>🏆 The Shelf</h2><b id="collCount"></b><button class="close">Close ✕</button></div><div id="collGrid"></div></div>
  <div id="help" class="box hidden"><div class="ph"><h2>How to play</h2><button class="close">Close ✕</button></div>
-  <ul><li><kbd>←↑↓→</kbd> or <kbd>WASD</kbd> to walk. Hold <kbd>Shift</kbd> to hurry.</li>
+  <ul><li><kbd>←↑↓→</kbd> or <kbd>WASD</kbd> to walk, or just <b>click (or tap) where you want to go</b>. Click a person or sign to walk over and talk to it. Hold <kbd>Shift</kbd> to hurry.</li>
   <li><kbd>Space</kbd> / <kbd>Enter</kbd> to talk, read signs, sit, and continue. <kbd>Esc</kbd> to back out.</li>
   <li>In trivia, click an answer or press <kbd>1</kbd>–<kbd>4</kbd>.</li>
   <li><kbd>C</kbd> opens your shelf of collectibles (wear hats, costumes and props from there!). <kbd>L</kbd> or 🏅 opens the leaderboard. <kbd>M</kbd> toggles sound. <kbd>+</kbd> / <kbd>−</kbd> (or the 🔍 button) zoom in and out.</li>
@@ -1505,7 +1505,7 @@ function loadZone(id,x,y,dir,nosave){Zn=ZONES[id];const eggNpcs=spawnEggs(nosave
  for(const e of eggNpcs)if(!npcs.some(n=>n.x===e.x&&n.y===e.y))npcs.push(Object.assign(e,{px:e.x*16,py:e.y*16,home:{x:e.x,y:e.y,dir:e.dir},moving:false,t:0,wait:1+R()*3,spr:charSprites(e.look)}));
  if(S&&S.items)addFinaleCast();setTune(Zn.tune||'city');
  taxis=[];let k=0;for(const tr of Zn.taxiRows)for(let i=0;i<tr.n;i++){const taxi=(k++%3)!==2;taxis.push({row:tr.row,dir:tr.dir,x:(i+.3+R()*.4)*Zn.w*16/tr.n,sp:44+R()*16,honk:0,taxi,col:taxi?'#f2c230':['#3b6fb6','#8f2f2f','#6a8f4a'][k%3]})}
- player.x=player.fx=x;player.y=player.fy=y;player.px=x*16;player.py=y*16;player.dir=dir;player.moving=false;player.sit=null;
+ player.x=player.fx=x;player.y=player.fy=y;player.px=x*16;player.py=y*16;player.dir=dir;player.moving=false;player.sit=null;clickPath=null;clickMark=null;
  $('#zoneTag').textContent=Zn.name;if(!nosave){S.zone=id;save()}}
 function taxiAt(x,y){return taxis.some(t=>t.row===y&&x*16<t.x+32&&x*16+16>t.x)}
 function npcAt(x,y,skip){return npcs.find(n=>n!==skip&&n.x===x&&n.y===y)}
@@ -1516,8 +1516,9 @@ function updPlayer(dt){
  if(player.moving){player.t+=dt*(running()?10:6.25);const k=Math.min(1,player.t);player.px=(player.fx+(player.x-player.fx)*k)*16;player.py=(player.fy+(player.y-player.fy)*k)*16;
   if(player.t>=1){player.moving=false;player.px=player.x*16;player.py=player.y*16;if(arrive())return}}
  if(player.moving||state!=='world'||player.sit)return;
- const d=heldDir();if(!d)return;player.dir=d;const[dx,dy]=DIRS[d],tx=player.x+dx,ty=player.y+dy;
- if(blocked(tx,ty)){bumpT-=dt;if(bumpT<=0){SFX.bump();bumpT=.35}return}
+ let d=heldDir();if(d){clickPath=null}else{d=nextPathDir(dt);if(!d)return}player.dir=d;const[dx,dy]=DIRS[d],tx=player.x+dx,ty=player.y+dy;
+ if(blocked(tx,ty)){if(clickPath){clickPath.wait+=dt;if(clickPath.wait>.6){const g=clickPath.goal;clickPath=null;if(clickPath===null&&g)planPath(g.x,g.y,g.act,true)}return}bumpT-=dt;if(bumpT<=0){SFX.bump();bumpT=.35}return}
+ if(clickPath)clickPath.wait=0;
  player.fx=player.x;player.fy=player.y;player.x=tx;player.y=ty;player.t=0;player.moving=true;player.step^=1}
 function running(){return keys.Shift}
 function arrive(){const d=Zn.doors.find(d=>d.x===player.x&&d.y===player.y);if(d){warp(d.to,d.tx,d.ty,d.dir);return true}return false}
@@ -1613,6 +1614,33 @@ const TALK={
   if(n.quiz&&!n.asked){lines.push({text:"Hey, quick question, settle a bet for me?",choices:[{label:'Sure',fn:()=>{n.asked=true;startTrivia({who:n,tags:'easy',n:1,need:1,quick:true,win:"Ha! Knew it. Thanks!",lose:"Huh. Guess we both learned something."})}},{label:'No time',fn:()=>{}}]})}
   say(lines)}};
 function talkTo(n){if(!n.seated)n.dir=OPP[player.dir];(TALK[n.talk]||(n.script?TALK.cast:TALK.townie))(n)}
+
+/* ===================== Click / tap to move ===================== */
+let clickPath=null,clickMark=null;
+function tileWalkable(x,y){return x>=0&&y>=0&&x<Zn.w&&y<Zn.h&&!solid[y*Zn.w+x]&&!npcAt(x,y)}
+function bfs(sx,sy,goalFn){const W=Zn.w,prev=new Int32Array(W*Zn.h).fill(-1),q=[sy*W+sx];prev[sy*W+sx]=sy*W+sx;
+ while(q.length){const i=q.shift(),x=i%W,y=(i/W)|0;if(goalFn(x,y)){const path=[];let k=i;while(k!==sy*W+sx){path.push(k);k=prev[k]}return path.reverse().map(k=>[k%W,(k/W)|0])}
+  for(const[dx,dy]of[[0,-1],[0,1],[-1,0],[1,0]]){const nx=x+dx,ny=y+dy,ni=ny*W+nx;if(nx<0||ny<0||nx>=W||ny>=Zn.h||prev[ni]!==-1)continue;if(!tileWalkable(nx,ny))continue;if(isDoor(nx,ny)&&!goalFn(nx,ny))continue;prev[ni]=i;q.push(ni)}}
+ return null}
+function interactableAt(x,y){return npcAt(x,y)||Zn.acts.find(a=>a.x===x&&a.y===y)}
+function planPath(tx,ty,act,quiet){if(!Zn)return;const here=player.x===tx&&player.y===ty;
+ if(act){// walk next to it, then face it and interact
+  const adj=(x,y)=>Math.abs(x-tx)+Math.abs(y-ty)===1;
+  if(adj(player.x,player.y)){faceAndUse(tx,ty);return}
+  const p=bfs(player.x,player.y,adj);if(!p){if(!quiet)SFX.bump();return}clickPath={steps:p,goal:{x:tx,y:ty,act:true},wait:0};clickMark={x:tx,y:ty,t:0};return}
+ if(here)return;if(!tileWalkable(tx,ty)&&!isDoor(tx,ty)){// clicked a wall: go as close as possible
+  let best=null,bd=1e9;for(let dy=-2;dy<=2;dy++)for(let dx=-2;dx<=2;dx++){const x=tx+dx,y=ty+dy;if(tileWalkable(x,y)&&Math.abs(dx)+Math.abs(dy)<bd){bd=Math.abs(dx)+Math.abs(dy);best=[x,y]}}if(!best){if(!quiet)SFX.bump();return}[tx,ty]=best}
+ const p=bfs(player.x,player.y,(x,y)=>x===tx&&y===ty);if(!p){if(!quiet)SFX.bump();return}clickPath={steps:p,goal:{x:tx,y:ty,act:false},wait:0};clickMark={x:tx,y:ty,t:0}}
+function faceAndUse(tx,ty){const dx=tx-player.x,dy=ty-player.y;player.dir=dx>0?'right':dx<0?'left':dy>0?'down':'up';clickPath=null;clickMark=null;interact()}
+function nextPathDir(){if(!clickPath)return null;if(!clickPath.steps.length){const g=clickPath.goal;clickPath=null;clickMark=null;if(g&&g.act)faceAndUse(g.x,g.y);return null}
+ const[nx,ny]=clickPath.steps[0];if(Math.abs(nx-player.x)+Math.abs(ny-player.y)!==1){const g=clickPath.goal;clickPath=null;planPath(g.x,g.y,g.act,true);return null}
+ clickPath.steps.shift();return nx>player.x?'right':nx<player.x?'left':ny>player.y?'down':'up'}
+function onCanvasClick(e){if(state!=='world'||!Zn)return;if(player.sit){standUp();return}const r=cv.getBoundingClientRect();const sx=(e.clientX-r.left)/r.width*640,sy=(e.clientY-r.top)/r.height*416;
+ const wx=sx/SC+cam.x,wy=sy/SC+cam.y;let tx=Math.floor(wx/16),ty=Math.floor(wy/16);
+ // characters are drawn a little taller than their tile, so also check the tile below the click
+ let tgt=interactableAt(tx,ty);if(!tgt&&npcAt(tx,ty+1)){ty++;tgt=npcAt(tx,ty)}
+ if(tgt&&!(isDoor(tx,ty)&&!npcAt(tx,ty)))planPath(tx,ty,true);else planPath(tx,ty,false)}
+cv.addEventListener('pointerdown',e=>{if(e.button!==undefined&&e.button!==0)return;onCanvasClick(e)});
 
 /* ===================== Interact & couch ===================== */
 function interact(){if(player.sit){standUp();return}if(player.moving)return;
@@ -1752,6 +1780,7 @@ function draw(){ctx.setTransform(1,0,0,1,0,0);ctx.fillStyle=Zn.bg;ctx.fillRect(0
  ctx.setTransform(SC,0,0,SC,-cx*SC,-cy*SC);ctx.imageSmoothingEnabled=false;
  const x0=Math.max(0,Math.floor(cx/16)),x1=Math.min(Zn.w-1,Math.floor((cx+vw)/16)),y0=Math.max(0,Math.floor(cy/16)),y1=Math.min(Zn.h-1,Math.floor((cy+vh)/16));
  for(let y=y0;y<=y1;y++)for(let x=x0;x<=x1;x++){const t=Zn.g[y*Zn.w+x];ctx.drawImage(tile(t,x,y),x*16,y*16);if(t==='walk')curb(x,y)}
+ if(clickMark){clickMark.t+=.05;const a=.5+.4*Math.sin(clickMark.t*4),mx=clickMark.x*16+8,my=clickMark.y*16+12;ctx.fillStyle=`rgba(255,216,74,${a})`;ctx.beginPath();ctx.moveTo(mx,my-4);ctx.lineTo(mx+6,my);ctx.lineTo(mx,my+4);ctx.lineTo(mx-6,my);ctx.closePath();ctx.fill()}
  const vis=(x,y,w,h)=>x+w>=cx-40&&x<=cx+vw+40&&y+h>=cy-60&&y<=cy+vh+60;
  const L=[];
  for(const o of Zn.objs){const s=o.spr,dx=o.x*16+s.ox,dy=o.y*16+s.oy;if(!vis(dx,dy,s.c.width,s.c.height))continue;

@@ -4,6 +4,10 @@ A private, Pokémon-style pixel-art trivia adventure set in Friends' Greenwich V
 
 **Play:** open `index.html` in a browser, or turn on GitHub Pages for this repo (Settings → Pages → deploy from `main`, root folder).
 
+## v0.9: "The One With the Mouse"
+
+- **Click or tap to move:** click any spot and your character walks there, finding a way around buildings, furniture and people. Click a person, sign, counter, couch or locked door to walk over and interact with it. Click a door to go through it. A yellow marker shows where you're headed, and pressing any arrow key takes back control. This works with taps on phones too.
+
 ## v0.8: "The One Where Everyone Plays"
 
 - **Wear your collectibles:** on the shelf, wearable items have a "Wear it" or "Carry it" button. There's a head slot (the turkey with sunglasses and fez, Joey's London hat, the Vegas veil, Monica's diner wig), a body slot (the Holiday Armadillo costume, Ross's leather pants) and a hand slot (umbrella, Hugsy, mug, shopping bag, Janice's purse, ping-pong paddle, hockey puck). A preview of your character sits at the top of the shelf.
