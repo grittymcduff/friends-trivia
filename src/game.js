@@ -458,6 +458,7 @@ function loadZone(id,x,y,dir,nosave){Zn=ZONES[id];const eggNpcs=spawnEggs(nosave
  for(let i=0;i<Zn.g.length;i++)if(SOLID_T.has(Zn.g[i]))solid[i]=1;
  for(const o of Zn.objs){if(!o.spr)o.spr=makeObj(o);for(const[tx,ty]of fp(o))setSolid(tx,ty,1)}
  for(const d of Zn.doors)setSolid(d.x,d.y,0);
+ for(const o of Zn.objs)if(o.kind==='subway')for(const[tx,ty]of fp(o))if(!Zn.acts.some(a=>a.x===tx&&a.y===ty))Zn.acts.push({x:tx,y:ty,type:'subway'});
  npcs=Zn.npcs.map(n=>Object.assign({},n,{px:n.x*16,py:n.y*16,home:{x:n.x,y:n.y,dir:n.dir},moving:false,t:0,wait:.5+R()*3,spr:charSprites(n.look,n.id)}));
  for(const e of eggNpcs)if(!npcs.some(n=>n.x===e.x&&n.y===e.y))npcs.push(Object.assign(e,{px:e.x*16,py:e.y*16,home:{x:e.x,y:e.y,dir:e.dir},moving:false,t:0,wait:1+R()*3,spr:charSprites(e.look)}));
  if(S&&S.items)addFinaleCast();setTune(Zn.tune||'city');
@@ -469,11 +470,13 @@ function npcAt(x,y,skip){return npcs.find(n=>n!==skip&&n.x===x&&n.y===y)}
 function blocked(x,y){if(x<0||y<0||x>=Zn.w||y>=Zn.h)return true;return!!(solid[y*Zn.w+x]||npcAt(x,y)||taxiAt(x,y))}
 function heldDir(){return dirStack.length?dirStack[dirStack.length-1]:null}
 let bumpT=0;
-function updPlayer(dt){
+let subwayArmed=true,subwayTile=null;
+function updPlayer(dt){if(!subwayArmed&&(!heldDir()||(subwayTile&&(player.x!==subwayTile[0]||player.y!==subwayTile[1]))))subwayArmed=true;
  if(player.moving){player.t+=dt*(running()?10:6.25);const k=Math.min(1,player.t);player.px=(player.fx+(player.x-player.fx)*k)*16;player.py=(player.fy+(player.y-player.fy)*k)*16;
   if(player.t>=1){player.moving=false;player.px=player.x*16;player.py=player.y*16;if(arrive())return}}
  if(player.moving||state!=='world'||player.sit)return;
  let d=heldDir();if(d){clickPath=null}else{d=nextPathDir(dt);if(!d)return}player.dir=d;const[dx,dy]=DIRS[d],tx=player.x+dx,ty=player.y+dy;
+ if(blocked(tx,ty)&&subwayArmed&&Zn.acts.some(a=>a.x===tx&&a.y===ty&&a.type==='subway')){clickPath=null;clickMark=null;openSubway();return}
  if(blocked(tx,ty)){if(clickPath){clickPath.wait+=dt;if(clickPath.wait>.6){const g=clickPath.goal;clickPath=null;if(clickPath===null&&g)planPath(g.x,g.y,g.act,true)}return}bumpT-=dt;if(bumpT<=0){SFX.bump();bumpT=.35}return}
  if(clickPath)clickPath.wait=0;
  player.fx=player.x;player.fy=player.y;player.x=tx;player.y=ty;player.t=0;player.moving=true;player.step^=1}
@@ -722,7 +725,7 @@ function openColl(){state='menu';$('#coll').classList.remove('hidden');const got
  $('#collGrid').innerHTML='<h3>The Story</h3>'+ITEMS.filter(i=>!i.bonus).map(card).join('')+'<h3>Superfan Extras <small>(optional, very hard)</small></h3>'+ITEMS.filter(i=>i.bonus).map(card).join('')+`<h3>Secret Sightings <small>(${Object.keys(S.eggs||{}).length} of ${EGGS.length} spotted, keep exploring!)</small></h3>`+EGGS.map(e=>{const f=S.eggs&&S.eggs[e.id];return`<div class="card egg ${f?'got':''}"><canvas data-egg="${e.id}" width="64" height="64"></canvas><b>${f?esc(e.title):'???'}</b><small>${esc(e.hint)}</small></div>`}).join('');
  $('#collGrid').querySelectorAll('button[data-wear]').forEach(b=>b.onclick=e=>{e.stopPropagation();toggleWear(b.dataset.wear)});
  $('#collGrid').querySelectorAll('canvas').forEach(c=>{const g=c.getContext('2d');g.imageSmoothingEnabled=false;if(c.dataset.egg){const e=EGGS.find(q=>q.id===c.dataset.egg),ic=eggIcon(e);g.drawImage(S.eggs&&S.eggs[e.id]?ic:silhouette(ic),0,0,64,64);return}const ic=itemIcon(c.dataset.id);g.drawImage(S.items[c.dataset.id]?ic:silhouette(ic),0,0,64,64)})}
-function closePanels(){for(const id of['#coll','#help','#subway','#credits','#board'])$(id).classList.add('hidden');state='world'}
+function closePanels(){if(!$('#subway').classList.contains('hidden')){subwayArmed=false;subwayTile=[player.x,player.y]}for(const id of['#coll','#help','#subway','#credits','#board'])$(id).classList.add('hidden');state='world'}
 function openHelp(){state='menu';$('#help').classList.remove('hidden')}
 
 /* ===================== HUD ===================== */
