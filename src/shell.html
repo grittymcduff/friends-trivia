@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="theme-color" content="#1b1228">
+<title>The One With The Trivia Game</title>
+<style>
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;background:radial-gradient(ellipse at center,#3a2456 0%,#140c1e 78%);overflow:hidden;touch-action:none;-webkit-user-select:none;user-select:none;-webkit-tap-highlight-color:transparent}
+#wrap{position:fixed;inset:0;display:flex;align-items:center;justify-content:center}
+#holder{position:relative}
+#game{position:absolute;left:0;top:0;width:640px;height:416px;transform-origin:0 0;background:#000;border-radius:6px;overflow:hidden;font-family:ui-monospace,"SF Mono","Cascadia Mono",Menlo,Consolas,monospace;color:#2a1a3a;font-size:12px;box-shadow:0 0 0 4px #5b3a8c,0 0 0 8px #120a1a,0 18px 50px rgba(0,0,0,.6)}
+#cv{position:absolute;inset:0;width:640px;height:416px;image-rendering:pixelated}
+.hidden{display:none!important}
+.box{background:#fdf6e6;border:3px solid #2a1a3a;border-radius:8px;box-shadow:inset 0 0 0 2px #ecdcb8,0 3px 0 rgba(0,0,0,.35)}
+button{font-family:inherit;font-weight:700;cursor:pointer;border:2px solid #2a1a3a;border-radius:6px;background:#fff4d6;color:#2a1a3a;font-size:11px;padding:5px 9px;box-shadow:0 2px 0 #2a1a3a}
+button:hover:not(:disabled){background:#ffe48a}
+button:active:not(:disabled){transform:translateY(2px);box-shadow:none}
+button:disabled{cursor:default}
+.good{color:#1f8a3a}.bad{color:#c62828}
+/* HUD */
+#hud{position:absolute;inset:0;pointer-events:none}
+#zoneTag{position:absolute;left:8px;top:8px;padding:4px 10px;font-weight:800;font-size:11px}
+#counts{position:absolute;right:8px;top:8px;padding:4px 10px;font-weight:800;font-size:11px;display:flex;gap:12px}
+#hudBtns{position:absolute;right:8px;bottom:8px;display:flex;gap:4px;pointer-events:auto}
+#hudBtns button{font-size:11px;padding:3px 7px;opacity:.92}
+#toast{position:absolute;left:50%;top:40px;transform:translate(-50%,-10px);opacity:0;transition:all .25s;padding:5px 12px;font-weight:800;pointer-events:none}
+#toast.on{opacity:1;transform:translate(-50%,0)}
+#fade{position:absolute;inset:0;background:#000;opacity:0;transition:opacity .22s;pointer-events:none}
+/* Dialogue */
+#dlg{position:absolute;left:12px;right:12px;bottom:12px;min-height:84px;padding:12px 16px 12px;font-size:13px;line-height:1.45;cursor:pointer}
+#dlgName{position:absolute;top:-14px;left:14px;background:#5b3a8c;color:#fff4d6;border:2px solid #2a1a3a;border-radius:6px;padding:1px 10px;font-weight:800;font-size:11px}
+#dlgText{white-space:pre-wrap;min-height:38px}
+#dlgMore{position:absolute;right:12px;bottom:6px;animation:bob .8s infinite;font-size:11px}
+@keyframes bob{50%{transform:translateY(3px)}}
+#dlgChoices{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap}
+#dlgChoices button{font-size:12px}
+#dlgChoices button.sel{background:#ffe48a;outline:2px solid #5b3a8c;outline-offset:1px}
+/* Trivia */
+#triv{position:absolute;inset:14px;padding:14px 18px;display:flex;flex-direction:column}
+#triv.quick{inset:60px 70px}
+#tvHead{display:flex;align-items:center;gap:12px;border-bottom:2px dashed #d9c49a;padding-bottom:8px}
+#tvPortrait{width:48px;height:48px;image-rendering:pixelated;background:#f2e2c0;border:2px solid #2a1a3a;border-radius:6px}
+#tvName{font-weight:900;font-size:16px}
+#tvNeed{font-size:10px;color:#7a6a8a;font-weight:700}
+#tvProg{margin-left:auto;display:flex;gap:4px}
+#tvProg i{width:12px;height:12px;border-radius:50%;border:2px solid #2a1a3a;background:#fff}
+#tvProg i.cur{background:#ffd84a}#tvProg i.ok{background:#3ccf5a}#tvProg i.no{background:#e04848}
+#tvQ{font-size:16px;font-weight:800;margin:14px 2px 12px;line-height:1.35;min-height:44px}
+#tvOpts{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+#tvOpts button{text-align:left;font-size:13px;padding:9px 10px;display:flex;gap:8px;align-items:center;min-height:44px}
+#tvOpts button b{display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;border-radius:4px;background:#5b3a8c;color:#fff;font-size:10px;flex:none}
+#tvOpts button.right{background:#bff0c4;border-color:#1f8a3a}
+#tvOpts button.wrong{background:#ffc9c9;border-color:#c62828}
+#tvOpts button:disabled:not(.right):not(.wrong){opacity:.55}
+#tvFoot{margin-top:10px;display:flex;align-items:flex-start;gap:10px}
+#tvFact{flex:1;font-size:12px;line-height:1.4}
+#tvNext{flex:none;font-size:13px}
+#tvRes{text-align:center;margin-top:12px;overflow:auto}
+#tvRes .score{font-size:34px;font-weight:900;color:#5b3a8c}
+#tvRes p{font-size:14px;font-weight:700;margin:8px 0 12px}
+#tvRes button{font-size:13px;margin-top:10px}
+.award{display:flex;gap:12px;align-items:center;text-align:left;background:#fff;border:2px solid #e2b82a;border-radius:8px;padding:10px;margin:0 auto;max-width:460px;box-shadow:0 0 0 4px #fff2b8}
+.award canvas{width:64px;height:64px;image-rendering:pixelated;flex:none}
+.award div{display:flex;flex-direction:column;gap:2px}
+.award b{font-size:15px}.award small{font-size:9px;font-weight:800;color:#a07a10;letter-spacing:.05em}.award span{font-size:11px}
+/* Collection */
+#coll,#help{position:absolute;inset:14px;padding:12px 16px;overflow:auto}
+.ph{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.ph h2{margin:0;font-size:16px}
+.ph .close{margin-left:auto}
+#collGrid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.card{border:2px solid #cbb890;border-radius:8px;padding:6px;text-align:center;background:#f6ecd4;display:flex;flex-direction:column;align-items:center;gap:2px;min-height:132px}
+.card.got{background:#fff;border-color:#e2b82a;box-shadow:0 0 0 2px #fff2b8}
+.card canvas{width:48px;height:48px;image-rendering:pixelated}
+.card b{font-size:11px}.card small{font-size:9px;line-height:1.3;color:#5a4a6a}.card em{font-size:9px;font-style:normal;font-weight:800;color:#8a6aa8;margin-top:auto}
+#help p,#help li{font-size:12px;line-height:1.5}
+kbd{background:#fff;border:1px solid #2a1a3a;border-radius:3px;padding:0 4px;font-size:10px;font-weight:800}
+/* Title */
+#title{position:absolute;inset:0;background:linear-gradient(180deg,rgba(20,10,30,.55),rgba(20,10,30,.85));display:flex;align-items:center;justify-content:center}
+#tBox{width:430px;padding:14px 18px 16px;text-align:center}
+#tBox h1{margin:0;font-family:Georgia,serif;font-size:25px;color:#5b3a8c;letter-spacing:.01em}
+#tBox h1 span{color:#d9782f}
+#tBox .sub{font-size:11px;font-weight:700;color:#7a6a8a;margin:2px 0 10px}
+.row{display:flex;align-items:center;gap:8px;margin:5px 0;justify-content:center}
+.row label{width:54px;text-align:right;font-weight:800;font-size:11px}
+.row input{font-family:inherit;font-size:13px;font-weight:700;padding:5px 8px;border:2px solid #2a1a3a;border-radius:6px;width:180px}
+.sw{display:flex;gap:4px}.sw button{width:22px;height:22px;padding:0;box-shadow:none}.sw button.on{outline:3px solid #5b3a8c;outline-offset:1px}
+#pStyle button{width:auto;padding:0 6px;font-size:10px;background:#fff4d6}
+#preview{width:104px;height:72px;image-rendering:pixelated}
+#tBtns{display:flex;flex-direction:column;gap:6px;margin-top:10px}
+#tBtns button{font-size:13px;padding:8px}
+#btnNew{background:#ffd84a}
+/* Touch */
+#touch{position:absolute;inset:0;pointer-events:none}
+#dpad{position:absolute;left:14px;bottom:14px;width:120px;height:120px;pointer-events:auto}
+#dpad button{position:absolute;width:40px;height:40px;opacity:.55;font-size:16px;padding:0}
+#dpad [data-d=up]{left:40px;top:0}#dpad [data-d=down]{left:40px;bottom:0}#dpad [data-d=left]{left:0;top:40px}#dpad [data-d=right]{right:0;top:40px}
+#ab{position:absolute;right:14px;bottom:44px;display:flex;gap:10px;pointer-events:auto}
+#game.touch #dlg{left:140px;right:136px}
+#game.touch #hudBtns{bottom:auto;top:40px}
+#ab button{width:50px;height:50px;border-radius:50%;opacity:.6;font-size:16px}
+</style></head><body>
+<div id="wrap"><div id="holder"><div id="game">
+ <canvas id="cv"></canvas>
+ <div id="hud" class="hidden">
+  <div id="zoneTag" class="box">Greenwich Village</div>
+  <div id="counts" class="box"><span title="Collectibles">🏆 <b id="cntItems">0/12</b></span><span title="Correct answers">⭐ <b id="cntStars">0</b></span></div>
+  <div id="hudBtns"><button id="btnColl">🏆 Shelf (C)</button><button id="btnHelp">❔</button><button id="btnSnd">🔊</button></div>
+ </div>
+ <div id="toast" class="box"></div>
+ <div id="dlg" class="box hidden"><div id="dlgName"></div><div id="dlgText"></div><div id="dlgChoices"></div><div id="dlgMore">▼</div></div>
+ <div id="triv" class="box hidden">
+  <div id="tvHead"><canvas id="tvPortrait" width="48" height="48"></canvas><div><div id="tvName"></div><div id="tvNeed"></div></div><div id="tvProg"></div></div>
+  <div id="tvBody"><div id="tvQ"></div><div id="tvOpts"></div><div id="tvFoot"><div id="tvFact" class="hidden"></div><button id="tvNext" class="hidden">Next ▶</button></div></div>
+  <div id="tvRes" class="hidden"></div>
+ </div>
+ <div id="coll" class="box hidden"><div class="ph"><h2>🏆 The Shelf</h2><b id="collCount"></b><button class="close">Close ✕</button></div><div id="collGrid"></div></div>
+ <div id="help" class="box hidden"><div class="ph"><h2>How to play</h2><button class="close">Close ✕</button></div>
+  <ul><li><kbd>←↑↓→</kbd> or <kbd>WASD</kbd> to walk. Hold <kbd>Shift</kbd> to hurry.</li>
+  <li><kbd>Space</kbd> / <kbd>Enter</kbd> to talk, read signs, sit, and continue. <kbd>Esc</kbd> to back out.</li>
+  <li>In trivia, click an answer or press <kbd>1</kbd>–<kbd>4</kbd>.</li>
+  <li><kbd>C</kbd> opens your shelf of collectibles. <kbd>M</kbd> toggles sound.</li>
+  <li>A yellow <b>?</b> over a cast member means they have a collectible for you. A white <b>?</b> over a stranger means they have a quick question.</li>
+  <li>Your progress saves automatically in this browser.</li></ul></div>
+ <div id="title">
+  <div id="tBox" class="box">
+   <h1>The One With <span>The Trivia Game</span></h1>
+   <div class="sub">A Greenwich Village adventure · made with love</div>
+   <canvas id="preview" width="104" height="72"></canvas>
+   <div class="row"><label>Name</label><input id="pName" maxlength="14" placeholder="Your name"></div>
+   <div class="row"><label>Shirt</label><div class="sw" id="pShirt"></div></div>
+   <div class="row"><label>Skin</label><div class="sw" id="pSkin"></div></div>
+   <div class="row"><label>Hair</label><div class="sw" id="pHair"></div><div class="sw" id="pStyle"></div></div>
+   <div id="tBtns"><button id="btnNew">New Game ▶</button><button id="btnCont" class="hidden">Continue ▶</button></div>
+  </div>
+ </div>
+ <div id="touch" class="hidden"><div id="dpad"><button data-d="up">▲</button><button data-d="left">◀</button><button data-d="right">▶</button><button data-d="down">▼</button></div><div id="ab"><button id="btnB">B</button><button id="btnA">A</button></div></div>
+ <div id="fade"></div>
+</div></div></div>
+<script>
+/*QUESTIONS*/
+/*MAPS*/
+/*GAME*/
+</script>
+</body></html>
