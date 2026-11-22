@@ -126,11 +126,12 @@ kbd{background:#fff;border:1px solid #2a1a3a;border-radius:3px;padding:0 4px;fon
 #btnNew{background:#ffd84a}
 /* Touch */
 #touch{position:absolute;inset:0;pointer-events:none}
-#dpad{position:absolute;left:14px;bottom:14px;width:120px;height:120px;pointer-events:auto}
-#dpad button{position:absolute;width:40px;height:40px;opacity:.55;font-size:16px;padding:0}
-#dpad [data-d=up]{left:40px;top:0}#dpad [data-d=down]{left:40px;bottom:0}#dpad [data-d=left]{left:0;top:40px}#dpad [data-d=right]{right:0;top:40px}
+#joy{position:absolute;left:16px;bottom:16px;width:110px;height:110px;border-radius:50%;background:radial-gradient(circle,rgba(255,244,214,.35) 0%,rgba(42,26,58,.35) 70%);border:3px solid rgba(42,26,58,.55);pointer-events:auto;touch-action:none;opacity:.75;transition:opacity .15s}
+#joy.on{opacity:1}
+#joy::before,#joy::after{content:'';position:absolute;left:50%;top:50%;background:rgba(42,26,58,.25);transform:translate(-50%,-50%)}#joy::before{width:70%;height:3px}#joy::after{width:3px;height:70%}
+#joyKnob{position:absolute;left:50%;top:50%;width:48px;height:48px;margin:-24px 0 0 -24px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#fff4d6,#ffd84a 55%,#c9a24a);border:3px solid #2a1a3a;box-shadow:0 3px 0 rgba(0,0,0,.35);pointer-events:none;z-index:1}
 #ab{position:absolute;right:14px;bottom:44px;display:flex;gap:10px;pointer-events:auto}
-#game.touch #dlg{left:140px;right:136px}
+#game.touch #dlg{left:138px;right:136px}
 #game.touch #hudBtns{bottom:auto;top:40px}
 #ab button{width:50px;height:50px;border-radius:50%;opacity:.6;font-size:16px}
 </style></head><body>
@@ -179,7 +180,7 @@ kbd{background:#fff;border:1px solid #2a1a3a;border-radius:3px;padding:0 4px;fon
    <div id="tBtns"><button id="btnNew">New Game ▶</button><div id="profList"></div><button id="btnBoardT">🏅 Leaderboard</button></div>
   </div>
  </div>
- <div id="touch" class="hidden"><div id="dpad"><button data-d="up">▲</button><button data-d="left">◀</button><button data-d="right">▶</button><button data-d="down">▼</button></div><div id="ab"><button id="btnB">B</button><button id="btnA">A</button></div></div>
+ <div id="touch" class="hidden"><div id="joy"><div id="joyKnob"></div></div><div id="ab"><button id="btnB">B</button><button id="btnA">A</button></div></div>
  <div id="fade"></div>
 </div></div></div>
 <script>
@@ -1523,7 +1524,8 @@ function updPlayer(dt){
  if(blocked(tx,ty)){if(clickPath){clickPath.wait+=dt;if(clickPath.wait>.6){const g=clickPath.goal;clickPath=null;if(clickPath===null&&g)planPath(g.x,g.y,g.act,true)}return}bumpT-=dt;if(bumpT<=0){SFX.bump();bumpT=.35}return}
  if(clickPath)clickPath.wait=0;
  player.fx=player.x;player.fy=player.y;player.x=tx;player.y=ty;player.t=0;player.moving=true;player.step^=1}
-function running(){return keys.Shift}
+let joyRun=false;
+function running(){return keys.Shift||joyRun}
 function arrive(){const d=Zn.doors.find(d=>d.x===player.x&&d.y===player.y);if(d){warp(d.to,d.tx,d.ty,d.dir);return true}return false}
 const INTROS={perk:["Central Perk. It smells like coffee and muffins, and the orange couch is right there.","Talk to people (Space) to get quizzed. Win rounds to earn collectibles for your shelf."],
  hall:["Up the stairs. Apartment 20 is on the left (the purple door). Apartment 19 is on the right.","Nobody here ever seems to lock their door."],
@@ -1843,8 +1845,16 @@ addEventListener('blur',()=>{dirStack=[];for(const k in keys)keys[k]=false});
 function toggleMute(){muted=!muted;$('#btnSnd').textContent=muted?'🔇':'🔊';toast(muted?'Sound off':'Sound on')}
 let coarse=false,lastTS='';function syncTouch(){const k=state+coarse;if(k===lastTS)return;lastTS=k;$('#touch').classList.toggle('hidden',!coarse||!['world','dialog','fade'].includes(state))}
 function setupTouch(){coarse=matchMedia('(pointer:coarse)').matches;$('#game').classList.toggle('touch',coarse);
- document.querySelectorAll('#dpad button').forEach(b=>{const d=b.dataset.d;const on=e=>{e.preventDefault();if(state==='dialog')moveSel(d==='up'||d==='left'?-1:1);else pushDir(d)};const off=e=>{e.preventDefault();popDir(d)};
-  b.addEventListener('pointerdown',on);b.addEventListener('pointerup',off);b.addEventListener('pointerleave',off);b.addEventListener('pointercancel',off)});
+ // Virtual joystick: drag the knob; the strongest axis picks the direction, pushing to the edge makes you hurry
+ const base=$('#joy'),knob=$('#joyKnob');let jid=null,jdir=null;
+ const setDir=d=>{if(d===jdir)return;if(jdir)popDir(jdir);jdir=d;if(d){if(state==='dialog')moveSel(d==='up'||d==='left'?-1:1);else{pushDir(d);clickPath=null}}};
+ const move=e=>{const r=base.getBoundingClientRect(),cx=r.left+r.width/2,cy=r.top+r.height/2,R=r.width/2;let dx=e.clientX-cx,dy=e.clientY-cy;const dist=Math.hypot(dx,dy),max=R*.62;
+  if(dist>max){dx*=max/dist;dy*=max/dist}const k=r.width/110;knob.style.transform=`translate(${dx/k}px,${dy/k}px)`;
+  joyRun=dist>R*.85;setDir(dist<R*.22?null:Math.abs(dx)>Math.abs(dy)?(dx>0?'right':'left'):(dy>0?'down':'up'))};
+ const end=e=>{if(e.pointerId!==jid)return;jid=null;knob.style.transform='';joyRun=false;setDir(null);base.classList.remove('on')};
+ base.addEventListener('pointerdown',e=>{e.preventDefault();jid=e.pointerId;try{base.setPointerCapture(jid)}catch(_){}base.classList.add('on');move(e)});
+ base.addEventListener('pointermove',e=>{if(e.pointerId===jid){e.preventDefault();move(e)}});
+ base.addEventListener('pointerup',end);base.addEventListener('pointercancel',end);base.addEventListener('lostpointercapture',end);
  $('#btnA').addEventListener('pointerdown',e=>{e.preventDefault();pressA()});$('#btnB').addEventListener('pointerdown',e=>{e.preventDefault();pressB()})}
 $('#dlg').addEventListener('click',()=>{if(state==='dialog'&&!(dCur&&dCur.choices))dlgAdvance()});
 $('#tvNext').onclick=nextQ;

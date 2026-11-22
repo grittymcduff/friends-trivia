@@ -126,11 +126,12 @@ kbd{background:#fff;border:1px solid #2a1a3a;border-radius:3px;padding:0 4px;fon
 #btnNew{background:#ffd84a}
 /* Touch */
 #touch{position:absolute;inset:0;pointer-events:none}
-#dpad{position:absolute;left:14px;bottom:14px;width:120px;height:120px;pointer-events:auto}
-#dpad button{position:absolute;width:40px;height:40px;opacity:.55;font-size:16px;padding:0}
-#dpad [data-d=up]{left:40px;top:0}#dpad [data-d=down]{left:40px;bottom:0}#dpad [data-d=left]{left:0;top:40px}#dpad [data-d=right]{right:0;top:40px}
+#joy{position:absolute;left:16px;bottom:16px;width:110px;height:110px;border-radius:50%;background:radial-gradient(circle,rgba(255,244,214,.35) 0%,rgba(42,26,58,.35) 70%);border:3px solid rgba(42,26,58,.55);pointer-events:auto;touch-action:none;opacity:.75;transition:opacity .15s}
+#joy.on{opacity:1}
+#joy::before,#joy::after{content:'';position:absolute;left:50%;top:50%;background:rgba(42,26,58,.25);transform:translate(-50%,-50%)}#joy::before{width:70%;height:3px}#joy::after{width:3px;height:70%}
+#joyKnob{position:absolute;left:50%;top:50%;width:48px;height:48px;margin:-24px 0 0 -24px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#fff4d6,#ffd84a 55%,#c9a24a);border:3px solid #2a1a3a;box-shadow:0 3px 0 rgba(0,0,0,.35);pointer-events:none;z-index:1}
 #ab{position:absolute;right:14px;bottom:44px;display:flex;gap:10px;pointer-events:auto}
-#game.touch #dlg{left:140px;right:136px}
+#game.touch #dlg{left:138px;right:136px}
 #game.touch #hudBtns{bottom:auto;top:40px}
 #ab button{width:50px;height:50px;border-radius:50%;opacity:.6;font-size:16px}
 </style></head><body>
@@ -179,7 +180,7 @@ kbd{background:#fff;border:1px solid #2a1a3a;border-radius:3px;padding:0 4px;fon
    <div id="tBtns"><button id="btnNew">New Game ▶</button><div id="profList"></div><button id="btnBoardT">🏅 Leaderboard</button></div>
   </div>
  </div>
- <div id="touch" class="hidden"><div id="dpad"><button data-d="up">▲</button><button data-d="left">◀</button><button data-d="right">▶</button><button data-d="down">▼</button></div><div id="ab"><button id="btnB">B</button><button id="btnA">A</button></div></div>
+ <div id="touch" class="hidden"><div id="joy"><div id="joyKnob"></div></div><div id="ab"><button id="btnB">B</button><button id="btnA">A</button></div></div>
  <div id="fade"></div>
 </div></div></div>
 <script>
