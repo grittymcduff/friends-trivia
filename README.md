@@ -4,6 +4,12 @@ A private, Pokémon-style pixel-art trivia adventure set in Friends' Greenwich V
 
 **Play:** open `index.html` in a browser, or turn on GitHub Pages for this repo (Settings → Pages → deploy from `main`, root folder).
 
+## v0.6: "The One With the Surprises"
+
+- **Zoom:** the 🔍 button, or the + and − keys, switches between Far, Normal and Close. The choice is remembered.
+- **8 secret sightings** that appear at random (about a 40% chance each time you enter their area): Monica in the turkey with sunglasses and a fez, Ross as the Holiday Armadillo, Joey the lost tourist, a covered "Porsche" that's really a pile of boxes, Chandler in his Thanksgiving box, Joey wearing everything Chandler owns, a PIVOT! couch emergency on Grove St, and the runaway duck in Washington Square Park.
+- The shelf has a new "Secret Sightings" section that shows silhouettes and hints until you find each one. The egg list (`EGGS`) is at the bottom of `src/maps.js`; `EGG_CHANCE` sets how often they appear.
+
 ## v0.5: "The One With the Pictures"
 
 - **22 picture questions** (175 questions in total): pixel-art scenes of places and props, like Monica's purple door, the turkey with the fez, the Holiday Armadillo, Chandler's Thanksgiving box, Mrs. Whiskerson, the Moist Maker and the Geller Cup. They're mixed into the regular decks.

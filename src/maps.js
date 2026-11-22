@@ -513,3 +513,40 @@ superfan('barbados','mike','Mike',12,8,'left',F('#efc9a8','#4a3426','short','#5b
  ["Hi, I'm Mike. Phoebe's… boyfriend? Fiancé? I came all the way to Barbados to find out.","Also, I'm very good at ping-pong. Monica says she's better. We'll see."],
  "Answer some questions and you can have my name tag. Long story. It says 'Crap Bag.'",
  "Ha! You're good. Here's the name tag. Wear it with pride.","Ooh, tough break. Want to play ping-pong instead? …Kidding. Try again!");
+
+/* =====================================================================
+ *  v0.6: EASTER EGGS. Each one has a chance to appear whenever you enter its zone.
+ *  spots: possible tile positions (one is picked at random). Found eggs are listed on the shelf.
+ * ===================================================================== */
+const LK={monica:{skin:'#efc9a8',hair:'#2a1d17',style:'bob',fem:true,shirt:'#c0573a',pants:'#2b2b30'},ross:{skin:'#efc9a8',hair:'#4a3426',style:'short',shirt:'#7a8a6a',pants:'#3b3b4a'},
+ joey:{skin:'#e8bf9a',hair:'#2a1d17',style:'short',shirt:'#4a5a8a',pants:'#2b2b30'},chandler:{skin:'#efc9a8',hair:'#4a3426',style:'short',shirt:'#5a7a5a',pants:'#3b3b4a'},
+ rachel:{skin:'#efc9a8',hair:'#4a3426',style:'long',fem:true,outfit:'skirt',shirt:'#6aa6cf',pants:'#3b3b4a'}};
+const EGG_CHANCE=0.4;
+const EGGS=[
+ {id:'turkeyhead',title:'The Turkey Head',zone:'village',hint:"Somewhere in the Village, someone is wearing dinner.",
+  npcs:[{name:'Monica?',spots:[[10,10],[36,16],[14,26],[44,25]],wander:true,look:Object.assign({},LK.monica,{hat:'turkey'})}],
+  lines:[{who:'Monica?',text:"(Someone is strolling down the sidewalk with an entire turkey on her head. Sunglasses. A tiny fez.)"},{who:'Monica?',text:"Don't look at me. I'm doing a bit. It's for Chandler. …Is it working on you? It's working on you."}]},
+ {id:'armadillo',title:'The Holiday Armadillo',zone:'uptown',hint:"Something armored is wandering the park Uptown.",
+  npcs:[{name:'The Holiday Armadillo',spots:[[22,22],[8,22],[30,23]],wander:true,look:Object.assign({},LK.ross,{costume:'armadillo'})}],
+  lines:[{who:'The Holiday Armadillo',text:"Greetings! I am the Holiday Armadillo, Santa's part-Texan friend!"},{who:'The Holiday Armadillo',text:"…It's Ross. It's me. They were out of Santa suits. Please don't tell anyone."}]},
+ {id:'tourist',title:'Joey the Tourist',zone:'midtown',hint:"A very lost tourist has been spotted in Midtown.",
+  npcs:[{name:'Joey?',spots:[[40,16],[12,16],[30,9],[18,25]],wander:true,look:Object.assign({},LK.joey,{shirt:'#f4f1ea',pants:'#c9a86a',hat:'unionjack',camera:true,map:true})}],
+  lines:[{who:'Joey?',text:"Hey! How you doin'? Can you take my picture in front of… that building? Any building. They're all great."},{who:'Joey?',text:"I'm practicing being a tourist for London. I've got the hat, the camera, the map… The map is of London. That's why I'm lost."}]},
+ {id:'porsche',title:'The "Porsche"',zone:'village',hint:"A very fancy car is parked on Grove St. Or is it?",
+  objs:[{kind:'carcover',x:43,y:14}],acts:[[43,14],[44,14]],
+  npcs:[{name:'Joey?',spots:[[45,15],[42,15]],look:Object.assign({},LK.joey,{shirt:'#2a2a2a',hat:'redcap'})}],
+  lines:[{text:"A sleek sports car under a fitted cover. Very fancy."},{text:"You lift a corner. It's… cardboard boxes. Stacked in the shape of a car."},{who:'Joey?',text:"Yeah, that's my Porsche. Don't touch it. It's very, uh… delicate. People keep asking for rides. I keep telling them it's in the shop."}]},
+ {id:'box',title:'Chandler in a Box',zone:'soho',hint:"A cardboard box in SoHo seems to be… blinking.",
+  npcs:[{name:'A Box',spots:[[20,10],[34,16],[6,16],[28,25]],look:Object.assign({},LK.chandler,{costume:'box'})}],
+  lines:[{who:'A Box',text:"(A large cardboard box on the sidewalk. It has two eyeholes. The eyes blink at you.)"},{who:'A Box',text:"…Hi. It's Chandler. Long story. There was a kiss, and now there's a box. They let me out for pie."}]},
+ {id:'layers',title:"Joey in Everything Chandler Owns",zone:'village',hint:"Someone in the Village is wearing way, way too many clothes.",
+  npcs:[{name:'Joey?',spots:[[19,9],[26,10],[11,16]],wander:true,look:Object.assign({},LK.joey,{costume:'layers'})}],
+  lines:[{who:'Joey?',text:"Hey! Notice anything different? I'm wearing everything Chandler owns. EVERYTHING."},{who:'Joey?',text:"He hid my underwear, so this is payback. It's very warm in here. Is it warm out here? I can't feel my arms."}]},
+ {id:'pivot',title:'PIVOT!',zone:'village',hint:"Three people on Grove St are having a very bad time with a couch.",
+  objs:[{kind:'couch',x:28,y:16,w:4,color:'#6a7a5a'}],
+  npcs:[{name:'Ross',spots:[[32,16]],dir:'left',look:LK.ross},{name:'Chandler',spots:[[27,16]],dir:'right',look:LK.chandler},{name:'Rachel',spots:[[30,15]],dir:'down',look:LK.rachel}],
+  lines:[{who:'Ross',text:"PIVOT! PIVOT! PIVOOOT!"},{who:'Chandler',text:"It's not going to pivot, Ross. It's a couch. Couches don't pivot."},{who:'Rachel',text:"Maybe if you both lift your ends at the same time? Just a thought."},{who:'Ross',text:"…Pivot?"}]},
+ {id:'duck',title:'The Runaway Duck',zone:'village',hint:"Something with webbed feet has escaped to Washington Square Park.",
+  npcs:[{name:'Duck',spots:[[30,30],[12,30],[40,31]],wander:true,animal:true,look:{animal:'duck'}}],
+  lines:[{who:'Duck',text:"Quack."},{text:"(Wait… is that Joey and Chandler's duck? How did it get all the way to the park?)"},{who:'Duck',text:"Quack. (It refuses to explain itself.)"}]},
+];
