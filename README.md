@@ -4,6 +4,11 @@ A private, Pokémon-style pixel-art trivia adventure set in Friends' Greenwich V
 
 **Play:** open `index.html` in a browser, or turn on GitHub Pages for this repo (Settings → Pages → deploy from `main`, root folder).
 
+## v0.7: "The One With All the Stuff"
+
+- **Set dressing:** 22 new kinds of furniture and props, and many with something to read when you interact. Highlights: Joey and Chandler's canoe, kitchen table and pizza-box tower; Monica's reading nook, sideboard and coat rack; Ross's bookshelves and desk; the office copier and filing cabinets; Bloomingdale's mirrors and shoe cases; the museum's velvet ropes, banners and info desk; studio set walls and craft services; airport luggage and a coffee kiosk; London benches and a postbox; beach umbrellas, towels, loungers, sandcastles and surfboards in Barbados and Montauk.
+- The `dress()` lists at the bottom of `src/maps.js` hold all of it, so adding more is one line per item.
+
 ## v0.6: "The One With the Surprises"
 
 - **Zoom:** the 🔍 button, or the + and − keys, switches between Far, Normal and Close. The choice is remembered.

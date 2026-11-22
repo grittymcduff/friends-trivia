@@ -210,7 +210,7 @@ function msgDoor(z,x,y,text){ act(z,x,y,{type:'msg',text}); }
  obj(z,'window',16,0,{w:2}); obj(z,'frame',5,1,{tone:'#3a5a8a'}); obj(z,'plant',18,3); obj(z,'plant',1,11);
  z.npcs.push({id:'joey',name:'Joey',cast:true,x:9,y:9,dir:'down',talk:'joey',reward:'hugsy',wander:[6,7,8,4],walkOn:['wood'],look:{skin:'#e8bf9a',hair:'#2a1d17',style:'short',shirt:'#4a5a8a',pants:'#2b2b30'}});
  z.npcs.push({id:'chandler',name:'Chandler',cast:true,x:16,y:8,dir:'left',talk:'chandler',reward:'dog',look:{skin:'#efc9a8',hair:'#4a3426',style:'short',shirt:'#5a7a5a',pants:'#3b3b4a'}});
- z.npcs.push({id:'duck',name:'Duck',x:4,y:8,dir:'right',talk:'duck',wander:[1,4,18,8],walkOn:['wood','tileK'],look:{animal:'duck'}});
+ z.npcs.push({id:'duck',name:'Duck',x:5,y:11,dir:'right',talk:'duck',wander:[1,4,18,8],walkOn:['wood','tileK'],look:{animal:'duck'}});
  z.npcs.push({id:'chick',name:'Chick',x:5,y:9,dir:'right',talk:'chick',wander:[1,4,18,8],walkOn:['wood','tileK'],look:{animal:'chick'}});
 })();
 
@@ -550,3 +550,58 @@ const EGGS=[
   npcs:[{name:'Duck',spots:[[30,30],[12,30],[40,31]],wander:true,animal:true,look:{animal:'duck'}}],
   lines:[{who:'Duck',text:"Quack."},{text:"(Wait… is that Joey and Chandler's duck? How did it get all the way to the park?)"},{who:'Duck',text:"Quack. (It refuses to explain itself.)"}]},
 ];
+
+/* =====================================================================
+ *  v0.7: set dressing for the emptier rooms
+ * ===================================================================== */
+function dress(zid,list){const z=ZONES[zid];for(const d of list){const[kind,x,y,o,msg]=d;obj(z,kind,x,y,o||{});if(msg){const w=(o&&o.w&&!['towel','rug'].includes(kind))?o.w:(['canoe'].includes(kind)?3:['flat'].includes(kind)?2:1);for(let i=0;i<w;i++)act(z,x+i,y,{type:'msg',text:msg})}}}
+dress('monica',[
+ ['rug',2,9,{w:6,h:4,low:true,tone:'#8a5a7a'}],
+ ['bookshelf',1,10,{},"Monica's bookshelf. The books are sorted by color, then height, then author. There is a label maker on the top shelf."],
+ ['floorlamp',1,12],['armchair',3,10,{face:'right'}],['sidetable',4,11],
+ ['kcounter',16,3,{w:3,tone:'#6b4226'},"The sideboard. Inside: the good china, the everyday china, and the 'guest' china, which is different from the good china."],
+ ['chair',11,5],['chair',13,5],['floorlamp',14,9],['sidetable',20,9],['coatrack',8,13,{},"The coat rack. Somebody's left a purse here. It might be Phoebe's. It might be from 1996."],
+ ['poster',5,1,{tone:'#6a8aa8'}]]);
+dress('joey',[
+ ['table',3,8],['chair',2,8],['chair',4,8],
+ ['canoe',14,4,{},"The canoe. Joey and Chandler have a canoe in their living room. Nobody knows how to use it. Nobody is giving it back."],
+ ['boxes',18,9,{},"A stack of pizza boxes, carefully saved 'for emergencies.'"],['boxes',18,10],
+ ['floorlamp',13,4],['poster',2,1,{tone:'#e05a2a'}],['poster',13,1,{tone:'#2f6fa8'}],['coatrack',8,11]]);
+dress('rossapt',[
+ ['bookshelf',10,3,{},"Ross's bookshelf: twelve books about dinosaurs, three books about dinosaurs for kids, and one book called 'Divorce and You.'"],['bookshelf',11,3],
+ ['cubicle',13,6,{},"Ross's desk. A half-written paper titled 'Why the Cretaceous Was Actually the Best Period (A Rebuttal).'"],
+ ['floorlamp',16,6],['armchair',9,6,{face:'left'}],['boxes',16,10,{},"A box labeled 'BEN'S TOYS.' On top: a tiny Holiday Armadillo doll."],['poster',14,1,{tone:'#7a6a3a'}],['coatrack',7,10]]);
+dress('office',[
+ ['cubicle',13,4,{},"An empty cubicle with a sign: 'Reserved for whoever replaces the guy who quit after Chandler's last pep talk.'"],['cubicle',6,8],
+ ['copier',15,7,{},"The copier. It's jammed. It has always been jammed. It will always be jammed."],['trash',10,10],['plant',16,4],['bookshelf',1,3,{tone:'#6a6a72'},"Filing cabinets. One drawer is labeled 'WENUS.' Another is labeled 'DO NOT ASK ABOUT THE WENUS.'"],['bookshelf',1,4,{tone:'#6a6a72'}]]);
+dress('bloomies',[
+ ['rack',5,9,{tone:'#3a3a44'},'A rack of little black dresses. Every single one is "the one."'],['rack',14,10,{tone:'#c9a24a'}],
+ ['mirror',20,6,{},"A full-length mirror. You look great. The lighting in here is very flattering."],['mirror',1,6],
+ ['case',7,11,{},"A glass case of very expensive shoes. One pair costs more than a month of Monica's rent. (Her rent is very low.)"],['case',13,11]]);
+dress('diner',[
+ ['booth',15,5],['stool',9,5],['table',3,8],['chair',2,8],['chair',4,8],['plant',16,3],['menu',11,0,{w:3}],['trash',1,3]]);
+dress('museum',[
+ ...[7,8,9,10,11,12,13,14].map(x=>['stanchion',x,7,{},x===7?"A velvet rope keeps visitors away from the skeleton. Someone has added a handwritten sign: 'ESPECIALLY YOU, JOEY.'":null]),
+ ['case',5,4],['case',18,4],['dinoskull',5,7,{},"A triceratops skull on a pedestal. Ross has named it. He won't say what."],
+ ['kcounter',19,7,{w:3,tone:'#5a4a2a'},"The information desk. A brochure: 'The Museum of Prehistoric History: Now With 40% More History!'"],
+ ['banner',3,0,{tone:'#5b3a8c'}],['banner',20,0,{tone:'#2f6b3a'}],['plant',1,3],['plant',22,3],['plant',22,12]]);
+dress('studio',[
+ ['flat',12,3,{tone:'#e8c8a8'},"A set wall for a fancy living room. From the back, it's just plywood and tape. Very glamorous."],['flat',14,3,{tone:'#e8c8a8'}],
+ ['couch',12,5,{w:3,color:'#8e6bbf'},"The set couch. Dr. Drake Ramoray has had at least four dramatic conversations on this couch."],['plant',16,5],
+ ['flat',2,3,{tone:'#cfe6ef'}],['kcounter',17,3,{w:2,tone:'#5a5a66'},"Craft services: bagels, coffee, and a sign that says 'ONE PER PERSON, JOEY.'"],
+ ['boxes',19,10],['boxes',20,10,{},"Equipment cases full of cables. Nobody knows which cable goes where."],['boxes',1,11],['stagelight',20,6]]);
+dress('airport',[
+ ['luggage',5,9,{tone:'#3a5a8a'},"Someone's luggage. The tag says 'BING.' It is extremely overpacked."],['luggage',18,10,{tone:'#c0573a'}],
+ ['kcounter',11,7,{w:2,tone:'#6b4226'},"An airport coffee kiosk. It's fine. It's not Central Perk."],['trash',6,7],['trash',17,7],['plant',24,10],['plant',12,3]]);
+dress('london',[
+ ['bench',14,6],['bench',20,6],['postbox',16,7,{},"A red postbox. You could mail a postcard home. Joey has mailed eleven, all to himself."],
+ ['planter',5,5],['planter',18,5],['tree',2,13,{park:true}],['tree',6,13,{park:true}],['tree',16,13,{park:true}]]);
+dress('barbados',[
+ ['towel',4,10,{w:2,tone:'#e05a7a'}],['umbrella',5,9,{tone:'#d9534f'},"A beach umbrella. Under it, a paperback called 'Fossils of the Caribbean.' Ross has been here."],
+ ['towel',16,8,{w:2,tone:'#5b9bd5'}],['umbrella',17,7,{tone:'#5b9bd5'}],
+ ['sandcastle',13,11,{},"A sandcastle with a little flag on top. Someone built a moat. Someone else stepped in it."],['icebox',7,10],
+ ['surfboard',21,10],['lounger',8,12],['lounger',10,12],['icebox',18,9]]);
+dress('montauk',[
+ ['towel',16,6,{w:2,tone:'#8e6bbf'}],['umbrella',17,5,{tone:'#e8b830'}],['sandcastle',12,4,{},"A sandcastle shaped like a duck. Phoebe says it's 'a castle for a duck,' which is different."],
+ ['surfboard',10,5,{tone:'#7ad0ff'}],['grill',11,8,{},"A charcoal grill. Somebody's making burgers. It smells like summer."],['lounger',19,7],
+ ['rug',5,11,{w:3,h:2,low:true,tone:'#c0573a'}],['icebox',8,11],...[12,13,14,15,16,17,18,19].map(x=>['fence',x,9])]);

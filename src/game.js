@@ -190,6 +190,28 @@ function makeObj(o){let c,g,ox=0,oy;const fin=(cc,ol=true)=>{if(ol)outline(cc);r
  case'dogstatue':{[c,g]=O(16,28);px(g,'#7a5a3a',1,22,14,6);px(g,'#9a7a5a',1,22,14,1);ell(g,'#f4f4ee',8,18,4,4);px(g,'#f4f4ee',5,8,6,12);ell(g,'#f4f4ee',8,6,3,3);px(g,'#f4f4ee',9,5,5,3);px(g,'#24222a',13,5,1,1);px(g,'#24222a',8,4,1,1);px(g,'#d8d8d0',5,1,2,5);px(g,'#d8d8d0',6,12,2,9);px(g,'#c9a24a',6,10,5,1);fin(c);oy=16-28;break}
  case'carcover':{[c,g]=O(34,22);const cv2='#8a8e98',cd='#6e727c';px(g,cv2,1,9,32,10);px(g,cv2,6,3,20,8);px(g,cd,1,17,32,2);px(g,'#a4a8b2',7,3,18,1);px(g,'#a4a8b2',2,9,8,1);
   for(const[x,y]of[[3,10],[12,6],[22,11],[28,12],[17,14]])px(g,cd,x,y,4,1);px(g,'#c9a06a',30,15,3,4);px(g,'#b08850',30,15,3,1);px(g,'#2a2a30',4,19,6,3);px(g,'#2a2a30',24,19,6,3);fin(c);oy=16-22+1;break}
+ case'bookshelf':{[c,g]=O(16,30);const t=o.tone||'#6b4226';px(g,t,0,0,16,30);px(g,shade(t,.15),0,0,16,2);const bc=['#c0262c','#3a5a8a','#e8b830','#5a7a5a','#8e6bbf','#f4f1ea','#d9782f'];for(let sh=0;sh<3;sh++){px(g,shade(t,-.3),1,3+sh*9,14,8);for(let x=2;x<14;x+=2)px(g,bc[(x+sh*3+o.x)%7],x,4+sh*9+((x+sh)%3===0?1:0),2,7-((x+sh)%3===0?1:0))}fin(c);oy=16-30;break}
+ case'floorlamp':{[c,g]=O(12,32);px(g,'#3a3a44',5,8,2,22);px(g,'#3a3a44',2,29,8,3);px(g,'#f2e0b0',1,0,10,8);px(g,'#e8c880',1,6,10,2);px(g,'#fff6d0',3,1,4,3);fin(c);ox=2;oy=16-32;break}
+ case'sidetable':{[c,g]=O(14,24);px(g,'#7a4a28',1,12,12,12);px(g,'#9a6438',1,12,12,2);px(g,'#3a3a44',6,6,2,6);px(g,'#f2e0b0',3,0,8,6);fin(c);ox=1;oy=16-24;break}
+ case'coatrack':{[c,g]=O(12,32);px(g,'#5a3a22',5,4,2,26);px(g,'#5a3a22',2,29,8,3);px(g,'#5a3a22',2,4,8,1);px(g,'#3a5a8a',1,5,4,12);px(g,'#c0573a',7,5,4,9);px(g,'#e8b830',2,2,3,2);fin(c);ox=2;oy=16-32;break}
+ case'boxes':{[c,g]=O(16,22);px(g,'#c9a06a',0,10,16,12);px(g,'#b08850',0,10,16,2);px(g,'#c9a06a',2,0,11,11);px(g,'#b08850',2,0,11,2);px(g,'#e8d8a8',0,15,16,1);px(g,'#e8d8a8',2,5,11,1);px(g,'#7a5a3a',4,7,6,1);fin(c);oy=16-22;break}
+ case'canoe':{[c,g]=O(48,16);for(let x=0;x<48;x++){const h=Math.round(5-Math.abs(x-24)/6);px(g,'#3a7a8a',x,8-h,1,h*2+2)}px(g,'#c9a06a',6,6,36,2);for(const x of[14,24,34])px(g,'#9a6438',x,5,2,6);px(g,'#9a6438',30,1,2,14);px(g,'#9a6438',28,13,6,3);fin(c);oy=0;break}
+ case'stanchion':{[c,g]=O(16,16);px(g,'#c9a24a',1,2,2,12);px(g,'#c9a24a',0,13,4,3);px(g,'#c0262c',2,4,14,2);px(g,'#9a1c20',4,6,10,1);px(g,'#e8c860',1,1,2,2);fin(c);oy=-2;break}
+ case'mirror':{[c,g]=O(12,32);px(g,'#c9a24a',0,0,12,30);px(g,'#cfe6ef',2,2,8,26);px(g,'#ffffff',3,3,2,10);px(g,'#5a3a22',3,30,6,2);fin(c);ox=2;oy=16-32;break}
+ case'copier':{[c,g]=O(18,24);px(g,'#d8d8dc',1,4,16,20);px(g,'#b8b8c0',1,4,16,3);px(g,'#4a4a56',3,0,12,5);px(g,'#7ad06a',12,9,3,2);px(g,'#f4f1ea',3,10,7,2);fin(c);ox=-1;oy=16-24;break}
+ case'trash':{[c,g]=O(10,14);px(g,'#5a6a7a',1,2,8,12);px(g,'#7a8a9a',0,1,10,2);px(g,'#4a5a6a',3,4,1,9);px(g,'#4a5a6a',6,4,1,9);fin(c);ox=3;oy=2;break}
+ case'flat':{const W=32;[c,g]=O(W,40);const t=o.tone||'#9cc8b8';px(g,'#7a5a3a',0,0,W,40);px(g,t,1,1,W-2,37);px(g,shade(t,-.15),1,30,W-2,8);px(g,'#f4f1ea',8,6,16,12);px(g,'#9cc8e6',9,7,14,10);px(g,'#f4f1ea',15,7,2,10);px(g,'#5a3a22',2,38,4,2);px(g,'#5a3a22',W-6,38,4,2);fin(c);oy=16-40;break}
+ case'umbrella':{[c,g]=O(32,36);const t=o.tone||'#d9534f';for(let i=0;i<10;i++)px(g,i%2?t:'#f4f1ea',3+i*2.6|0,8-Math.round(Math.sin(i/9*Math.PI)*5),3,4+Math.round(Math.sin(i/9*Math.PI)*5));px(g,shade(t,-.2),3,11,27,2);px(g,'#8a8a92',15,8,2,28);fin(c);ox=-8;oy=16-36;break}
+ case'towel':{const W=(o.w||2)*16;[c,g]=O(W,14);const t=o.tone||'#5b9bd5';for(let x=0;x<W;x+=6)px(g,(x/6)%2?t:'#f4f1ea',x,0,6,14);px(g,shade(t,-.2),0,13,W,1);oy=1;break}
+ case'sandcastle':{[c,g]=O(16,16);const t='#d8b878';px(g,t,1,8,14,8);px(g,t,3,3,4,6);px(g,t,9,3,4,6);for(const x of[3,5,9,11])px(g,t,x,1,1,2);px(g,'#c0262c',7,0,1,5);px(g,'#c0262c',8,0,3,2);px(g,'#7a5a3a',6,11,3,5);fin(c);oy=0;break}
+ case'icebox':{[c,g]=O(14,12);px(g,'#3a7fc0',0,2,14,10);px(g,'#f4f1ea',0,1,14,3);px(g,'#9a9aa4',5,0,4,2);fin(c);ox=1;oy=4;break}
+ case'surfboard':{[c,g]=O(10,34);ell(g,o.tone||'#ffd84a',5,16,4,15);px(g,'#c0262c',4,4,2,24);fin(c);ox=3;oy=16-34;break}
+ case'lounger':{[c,g]=O(16,20);px(g,'#f4f1ea',1,4,14,4);for(let x=1;x<15;x+=3)px(g,'#5b9bd5',x,8,2,6);px(g,'#f4f1ea',1,8,14,6);px(g,'#8a8a92',2,14,2,6);px(g,'#8a8a92',12,14,2,6);fin(c);oy=-2;break}
+ case'postbox':{[c,g]=O(12,26);px(g,'#c0262c',1,4,10,22);px(g,'#e04a4a',1,4,3,22);ell(g,'#c0262c',6,4,5,3);px(g,'#24222a',3,9,6,1);px(g,'#24222a',2,24,8,2);fin(c);ox=2;oy=16-26;break}
+ case'grill':{[c,g]=O(16,20);ell(g,'#24222a',8,6,7,4);px(g,'#3a3a44',1,6,14,2);px(g,'#5a5a66',3,8,2,12);px(g,'#5a5a66',11,8,2,12);px(g,'#e05a2a',5,4,6,1);fin(c);oy=-4;break}
+ case'luggage':{[c,g]=O(16,18);px(g,o.tone||'#5a3a6a',2,6,12,12);px(g,shade(o.tone||'#5a3a6a',.2),2,6,12,2);px(g,'#24222a',6,2,4,4);px(g,'#7a7a82',4,17,2,1);px(g,'#7a7a82',10,17,2,1);px(g,'#e8b830',8,10,4,3);fin(c);oy=-2;break}
+ case'poster':{[c,g]=O(16,22);const t=o.tone||'#3a5a8a';px(g,'#f4f1ea',1,1,14,20);px(g,t,2,2,12,13);px(g,shade(t,.4),4,5,8,6);px(g,'#24222a',3,17,10,1);px(g,'#24222a',3,19,7,1);oy=0;break}
+ case'banner':{[c,g]=O(16,28);const t=o.tone||'#5b3a8c';px(g,'#c9a24a',0,0,16,2);px(g,t,2,2,12,22);px(g,t,2,24,5,3);px(g,t,9,24,5,3);px(g,'#efe6cc',5,8,6,8);px(g,'#efe6cc',4,9,2,3);oy=0;break}
  case'rail':{[c,g]=O(16,12);px(g,'#3a3a44',0,2,16,2);px(g,'#3a3a44',0,8,16,1);for(let x=1;x<16;x+=5)px(g,'#3a3a44',x,2,2,10);oy=4;break}
  case'cubicle':{[c,g]=O(32,26);px(g,'#9aa0aa',0,0,32,14);px(g,'#b8bec8',0,0,32,2);px(g,'#7a5a3a',2,14,28,4);px(g,'#24222a',10,4,10,8);px(g,'#7ad0a0',11,5,8,5);px(g,'#5a5a66',4,18,3,8);px(g,'#5a5a66',25,18,3,8);px(g,'#f4f1ea',22,10,5,4);fin(c);oy=16-26;break}
  case'cooler':{[c,g]=O(12,26);px(g,'#9cc8e6',2,0,8,9);px(g,'#c9e2f0',2,0,2,9);px(g,'#e8e8ec',1,9,10,17);px(g,'#5a9ae0',4,12,2,2);px(g,'#e05a5a',7,12,2,2);fin(c);ox=2;oy=16-26;break}
@@ -412,8 +434,8 @@ const player={x:0,y:0,px:0,py:0,fx:0,fy:0,dir:'down',moving:false,t:0,step:0,sit
 const DIRS={up:[0,-1],down:[0,1],left:[-1,0],right:[1,0]},OPP={up:'down',down:'up',left:'right',right:'left'};
 function rectT(x,y,w,h){const a=[];for(let j=y;j<y+h;j++)for(let i=x;i<x+w;i++)a.push([i,j]);return a}
 function fp(o){switch(o.kind){case'building':return rectT(o.x,o.y,o.w,o.h);
- case'couch':case'counter':case'kcounter':case'dtable':return rectT(o.x,o.y,o.w,1);case'tv':case'foosball':case'carcover':case'cubicle':case'rack':case'booth':case'hospbed':case'gatedesk':case'pingpong':case'cab':case'clocktower':return rectT(o.x,o.y,2,1);case'bus':case'seats':return rectT(o.x,o.y,3,1);case'dino':return rectT(o.x,o.y,6,2);case'fountain':return rectT(o.x,o.y,3,2);case'car':case'bench':case'coffee':return rectT(o.x,o.y,2,1);case'barricade':return rectT(o.x,o.y,o.w||4,1);
- case'subway':return rectT(o.x,o.y,2,2);case'rug':case'wallsign':case'menu':case'window':case'frame':case'walldoor':case'bigwindow':case'board':return[];default:return[[o.x,o.y]]}}
+ case'couch':case'counter':case'kcounter':case'dtable':return rectT(o.x,o.y,o.w,1);case'tv':case'foosball':case'carcover':case'flat':case'cubicle':case'rack':case'booth':case'hospbed':case'gatedesk':case'pingpong':case'cab':case'clocktower':return rectT(o.x,o.y,2,1);case'bus':case'seats':case'canoe':return rectT(o.x,o.y,3,1);case'dino':return rectT(o.x,o.y,6,2);case'fountain':return rectT(o.x,o.y,3,2);case'car':case'bench':case'coffee':return rectT(o.x,o.y,2,1);case'barricade':return rectT(o.x,o.y,o.w||4,1);
+ case'subway':return rectT(o.x,o.y,2,2);case'rug':case'wallsign':case'menu':case'window':case'frame':case'walldoor':case'bigwindow':case'board':case'towel':case'poster':case'banner':return[];default:return[[o.x,o.y]]}}
 function setSolid(x,y,v){if(x>=0&&y>=0&&x<Zn.w&&y<Zn.h)solid[y*Zn.w+x]=v}
 function gAt(x,y){return Zn.g[y*Zn.w+x]}
 function isDoor(x,y){return Zn.doors.some(d=>d.x===x&&d.y===y)}
@@ -652,7 +674,7 @@ function draw(){ctx.setTransform(1,0,0,1,0,0);ctx.fillStyle=Zn.bg;ctx.fillRect(0
  const vis=(x,y,w,h)=>x+w>=cx-40&&x<=cx+vw+40&&y+h>=cy-60&&y<=cy+vh+60;
  const L=[];
  for(const o of Zn.objs){const s=o.spr,dx=o.x*16+s.ox,dy=o.y*16+s.oy;if(!vis(dx,dy,s.c.width,s.c.height))continue;
-  if(o.low||o.kind==='wallsign'||o.kind==='menu'||o.kind==='window'||o.kind==='frame'||o.kind==='walldoor'||o.kind==='bigwindow'||o.kind==='board'){ctx.drawImage(s.c,dx,dy);continue}
+  if(o.low||o.kind==='wallsign'||o.kind==='menu'||o.kind==='window'||o.kind==='frame'||o.kind==='walldoor'||o.kind==='bigwindow'||o.kind==='board'||o.kind==='towel'||o.kind==='poster'||o.kind==='banner'){ctx.drawImage(s.c,dx,dy);continue}
   const fh=o.kind==='building'?o.h:(['subway','dino','fountain'].includes(o.kind)?2:1);L.push({y:(o.y+fh)*16,d:()=>ctx.drawImage(s.c,dx,dy)})}
  for(const t of taxis){if(!vis(t.x,t.row*16-10,34,22))continue;L.push({y:(t.row+1)*16-.5,d:()=>{const sp=carSprite(t.col,t.taxi);ctx.drawImage(t.dir>0?sp.r:sp.l,Math.round(t.x),t.row*16+16-21)}})}
  for(const n of npcs)L.push({y:n.py+16+.3,d:()=>drawChar2(n,n.spr,n.dir,n.moving?(n.t<.5?1+((n.x+n.y)&1):0):0,n.px,n.py,n.sit||n.seated)});
