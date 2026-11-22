@@ -149,7 +149,7 @@ function msgDoor(z,x,y,text){ act(z,x,y,{type:'msg',text}); }
  door(z,6,8,'village',18,9,'down'); door(z,7,8,'village',18,9,'down');
  obj(z,'frame',7,1,{tone:'#4a7a6a'}); obj(z,'plant',1,3); obj(z,'plant',12,3);
  obj(z,'rug',3,4,{w:8,h:3,low:true,tone:'#5a3a6a'});
- act(z,7,2,{type:'msg',text:"A framed print of a sailboat. Someone has straightened it very, very precisely. (Probably Monica.)"});
+ act(z,7,2,{type:'quiz',name:'The Photo Wall',icon:'polaroid',script:{narrate:true,greet:["A wall of framed snapshots: a purple door, an orange couch, a turkey in sunglasses… Someone has labeled them with questions.","A sticky note: 'Picture round! Six photos. Get five right and take a Polaroid.'"],offer:"Play the picture round?",tags:'pic',prefer:'pic',n:6,need:5,reward:'polaroid',yes:"Let's look",no:'Maybe later',noReply:'The photos will wait.',win:"You recognized almost everything! You peel a Polaroid off the wall. Nobody will notice. (Monica will notice.)",lose:"Hmm, a few of those got by you. Look closer next time!"}});
 })();
 
 /* ---------------- Monica's apartment (#20) ---------------- */

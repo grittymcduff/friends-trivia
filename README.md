@@ -4,6 +4,12 @@ A private, Pokémon-style pixel-art trivia adventure set in Friends' Greenwich V
 
 **Play:** open `index.html` in a browser, or turn on GitHub Pages for this repo (Settings → Pages → deploy from `main`, root folder).
 
+## v0.5: "The One With the Pictures"
+
+- **22 picture questions** (175 questions in total): pixel-art scenes of places and props, like Monica's purple door, the turkey with the fez, the Holiday Armadillo, Chandler's Thanksgiving box, Mrs. Whiskerson, the Moist Maker and the Geller Cup. They're mixed into the regular decks.
+- **The Photo Wall** in the upstairs hallway runs a six-photo picture round, with a bonus Polaroid as the prize.
+- Picture questions use the `pic` field in `src/questions.js`. The scenes are drawn by `drawPic()` in `src/game.js`.
+
 ## v0.4: "The One for the Superfan"
 
 - **60 superfan questions** (153 total), covering middle names, Mrs. Whiskerson, Chi-Chi, Al Zebooker, Ichiban, Mac and C.H.E.E.S.E. and much more. They're mixed into every deck, so every round is tougher.
@@ -80,6 +86,5 @@ Cast members currently use generic placeholder sprites with name tags. To swap i
 
 ## Ideas for later
 
-- Picture questions ("Which apartment is this?")
 - More trips: Atlantic City, Tulsa
 - Hand-drawn sprites for the cast (see above)

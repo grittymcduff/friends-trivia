@@ -45,7 +45,10 @@ button:disabled{cursor:default}
 #tvProg{margin-left:auto;display:flex;gap:4px}
 #tvProg i{width:12px;height:12px;border-radius:50%;border:2px solid #2a1a3a;background:#fff}
 #tvProg i.cur{background:#ffd84a}#tvProg i.ok{background:#3ccf5a}#tvProg i.no{background:#e04848}
-#tvQ{font-size:16px;font-weight:800;margin:14px 2px 12px;line-height:1.35;min-height:44px}
+#tvQ{font-size:16px;font-weight:800;margin:14px 2px 12px;line-height:1.35;min-height:44px;flex:1}
+#tvMid{display:flex;gap:14px;align-items:center}
+#tvPic{width:256px;height:160px;image-rendering:pixelated;border:3px solid #2a1a3a;border-radius:6px;margin-top:8px;flex:none;background:#fff}
+#tvPic:not(.hidden)+#tvQ{margin:8px 2px}
 #tvOpts{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 #tvOpts button{text-align:left;font-size:13px;padding:9px 10px;display:flex;gap:8px;align-items:center;min-height:44px}
 #tvOpts button b{display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;border-radius:4px;background:#5b3a8c;color:#fff;font-size:10px;flex:none}
@@ -129,7 +132,7 @@ kbd{background:#fff;border:1px solid #2a1a3a;border-radius:3px;padding:0 4px;fon
  <div id="dlg" class="box hidden"><div id="dlgName"></div><div id="dlgText"></div><div id="dlgChoices"></div><div id="dlgMore">▼</div></div>
  <div id="triv" class="box hidden">
   <div id="tvHead"><canvas id="tvPortrait" width="48" height="48"></canvas><div><div id="tvName"></div><div id="tvNeed"></div></div><div id="tvProg"></div></div>
-  <div id="tvBody"><div id="tvQ"></div><div id="tvOpts"></div><div id="tvFoot"><div id="tvFact" class="hidden"></div><button id="tvNext" class="hidden">Next ▶</button></div></div>
+  <div id="tvBody"><div id="tvMid"><canvas id="tvPic" class="hidden" width="256" height="160"></canvas><div id="tvQ"></div></div><div id="tvOpts"></div><div id="tvFoot"><div id="tvFact" class="hidden"></div><button id="tvNext" class="hidden">Next ▶</button></div></div>
   <div id="tvRes" class="hidden"></div>
  </div>
  <div id="coll" class="box hidden"><div class="ph"><h2>🏆 The Shelf</h2><b id="collCount"></b><button class="close">Close ✕</button></div><div id="collGrid"></div></div>
@@ -336,6 +339,29 @@ const QB = [
 {t:'hard chandler', q:"What is the name of the Las Vegas show Chandler's father stars in?", a:["Viva Las Gaygas","Vegas Nights","Glitter & Gold","The Bing Bang Show"]},
 {t:'hard ross', q:"Why do Ross's teeth glow on a date?", a:["He used too much teeth whitener","He ate glow sticks","He got veneers","A dentist's mistake"]},
 {t:'hard rachel', q:"Who was Rachel's senior prom date?", a:["Chip Matthews","Barry Farber","Joshua Bergin","Paolo"]},
+// ---- v0.5: PICTURE questions (pic = which scene to draw) ----
+{t:'pic monica easy', pic:'door20', q:"Whose front door is this?", a:["Monica's","Joey and Chandler's","Ross's","Phoebe's"], f:"Purple door, yellow peephole frame, apartment 20."},
+{t:'pic joey chandler easy', pic:'jcapt', q:"Whose living room is this?", a:["Joey and Chandler's","Ross's","Monica and Rachel's","Mr. Heckles'"]},
+{t:'pic perk easy', pic:'perk', q:"Where is this famous couch?", a:["Central Perk","Monica's apartment","Ross's apartment","The Moondance Diner"]},
+{t:'pic monica', pic:'turkey', q:"Who wore this on their head to cheer someone up?", a:["Monica","Joey","Phoebe","Rachel"], f:"She did it to cheer up Chandler, who was not having a great Thanksgiving."},
+{t:'pic ross', pic:'pants', q:"Whose disastrous date outfit is this?", a:["Ross's","Joey's","Chandler's","Gunther's"], f:"Leather pants plus lotion plus powder equals paste."},
+{t:'pic ross', pic:'armadillo', q:"Who dressed up as this for the holidays?", a:["Ross","Chandler","Joey","Jack Geller"], f:"Santa was sold out, so Ross became the Holiday Armadillo."},
+{t:'pic joey chandler easy', pic:'chickduck', q:"Whose pets are these?", a:["Joey and Chandler's","Phoebe's","Ross's","Monica's"]},
+{t:'pic phoebe', pic:'taxi', q:"Whose ride is this?", a:["Phoebe's","Joey's","Gunther's","Chandler's"], f:"It was her grandmother's taxi."},
+{t:'pic rachel', pic:'trifle', q:"Who made this Thanksgiving dessert?", a:["Rachel","Monica","Phoebe","Judy Geller"], f:"Custard: good. Jam: good. Beef: …"},
+{t:'pic joey chandler', pic:'dog', q:"Whose apartment does this guard?", a:["Joey and Chandler's","Monica and Rachel's","Ross's","Phoebe's"]},
+{t:'pic monica ross', pic:'cup', q:"What is this trophy called?", a:["The Geller Cup","The Bing Bowl","The Thanksgiving Trophy","The Turkey Cup"]},
+{t:'pic joey places', pic:'hat', q:"Who bought this hat in London?", a:["Joey","Chandler","Ross","Monica"]},
+{t:'pic rachel hard', pic:'cat', q:"What is this cat's name?", a:["Mrs. Whiskerson","Julio","Fluffy Meowington","Smelly Cat"]},
+{t:'pic joey easy', pic:'hugsy', q:"What is this penguin's name?", a:["Hugsy","Waddles","Mr. Flippers","Pengy"]},
+{t:'pic ross', pic:'sandwich', q:"Whose sandwich is this? (Note the special middle layer.)", a:["Ross's","Joey's","Chandler's","Gunther's"], f:"The Moist Maker: an extra slice of bread soaked in gravy."},
+{t:'pic ross easy', pic:'dino', q:"Who works here?", a:["Ross","Phoebe","Chandler","Richard"]},
+{t:'pic easy', pic:'poker', q:"What did the friends build this for?", a:["Poking Ugly Naked Guy","Changing light bulbs","Fishing out the window","Reaching Joey's top shelf"], f:"It's made of chopsticks taped together."},
+{t:'pic monica', pic:'wig', q:"Who had to wear this at work?", a:["Monica","Rachel","Phoebe","Janice"]},
+{t:'pic monica places', pic:'paddle', q:"Where did the epic ping-pong marathon take place?", a:["Barbados","Montauk","Las Vegas","Atlantic City"]},
+{t:'pic phoebe easy', pic:'smellycat', q:"Which song is about this guy?", a:["Smelly Cat","Grumpy Dog","Alley Cat Blues","The Stinky Song"]},
+{t:'pic chandler', pic:'box', q:"Who spent a Thanksgiving inside this?", a:["Chandler","Joey","Ross","Gunther"], f:"His penance for kissing Joey's girlfriend, Kathy."},
+{t:'pic joey hard', pic:'rosita', q:"What does Joey call this chair?", a:["Rosita","Big Leather","Sandra","Barcalounger Bob"]},
 ];
 
 /* ===== A personal touch =====
@@ -386,6 +412,7 @@ const ITEMS = [
  {id:'comb',     name:"Richard's Mustache Comb",    from:'Richard · Central Park', desc:"Tortoiseshell. Very distinguished. Very Richard.", hint:"An ophthalmologist is enjoying the park Uptown.", bonus:true},
  {id:'ashtray',  name:"Estelle's Ashtray",          from:'Estelle · Silvercup Studios', desc:"Never empty. Estelle Leonard Talent Agency.", hint:"Joey's agent is on set in Queens.", bonus:true},
  {id:'nametag',  name:"'Crap Bag' Name Tag",        from:'Mike · Barbados', desc:"'Hello, my name is Crap Bag.' Mike is very committed to the bit.", hint:"Phoebe's favorite piano player is in Barbados.", bonus:true},
+ {id:'polaroid', name:'The Photo Wall Polaroid',    from:'The Photo Wall · Upstairs Hallway', desc:"A snapshot of an orange couch. Somehow it says everything.", hint:"There's a wall of photos in the upstairs hallway.", bonus:true},
  // Finale
  {id:'key',      name:"The Key to Apartment 20",    from:'The Last One · Central Perk', desc:"Everyone leaves their keys on the counter one last time. You get to keep this one.", hint:"Collect everything else, then head to the orange couch."},
 ];
@@ -541,7 +568,7 @@ function msgDoor(z,x,y,text){ act(z,x,y,{type:'msg',text}); }
  door(z,6,8,'village',18,9,'down'); door(z,7,8,'village',18,9,'down');
  obj(z,'frame',7,1,{tone:'#4a7a6a'}); obj(z,'plant',1,3); obj(z,'plant',12,3);
  obj(z,'rug',3,4,{w:8,h:3,low:true,tone:'#5a3a6a'});
- act(z,7,2,{type:'msg',text:"A framed print of a sailboat. Someone has straightened it very, very precisely. (Probably Monica.)"});
+ act(z,7,2,{type:'quiz',name:'The Photo Wall',icon:'polaroid',script:{narrate:true,greet:["A wall of framed snapshots: a purple door, an orange couch, a turkey in sunglasses… Someone has labeled them with questions.","A sticky note: 'Picture round! Six photos. Get five right and take a Polaroid.'"],offer:"Play the picture round?",tags:'pic',prefer:'pic',n:6,need:5,reward:'polaroid',yes:"Let's look",no:'Maybe later',noReply:'The photos will wait.',win:"You recognized almost everything! You peel a Polaroid off the wall. Nobody will notice. (Monica will notice.)",lose:"Hmm, a few of those got by you. Look closer next time!"}});
 })();
 
 /* ---------------- Monica's apartment (#20) ---------------- */
@@ -1197,7 +1224,7 @@ function itemIcon(id){if(itemCache[id])return itemCache[id];const[c,g]=mk(32,32)
  case'dog':ell(g,'#f2f2ec',15,21,7,6);px(g,'#f2f2ec',11,10,8,14);ell(g,'#f2f2ec',15,9,5,5);px(g,'#f2f2ec',18,9,8,4);px(g,'#24222a',25,9,2,2);px(g,'#24222a',16,7,2,2);px(g,'#d8d8d0',10,3,3,6);px(g,'#d8d8d0',12,14,3,12);px(g,'#f2f2ec',9,25,5,3);px(g,'#f2f2ec',17,25,5,3);px(g,'#c9a24a',14,14,4,1);px(g,'#d8d8d0',2,27,28,2);break;
  case'hugsy':ell(g,'#24222a',16,17,9,11);ell(g,'#f4f1ea',16,19,6,8);px(g,'#f4f1ea',12,9,3,3);px(g,'#f4f1ea',17,9,3,3);px(g,'#24222a',13,10,1,1);px(g,'#24222a',18,10,1,1);px(g,'#f0a030',14,12,4,2);px(g,'#f0a030',10,27,5,2);px(g,'#f0a030',17,27,5,2);px(g,'#24222a',5,15,3,8);px(g,'#24222a',24,15,3,8);break;
  case'frame':px(g,'#e2b82a',5,5,22,22);px(g,'#f2d45a',5,5,22,2);for(const[x,y]of[[3,3],[25,3],[3,25],[25,25],[14,2],[14,27],[2,14],[27,14]])px(g,'#e2b82a',x,y,4,3);px(g,'#c89a1a',8,8,16,16);px(g,'#5b3a8c',11,11,10,10);px(g,'#24222a',14,14,4,4);break;
- case'cup':px(g,'#e2b82a',8,5,16,11);px(g,'#f2d45a',8,5,4,11);px(g,'#e2b82a',4,7,4,2);px(g,'#e2b82a',4,7,2,6);px(g,'#e2b82a',24,7,4,2);px(g,'#e2b82a',26,7,2,6);px(g,'#c89a1a',13,16,6,5);px(g,'#7a5418',9,21,14,7);px(g,'#9a6a28',9,21,14,1);px(g,'#ff6fb0',14,1,4,4);break;
+ case'cup':px(g,'#9a6a38',2,22,28,7);px(g,'#b8844a',2,22,28,2);px(g,'#7a4a28',2,28,28,1);px(g,'#8a8a92',15,21,2,2);px(g,'#e8b88a',12,13,8,9);px(g,'#3e8f45',12,16,8,6);px(g,'#e8b88a',10,16,2,4);px(g,'#e8b88a',20,16,2,4);ell(g,'#e8b88a',16,10,4,3);px(g,'#1a1a2a',14,9,1,1);px(g,'#1a1a2a',17,9,1,1);for(let i=0;i<7;i++)px(g,'#ff6fb0',12+i,1+(i%3),1,7);ell(g,'#ff6fb0',16,4,4,3);break;
  case'pants':px(g,'#6b3a1e',9,4,14,6);px(g,'#6b3a1e',9,10,6,19);px(g,'#6b3a1e',17,10,6,19);px(g,'#8a5230',10,5,3,22);px(g,'#8a5230',18,11,2,16);px(g,'#3a1e0e',9,4,14,1);px(g,'#c9a24a',15,5,2,2);break;
  case'armadillo':ell(g,'#8a8a8a',15,18,11,8);for(let x=8;x<24;x+=4)px(g,'#6a6a6a',x,11,1,14);ell(g,'#a8a8a8',27,20,3,3);px(g,'#24222a',28,19,1,1);px(g,'#a8a8a8',4,16,3,10);px(g,'#7a7a7a',8,25,4,4);px(g,'#7a7a7a',19,25,4,4);break;
  case'headshot':px(g,'#f4f1ea',5,3,22,26);px(g,'#cfd6dc',7,5,18,18);ell(g,'#8a6a5a',16,12,5,5);px(g,'#4a3426',11,6,10,4);px(g,'#3a4a6a',9,18,14,5);px(g,'#24222a',9,25,14,1);px(g,'#24222a',11,27,10,1);break;
@@ -1220,10 +1247,49 @@ function itemIcon(id){if(itemCache[id])return itemCache[id];const[c,g]=mk(32,32)
  case'comb':px(g,'#8a5a2a',4,10,24,6);px(g,'#b07a3a',4,10,24,2);for(let x=5;x<28;x+=2)px(g,'#8a5a2a',x,16,1,8);px(g,'#4a3426',8,26,16,3);px(g,'#4a3426',6,27,4,2);px(g,'#4a3426',22,27,4,2);break;
  case'ashtray':ell(g,'#6a8aa8',16,20,13,6);ell(g,'#4a6a88',16,18,10,4);px(g,'#f4f1ea',8,15,9,2);px(g,'#e05a2a',16,15,1,2);px(g,'#c0c0c8',18,4,1,10);px(g,'#d8d8e0',17,2,2,3);px(g,'#f4f1ea',14,17,6,1);break;
  case'nametag':px(g,'#c0262c',2,6,28,20);px(g,'#ffffff',4,13,24,11);px(g,'#ffffff',4,8,24,3);px(g,'#24222a',7,16,4,4);px(g,'#24222a',13,16,4,4);px(g,'#24222a',19,16,4,4);px(g,'#24222a',7,21,16,1);break;
+ case'polaroid':px(g,'#f4f4f8',5,3,22,26);px(g,'#9cc8e6',7,5,18,16);px(g,'#d9782f',9,14,14,5);px(g,'#ef9a4e',9,14,14,1);px(g,'#7a4a28',7,19,18,2);px(g,'#c0262c',22,6,2,2);break;
  case'key':px(g,'#e2b82a',4,10,12,12);px(g,'#f2d45a',4,10,12,2);px(g,'#5b3a8c',8,14,4,4);px(g,'#e2b82a',16,14,13,4);px(g,'#e2b82a',22,18,3,5);px(g,'#e2b82a',27,18,2,4);px(g,'#c89a1a',16,17,13,1);break;
  }
  outline(c);return itemCache[id]=c}
 function silhouette(src){const[c,g]=mk(32,32);g.drawImage(src,0,0);g.globalCompositeOperation='source-atop';px(g,'#3d3352',0,0,32,32);return c}
+
+/* ===================== Picture questions (128x80 scenes, shown at 2x) ===================== */
+const picCache={};
+function picFloor(g,t,y0,y1=80){for(let y=y0;y<y1;y+=16)for(let x=0;x<128;x+=16)g.drawImage(tile(t,x/16,y/16),x,y)}
+function picWall(g,t,h){for(let y=0;y<h;y+=16)for(let x=0;x<128;x+=16)g.drawImage(tile(t,x/16,y/16),x,y)}
+const OB=(k,o)=>makeObj(Object.assign({kind:k,x:0,y:0},o||{})).c;
+function put(g,c,x,y,sc=1){g.drawImage(c,x,y,c.width*sc,c.height*sc)}
+function drawPic(key){if(picCache[key])return picCache[key];const[c,g]=mk(128,80);
+ switch(key){
+ case'door20':{picWall(g,'wallH',64);picFloor(g,'wood',64);px(g,'#5c3a22',0,52,128,12);const d=OB('walldoor',{color:'#5b3a8c',num:'20',frame:true});put(g,d,48,-4,2);break}
+ case'jcapt':{picWall(g,'wallC',32);picFloor(g,'wood',32);px(g,'#5c3a22',0,28,128,6);put(g,OB('tv'),40,6,1.5);put(g,OB('dogstatue'),94,2,1.5);put(g,OB('recliner'),28,40,1.5);put(g,OB('recliner'),70,40,1.5);break}
+ case'perk':{picWall(g,'brick',30);picFloor(g,'wood',30);px(g,'#5c3a22',0,28,128,4);put(g,OB('window',{w:3}),72,0,1);put(g,OB('rug',{w:6,h:3}),12,36);put(g,OB('couch',{w:4}),24,26,1.25);put(g,OB('coffee',{w:2}),40,60);put(g,OB('armchair'),4,48);put(g,OB('armchair'),100,48);break}
+ case'turkey':{picWall(g,'wallP',36);picFloor(g,'tileK',36);px(g,'#7a4a28',14,50,100,8);px(g,'#9a6438',14,50,100,2);put(g,itemIcon('turkey'),32,4,2);break}
+ case'pants':{picWall(g,'tileK',48);picFloor(g,'tileD',48);px(g,'#f4f4f8',4,44,40,8);put(g,itemIcon('pants'),40,4,2);px(g,'#f4f1ea',100,40,12,22);px(g,'#9cc8e6',100,46,12,6);px(g,'#e8e2d4',8,30,14,14);px(g,'#ffffff',8,30,14,3);break}
+ case'armadillo':{picWall(g,'wallC',40);picFloor(g,'wood',40);px(g,'#c9a24a',6,30,26,3);for(let i=0;i<9;i++){px(g,'#e8e2d4',7+i*3,18,1,12);px(g,'#ffd84a',7+i*3,15,1,3)}px(g,'#e8e2d4',18,12,1,18);put(g,itemIcon('armadillo'),48,10,2.2);break}
+ case'chickduck':{picWall(g,'wallC',30);picFloor(g,'wood',30);const d=charSprites({animal:'duck'}),k=charSprites({animal:'chick'});put(g,d.right[0],24,16,3);put(g,k.left[0],70,26,2.5);break}
+ case'taxi':{picWall(g,'wallH',30);picFloor(g,'road',30);px(g,'#c9c3b5',0,30,128,8);const t=carSprite('#f2c230',false).l;put(g,t,14,26,3);px(g,'#e05a7a',86,34,4,4);px(g,'#ffffff',90,36,3,3);break}
+ case'trifle':{picWall(g,'wallP',40);picFloor(g,'wood',40);px(g,'#7a4a28',10,56,108,8);px(g,'#9a6438',10,56,108,2);put(g,itemIcon('trifle'),32,-2,2);break}
+ case'dog':{picWall(g,'wallC',36);picFloor(g,'wood',36);px(g,'#5c3a22',0,32,128,6);put(g,OB('dogstatue'),44,-6,2.6);break}
+ case'cup':{px(g,'#9cc8e6',0,0,128,30);picFloor(g,'grass',30);px(g,'#ffffff',0,52,128,2);put(g,itemIcon('cup'),32,2,2);break}
+ case'hat':{px(g,'#9cb0c8',0,0,128,44);picFloor(g,'walk',44);put(g,OB('clocktower'),2,-18,1);put(g,OB('bus'),84,22,.9);put(g,itemIcon('hat'),36,6,2);break}
+ case'cat':{picWall(g,'wallP',40);picFloor(g,'wood',40);px(g,'#e05a7a',30,58,68,8);const b='#e8b8a8',d='#d09888';ell(g,b,64,50,20,12);ell(g,b,64,30,13,11);for(const sx of[-1,1]){for(let i=0;i<10;i++)px(g,b,64+sx*(7+i/2)-1,12+i,3,2);px(g,'#f0c8c8',64+sx*10,16,2,5)}
+  px(g,'#7ab04a',57,28,4,4);px(g,'#7ab04a',67,28,4,4);px(g,'#1a1a2a',58,29,2,2);px(g,'#1a1a2a',68,29,2,2);px(g,d,62,34,4,2);for(let i=0;i<3;i++)px(g,d,56,22+i*2,16,1);for(let i=0;i<4;i++)px(g,d,50+i*8,44,1,10);for(let i=0;i<16;i++)px(g,b,84+i,52-i/2,2,2);break}
+ case'hugsy':{picWall(g,'wallC',36);picFloor(g,'wood',36);px(g,'#5a7aa8',10,34,108,30);px(g,'#7a9ac8',10,34,108,4);px(g,'#f4f1ea',14,30,36,12);put(g,itemIcon('hugsy'),56,8,2);break}
+ case'sandwich':{picWall(g,'wallC',40);picFloor(g,'carpet',40);px(g,'#e8e8ec',96,6,26,60);px(g,'#ffffff',96,6,6,60);px(g,'#b8b8c0',96,30,26,1);
+  const y=38;ell(g,'#f4f1ea',48,60,30,6);px(g,'#e8c07a',22,y,52,6);px(g,'#c0603a',20,y+6,56,4);px(g,'#7a4a28',22,y+10,52,6);px(g,'#5a3418',24,y+11,48,3);px(g,'#7ab04a',20,y+16,56,2);px(g,'#c0603a',22,y+18,52,3);px(g,'#e8c07a',22,y+21,52,6);px(g,'#f4e8c0',22,y,52,1);break}
+ case'dino':{picWall(g,'wallH',36);picFloor(g,'marble',36);put(g,OB('dino'),8,6,1.15);break}
+ case'poker':{px(g,'#a24a32',0,0,128,80);for(let x=6;x<128;x+=30)for(let y=6;y<80;y+=34){px(g,'#d8cbb0',x-1,y-1,22,28);px(g,'#2e3a52',x,y,20,26)}px(g,'#e9c46a',66,40,20,26);
+  for(let i=0;i<60;i++){const x=4+i*1.1,y=78-i*.5;px(g,i%14<12?'#c8a06a':'#8a6a3a',x,y,2,2)}px(g,'#8a6a3a',68,47,4,4);px(g,'#c8a06a',70,49,8,2);break}
+ case'wig':{picWall(g,'wallH',36);picFloor(g,'tileD',36);px(g,'#c0262c',6,40,40,20);put(g,OB('jukebox'),100,10,1.3);put(g,itemIcon('wig'),34,4,2);break}
+ case'paddle':{px(g,'#2f6fa8',0,0,128,24);picFloor(g,'sand',24);put(g,OB('palm'),88,-10,1.2);put(g,OB('pingpong'),18,34,1.6);put(g,itemIcon('paddle'),60,30,1.4);break}
+ case'smellycat':{picWall(g,'brick',50);picFloor(g,'road',50);px(g,'#6a6a72',8,40,30,22);px(g,'#4a4a56',8,40,30,3);const f='#c8a070',fd='#a0784a';ell(g,f,74,56,16,9);ell(g,f,62,44,9,8);px(g,f,55,34,3,5);px(g,f,66,34,3,5);px(g,'#1a1a2a',58,42,2,2);px(g,'#1a1a2a',64,42,2,2);px(g,fd,60,47,4,1);for(let i=0;i<8;i++)px(g,fd,64+i*4,50+(i%2)*3,2,6);for(let i=0;i<10;i++)px(g,f,88+i,52-i*1.2,2,2);
+  for(const[x,y]of[[80,26],[94,30],[70,22]])for(let i=0;i<10;i++)px(g,'#7ab04a',x+Math.round(Math.sin(i)*2),y-i,1,1);px(g,'#a0602a',100,46,16,12);px(g,'#3a2414',106,49,4,4);px(g,'#6a4428',114,30,3,18);break}
+ case'box':{picWall(g,'wallP',34);picFloor(g,'wood',34);px(g,'#7a4a28',0,60,128,8);px(g,'#c9a06a',40,16,50,48);px(g,'#b08850',40,16,50,6);px(g,'#a07840',86,16,4,48);px(g,'#1a1a2a',54,30,6,4);px(g,'#1a1a2a',70,30,6,4);px(g,'#e8d8a8',40,40,50,2);break}
+ case'rosita':{picWall(g,'wallC',30);picFloor(g,'wood',30);put(g,OB('recliner'),40,4,2.6);break}
+ case'perkout':{picWall(g,'wallC',36);picFloor(g,'wood',36);for(let i=0;i<4;i++){px(g,'#f4f4f8',8+i*30,10+(i%2)*6,24,28);px(g,['#c9e2f0','#f2d45a','#e8b8a8','#b8e0b0'][i],10+i*30,12+(i%2)*6,20,18)}px(g,'#c0262c',58,10,4,4);break}
+ }
+ outline(c,'#1c1626');return picCache[key]=c}
 
 /* ===================== Audio ===================== */
 let AC=null,muted=false;
@@ -1419,7 +1485,7 @@ function startTrivia(o){const tags=o.tags==='all'?null:o.tags.split(' ');
 function renderQ(){const q=TV.qs[TV.k];TV.answered=false;TV.opts=shuffle(q.a.slice());
  $('#tvProg').innerHTML=TV.qs.map((_,i)=>`<i class="${i<TV.k?(TV.res[i]?'ok':'no'):i===TV.k?'cur':''}"></i>`).join('');
  $('#tvNeed').textContent=TV.quick?'':`Need ${TV.need} of ${TV.qs.length}`;
- $('#tvQ').textContent=q.q;$('#tvFact').classList.add('hidden');$('#tvNext').classList.add('hidden');
+ $('#tvQ').textContent=q.q;const pc=$('#tvPic');if(q.pic){pc.classList.remove('hidden');const gg=pc.getContext('2d');gg.imageSmoothingEnabled=false;gg.clearRect(0,0,256,160);gg.drawImage(drawPic(q.pic),0,0,256,160)}else pc.classList.add('hidden');$('#tvFact').classList.add('hidden');$('#tvNext').classList.add('hidden');
  $('#tvOpts').innerHTML=TV.opts.map((a,i)=>`<button data-i="${i}"><b>${i+1}</b>${esc(a)}</button>`).join('');
  $('#tvOpts').querySelectorAll('button').forEach(b=>b.onclick=()=>answer(+b.dataset.i))}
 function answer(i){if(!TV||TV.answered)return;const q=TV.qs[TV.k],ok=TV.opts[i]===q.a[0];TV.answered=true;TV.res=TV.res||[];TV.res[TV.k]=ok;

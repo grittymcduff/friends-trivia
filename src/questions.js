@@ -173,6 +173,29 @@ const QB = [
 {t:'hard chandler', q:"What is the name of the Las Vegas show Chandler's father stars in?", a:["Viva Las Gaygas","Vegas Nights","Glitter & Gold","The Bing Bang Show"]},
 {t:'hard ross', q:"Why do Ross's teeth glow on a date?", a:["He used too much teeth whitener","He ate glow sticks","He got veneers","A dentist's mistake"]},
 {t:'hard rachel', q:"Who was Rachel's senior prom date?", a:["Chip Matthews","Barry Farber","Joshua Bergin","Paolo"]},
+// ---- v0.5: PICTURE questions (pic = which scene to draw) ----
+{t:'pic monica easy', pic:'door20', q:"Whose front door is this?", a:["Monica's","Joey and Chandler's","Ross's","Phoebe's"], f:"Purple door, yellow peephole frame, apartment 20."},
+{t:'pic joey chandler easy', pic:'jcapt', q:"Whose living room is this?", a:["Joey and Chandler's","Ross's","Monica and Rachel's","Mr. Heckles'"]},
+{t:'pic perk easy', pic:'perk', q:"Where is this famous couch?", a:["Central Perk","Monica's apartment","Ross's apartment","The Moondance Diner"]},
+{t:'pic monica', pic:'turkey', q:"Who wore this on their head to cheer someone up?", a:["Monica","Joey","Phoebe","Rachel"], f:"She did it to cheer up Chandler, who was not having a great Thanksgiving."},
+{t:'pic ross', pic:'pants', q:"Whose disastrous date outfit is this?", a:["Ross's","Joey's","Chandler's","Gunther's"], f:"Leather pants plus lotion plus powder equals paste."},
+{t:'pic ross', pic:'armadillo', q:"Who dressed up as this for the holidays?", a:["Ross","Chandler","Joey","Jack Geller"], f:"Santa was sold out, so Ross became the Holiday Armadillo."},
+{t:'pic joey chandler easy', pic:'chickduck', q:"Whose pets are these?", a:["Joey and Chandler's","Phoebe's","Ross's","Monica's"]},
+{t:'pic phoebe', pic:'taxi', q:"Whose ride is this?", a:["Phoebe's","Joey's","Gunther's","Chandler's"], f:"It was her grandmother's taxi."},
+{t:'pic rachel', pic:'trifle', q:"Who made this Thanksgiving dessert?", a:["Rachel","Monica","Phoebe","Judy Geller"], f:"Custard: good. Jam: good. Beef: …"},
+{t:'pic joey chandler', pic:'dog', q:"Whose apartment does this guard?", a:["Joey and Chandler's","Monica and Rachel's","Ross's","Phoebe's"]},
+{t:'pic monica ross', pic:'cup', q:"What is this trophy called?", a:["The Geller Cup","The Bing Bowl","The Thanksgiving Trophy","The Turkey Cup"]},
+{t:'pic joey places', pic:'hat', q:"Who bought this hat in London?", a:["Joey","Chandler","Ross","Monica"]},
+{t:'pic rachel hard', pic:'cat', q:"What is this cat's name?", a:["Mrs. Whiskerson","Julio","Fluffy Meowington","Smelly Cat"]},
+{t:'pic joey easy', pic:'hugsy', q:"What is this penguin's name?", a:["Hugsy","Waddles","Mr. Flippers","Pengy"]},
+{t:'pic ross', pic:'sandwich', q:"Whose sandwich is this? (Note the special middle layer.)", a:["Ross's","Joey's","Chandler's","Gunther's"], f:"The Moist Maker: an extra slice of bread soaked in gravy."},
+{t:'pic ross easy', pic:'dino', q:"Who works here?", a:["Ross","Phoebe","Chandler","Richard"]},
+{t:'pic easy', pic:'poker', q:"What did the friends build this for?", a:["Poking Ugly Naked Guy","Changing light bulbs","Fishing out the window","Reaching Joey's top shelf"], f:"It's made of chopsticks taped together."},
+{t:'pic monica', pic:'wig', q:"Who had to wear this at work?", a:["Monica","Rachel","Phoebe","Janice"]},
+{t:'pic monica places', pic:'paddle', q:"Where did the epic ping-pong marathon take place?", a:["Barbados","Montauk","Las Vegas","Atlantic City"]},
+{t:'pic phoebe easy', pic:'smellycat', q:"Which song is about this guy?", a:["Smelly Cat","Grumpy Dog","Alley Cat Blues","The Stinky Song"]},
+{t:'pic chandler', pic:'box', q:"Who spent a Thanksgiving inside this?", a:["Chandler","Joey","Ross","Gunther"], f:"His penance for kissing Joey's girlfriend, Kathy."},
+{t:'pic joey hard', pic:'rosita', q:"What does Joey call this chair?", a:["Rosita","Big Leather","Sandra","Barcalounger Bob"]},
 ];
 
 /* ===== A personal touch =====
@@ -223,6 +246,7 @@ const ITEMS = [
  {id:'comb',     name:"Richard's Mustache Comb",    from:'Richard · Central Park', desc:"Tortoiseshell. Very distinguished. Very Richard.", hint:"An ophthalmologist is enjoying the park Uptown.", bonus:true},
  {id:'ashtray',  name:"Estelle's Ashtray",          from:'Estelle · Silvercup Studios', desc:"Never empty. Estelle Leonard Talent Agency.", hint:"Joey's agent is on set in Queens.", bonus:true},
  {id:'nametag',  name:"'Crap Bag' Name Tag",        from:'Mike · Barbados', desc:"'Hello, my name is Crap Bag.' Mike is very committed to the bit.", hint:"Phoebe's favorite piano player is in Barbados.", bonus:true},
+ {id:'polaroid', name:'The Photo Wall Polaroid',    from:'The Photo Wall · Upstairs Hallway', desc:"A snapshot of an orange couch. Somehow it says everything.", hint:"There's a wall of photos in the upstairs hallway.", bonus:true},
  // Finale
  {id:'key',      name:"The Key to Apartment 20",    from:'The Last One · Central Perk', desc:"Everyone leaves their keys on the counter one last time. You get to keep this one.", hint:"Collect everything else, then head to the orange couch."},
 ];

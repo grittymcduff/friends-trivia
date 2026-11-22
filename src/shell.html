@@ -45,7 +45,10 @@ button:disabled{cursor:default}
 #tvProg{margin-left:auto;display:flex;gap:4px}
 #tvProg i{width:12px;height:12px;border-radius:50%;border:2px solid #2a1a3a;background:#fff}
 #tvProg i.cur{background:#ffd84a}#tvProg i.ok{background:#3ccf5a}#tvProg i.no{background:#e04848}
-#tvQ{font-size:16px;font-weight:800;margin:14px 2px 12px;line-height:1.35;min-height:44px}
+#tvQ{font-size:16px;font-weight:800;margin:14px 2px 12px;line-height:1.35;min-height:44px;flex:1}
+#tvMid{display:flex;gap:14px;align-items:center}
+#tvPic{width:256px;height:160px;image-rendering:pixelated;border:3px solid #2a1a3a;border-radius:6px;margin-top:8px;flex:none;background:#fff}
+#tvPic:not(.hidden)+#tvQ{margin:8px 2px}
 #tvOpts{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 #tvOpts button{text-align:left;font-size:13px;padding:9px 10px;display:flex;gap:8px;align-items:center;min-height:44px}
 #tvOpts button b{display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;border-radius:4px;background:#5b3a8c;color:#fff;font-size:10px;flex:none}
@@ -129,7 +132,7 @@ kbd{background:#fff;border:1px solid #2a1a3a;border-radius:3px;padding:0 4px;fon
  <div id="dlg" class="box hidden"><div id="dlgName"></div><div id="dlgText"></div><div id="dlgChoices"></div><div id="dlgMore">▼</div></div>
  <div id="triv" class="box hidden">
   <div id="tvHead"><canvas id="tvPortrait" width="48" height="48"></canvas><div><div id="tvName"></div><div id="tvNeed"></div></div><div id="tvProg"></div></div>
-  <div id="tvBody"><div id="tvQ"></div><div id="tvOpts"></div><div id="tvFoot"><div id="tvFact" class="hidden"></div><button id="tvNext" class="hidden">Next ▶</button></div></div>
+  <div id="tvBody"><div id="tvMid"><canvas id="tvPic" class="hidden" width="256" height="160"></canvas><div id="tvQ"></div></div><div id="tvOpts"></div><div id="tvFoot"><div id="tvFact" class="hidden"></div><button id="tvNext" class="hidden">Next ▶</button></div></div>
   <div id="tvRes" class="hidden"></div>
  </div>
  <div id="coll" class="box hidden"><div class="ph"><h2>🏆 The Shelf</h2><b id="collCount"></b><button class="close">Close ✕</button></div><div id="collGrid"></div></div>
