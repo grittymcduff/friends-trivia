@@ -4,7 +4,15 @@ A private, Pokémon-style pixel-art trivia adventure set in Friends' Greenwich V
 
 **Play:** open `index.html` in a browser, or turn on GitHub Pages for this repo (Settings → Pages → deploy from `main`, root folder).
 
-## What's in this build (v0.1, "The Central Perk Slice")
+## v0.2: "The One Upstairs"
+
+- **New:** the upstairs hallway, **Monica's apartment (20)** and **Joey & Chandler's (19)**, entered through the stoop door next to Central Perk.
+- **New cast:** Monica (kitchen), Ross (running the Apartment Quiz), Joey, Chandler, plus the duck and the chick.
+- **New collectibles:** the Geller Cup (Monica), the Yellow Peephole Frame (Ross's Apartment Quiz), Hugsy (Joey) and the White Dog Statue (Chandler). 8 of 12 are now earnable.
+- **24 new questions** (69 total) for the Monica, Chandler and Joey decks.
+- **Redrawn characters:** feminine and masculine builds, lashes, skirts and dresses, a bob haircut, and long hair that frames the face instead of reading as a beard. These options are on the title screen too.
+
+## v0.1: "The Central Perk Slice"
 
 - **Greenwich Village block:** Grove St and Bedford St, with Central Perk, Monica's building (stoop and purple door), the building across the street, the Lucille Lortel, Village Cigars, Phoebe's building, the Bleecker St subway entrance, and the edge of Washington Square Park. Taxis drive (and honk if you're in the way), and strangers wander the sidewalks.
 - **Central Perk interior:** the counter (with Gunther), the orange couch, armchairs, tables, Phoebe's corner, and customers.
@@ -51,7 +59,6 @@ Cast members currently use generic placeholder sprites with name tags. To swap i
 
 ## Roadmap
 
-1. Monica's apartment (20) and Joey & Chandler's (19): peephole frame, Geller Cup, dog statue, Hugsy
-2. The subway as fast travel: SoHo, Midtown, Uptown, Queens
-3. Ross's apartment, the Museum, Silvercup Studios
-4. Airports and "postcard" trips (London, Vegas, Barbados, Montauk)
+1. The subway as fast travel: SoHo, Midtown, Uptown, Queens
+2. Ross's apartment, the Museum, Silvercup Studios
+3. Airports and "postcard" trips (London, Vegas, Barbados, Montauk)

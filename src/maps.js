@@ -38,7 +38,7 @@ function msgDoor(z,x,y,text){ act(z,x,y,{type:'msg',text}); }
  door(z,15,8,'perk',10,13,'up');
  msgDoor(z,3,8,"Nobody answers. Somewhere inside, a dog is barking at a vacuum.");
  msgDoor(z,8,8,"The buzzer is broken. Someone taped a note to it: 'KNOCK LOUDER.'");
- msgDoor(z,18,8,"Apartments 19 and 20 are up these stairs: Monica's place, and Joey and Chandler's across the hall.\n(The apartments open in the next update!)");
+ door(z,18,8,'hall',6,7,'up');
  msgDoor(z,32,8,"This building is right across from Monica's window. Somebody in here never closes their blinds.\nYou decide not to look up.");
  msgDoor(z,38,8,"A sign on the door: 'Super is on vacation. Do not ask about the heat.'");
  msgDoor(z,44,8,"Closed for a private party. It smells amazing.");
@@ -85,11 +85,11 @@ function msgDoor(z,x,y,text){ act(z,x,y,{type:'msg',text}); }
  // --- Townsfolk ---
  const T=(id,x,y,look,lines,quiz)=>z.npcs.push({id,x,y,dir:'down',look,lines,quiz,wander:[0,0,48,34],walkOn:['walk','path','grass']});
  T('t1',6,10,{skin:'#f1c9a5',hair:'#2a1d17',style:'short',shirt:'#c0573a',pants:'#2b3a55'},["Excuse me, is Central Perk around here? I heard the big couch is ALWAYS free. How is that possible?"],true);
- T('t2',34,9,{skin:'#8d5a3b',hair:'#1c1410',style:'long',shirt:'#e8b830',pants:'#3a3a44'},["I've lived on this block for twenty years. You know what I've learned? Never, ever look out of a window across from that building."],true);
- T('t3',12,16,{skin:'#e0ac7e',hair:'#7a4b2a',style:'bun',shirt:'#4f8a6a',pants:'#5a4636'},["I'm late for an audition! I play 'Man in Coffee Shop #2.' It's a really big break."],true);
+ T('t2',34,9,{skin:'#8d5a3b',hair:'#1c1410',style:'long',fem:true,outfit:'skirt',shirt:'#e8b830',pants:'#3a3a44'},["I've lived on this block for twenty years. You know what I've learned? Never, ever look out of a window across from that building."],true);
+ T('t3',12,16,{skin:'#e0ac7e',hair:'#7a4b2a',style:'bun',fem:true,shirt:'#4f8a6a',pants:'#5a4636'},["I'm late for an audition! I play 'Man in Coffee Shop #2.' It's a really big break."],true);
  T('t4',40,26,{skin:'#c68a5a',hair:'#8a8a8a',style:'short',shirt:'#7a5aa8',pants:'#2b2b30'},["In my day, a coffee cost a nickel. And the coffee shops didn't have couches. You STOOD, like an adult."],false);
  T('t5',18,30,{skin:'#5e3a26',hair:'#2a1d17',style:'short',shirt:'#3a7fc0',pants:'#2b3a55'},["Washington Square Park is the best people-watching in the city. Yesterday I saw a guy in a giant armadillo costume."],true);
- T('t6',30,26,{skin:'#f1c9a5',hair:'#b5462a',style:'long',shirt:'#e07aa0',pants:'#3a3a44'},["The theatre over there is doing an experimental play. My friend went and said it 'changed nothing about her life.'"],true);
+ T('t6',30,26,{skin:'#f1c9a5',hair:'#b5462a',style:'bob',fem:true,outfit:'dress',shirt:'#e07aa0',pants:'#3a3a44'},["The theatre over there is doing an experimental play. My friend went and said it 'changed nothing about her life.'"],true);
  T('t7',44,16,{skin:'#e0ac7e',hair:'#2a1d17',style:'bald',shirt:'#5a6a3a',pants:'#3b2e26'},["Pizza place is closed for a private party. Some guy rented the whole thing to propose. Bold."],false);
 })();
 
@@ -129,11 +129,88 @@ function msgDoor(z,x,y,text){ act(z,x,y,{type:'msg',text}); }
 
  // --- Cast (placeholder sprites + name tags; swap in your own art, see README) ---
  z.npcs.push({id:'gunther',name:'Gunther',cast:true,x:16,y:3,dir:'down',talk:'gunther',reward:'mug',look:{skin:'#efc9a8',hair:'#4a3426',style:'short',shirt:'#4a4a58',pants:'#2b2b30',apron:true}});
- z.npcs.push({id:'rachel',name:'Rachel',cast:true,x:16,y:10,dir:'down',talk:'rachel',reward:'trifle',couch:true,wander:[10,6,11,7],walkOn:['wood'],look:{skin:'#efc9a8',hair:'#4a3426',style:'long',shirt:'#6aa6cf',pants:'#3b3b4a',apron:true}});
- z.npcs.push({id:'phoebe',name:'Phoebe',cast:true,x:2,y:12,dir:'right',talk:'phoebe',reward:'painting',couch:true,guitar:true,look:{skin:'#efc9a8',hair:'#4a3426',style:'long',shirt:'#b884c9',pants:'#5a4a7a'}});
+ z.npcs.push({id:'rachel',name:'Rachel',cast:true,x:16,y:10,dir:'down',talk:'rachel',reward:'trifle',couch:true,wander:[10,6,11,7],walkOn:['wood'],look:{skin:'#efc9a8',hair:'#4a3426',style:'long',fem:true,outfit:'skirt',shirt:'#6aa6cf',pants:'#3b3b4a',apron:true}});
+ z.npcs.push({id:'phoebe',name:'Phoebe',cast:true,x:2,y:12,dir:'right',talk:'phoebe',reward:'painting',couch:true,guitar:true,look:{skin:'#efc9a8',hair:'#4a3426',style:'long',fem:true,outfit:'dress',shirt:'#b884c9',pants:'#5a4a7a'}});
  // customers
  const C=(id,x,y,dir,look,lines,quiz)=>z.npcs.push({id,x,y,dir,look,lines,quiz,seated:true});
  C('c1',13,8,'right',{skin:'#c68a5a',hair:'#2a1d17',style:'short',shirt:'#d0a040',pants:'#3a3a44'},["This is my fourth coffee. I can see sounds now."],true);
- C('c2',19,11,'left',{skin:'#f1c9a5',hair:'#c9a253',style:'bun',shirt:'#4f8a6a',pants:'#3a3a44'},["I come here every day hoping to get the orange couch. Every. Single. Day. It's always taken by the same six people."],true);
- C('c3',17,8,'right',{skin:'#5e3a26',hair:'#1c1410',style:'long',shirt:'#c0573a',pants:'#2b3a55'},["The guy behind the counter has been staring at the waitress for an hour. Is that… normal here?"],false);
+ C('c2',19,11,'left',{skin:'#f1c9a5',hair:'#c9a253',style:'bun',fem:true,shirt:'#4f8a6a',pants:'#3a3a44'},["I come here every day hoping to get the orange couch. Every. Single. Day. It's always taken by the same six people."],true);
+ C('c3',17,8,'right',{skin:'#5e3a26',hair:'#1c1410',style:'long',fem:true,outfit:'skirt',shirt:'#c0573a',pants:'#2b3a55'},["The guy behind the counter has been staring at the waitress for an hour. Is that… normal here?"],false);
+})();
+
+/* ---------------- Upstairs hallway (Monica's building) ---------------- */
+(function(){
+ const z = Z('hall','Upstairs Hallway',14,9,'wood');
+ paint(z,'wallH',0,0,14,2); paint(z,'wains',0,2,14,1);
+ paint(z,'wallS',0,0,1,9); paint(z,'wallS',13,0,1,9);
+ paint(z,'frontA',0,8,14,1); paint(z,'stairs',6,8,2,1);
+ obj(z,'walldoor',4,2,{color:'#5b3a8c',num:'20',frame:true});
+ obj(z,'walldoor',9,2,{color:'#7a5232',num:'19'});
+ door(z,4,2,'monica',10,13,'up'); door(z,9,2,'joey',9,11,'up');
+ door(z,6,8,'village',18,9,'down'); door(z,7,8,'village',18,9,'down');
+ obj(z,'frame',7,1,{tone:'#4a7a6a'}); obj(z,'plant',1,3); obj(z,'plant',12,3);
+ obj(z,'rug',3,4,{w:8,h:3,low:true,tone:'#5a3a6a'});
+ act(z,7,2,{type:'msg',text:"A framed print of a sailboat. Someone has straightened it very, very precisely. (Probably Monica.)"});
+})();
+
+/* ---------------- Monica's apartment (#20) ---------------- */
+(function(){
+ const z = Z('monica',"Monica's Apartment",22,15,'wood');
+ z.bg='#140e1c';
+ paint(z,'wallP',0,0,22,2); paint(z,'wains',0,2,22,1);
+ paint(z,'wallS',0,0,1,15); paint(z,'wallS',21,0,1,15);
+ paint(z,'frontA',0,14,22,1); paint(z,'mat',10,14,2,1);
+ paint(z,'tileK',1,3,9,6);
+ door(z,10,14,'hall',4,3,'down'); door(z,11,14,'hall',4,3,'down');
+ // kitchen along the back wall
+ obj(z,'fridge',1,3); obj(z,'kcounter',2,3,{w:4,sink:true}); obj(z,'stove',6,3); obj(z,'kcounter',7,3,{w:2});
+ obj(z,'kcounter',3,6,{w:4});
+ act(z,1,3,{type:'msg',text:"The fridge is organized by food group, then color, then expiration date. There's a label maker in here too."});
+ act(z,6,3,{type:'msg',text:"Something is simmering. You are not allowed to touch it."});
+ for(let x=2;x<6;x++) act(z,x,3,{type:'msg',text:"Spotless. You could perform surgery on this counter."});
+ for(let x=3;x<7;x++) act(z,x,6,{type:'msg',text:"A cutting board, a very sharp knife, and a stack of eleven differently colored towels."});
+ // big window on the back wall
+ obj(z,'bigwindow',12,0,{w:4});
+ for(let x=12;x<16;x++) act(z,x,2,{type:'msg',text:"Across the street, an apartment with the blinds wide open.\nYou close the curtains. Some things can't be unseen."});
+ obj(z,'frame',17,1,{tone:'#6a8a4a'}); obj(z,'frame',9,1,{tone:'#b06a3a'});
+ // dining table
+ obj(z,'dtable',11,6,{w:3}); obj(z,'chair',10,6); obj(z,'chair',14,6);
+ for(let x=11;x<14;x++) act(z,x,6,{type:'msg',text:"The dining table, set for eight. Monica says it's 'just a casual dinner.'"});
+ // living room
+ obj(z,'rug',13,9,{w:8,h:4,low:true,tone:'#3f5a7a'});
+ obj(z,'couch',15,9,{w:4,color:'#e6dcc6'}); obj(z,'coffee',16,11,{w:2}); obj(z,'armchair',14,11,{face:'right'}); obj(z,'armchair',19,11,{face:'left'});
+ for(let x=15;x<19;x++) act(z,x,9,{type:'msg',text:"A very nice couch. Monica would like you to sit on it… carefully. Coasters are on the table."});
+ act(z,16,11,{type:'msg',text:"A bowl of index cards in Ross's handwriting. 'APARTMENT QUIZ: DO NOT TOUCH.'"}); act(z,17,11,{type:'msg',text:"A bowl of index cards in Ross's handwriting. 'APARTMENT QUIZ: DO NOT TOUCH.'"});
+ obj(z,'plant',20,3); obj(z,'plant',20,13); obj(z,'plant',1,13);
+ z.npcs.push({id:'monica',name:'Monica',cast:true,x:5,y:5,dir:'down',talk:'monica',reward:'cup',wander:[1,4,9,5],walkOn:['tileK','wood'],look:{skin:'#efc9a8',hair:'#2a1d17',style:'bob',fem:true,shirt:'#c0573a',pants:'#2b2b30'}});
+ z.npcs.push({id:'ross',name:'Ross',cast:true,x:17,y:12,dir:'down',talk:'ross',reward:'frame',look:{skin:'#efc9a8',hair:'#4a3426',style:'short',shirt:'#7a8a6a',pants:'#3b3b4a'}});
+})();
+
+/* ---------------- Joey & Chandler's apartment (#19) ---------------- */
+(function(){
+ const z = Z('joey',"Joey & Chandler's",20,13,'wood');
+ z.bg='#120e0a';
+ paint(z,'wallC',0,0,20,2); paint(z,'wains',0,2,20,1);
+ paint(z,'wallS',0,0,1,13); paint(z,'wallS',19,0,1,13);
+ paint(z,'frontA',0,12,20,1); paint(z,'mat',9,12,2,1);
+ paint(z,'tileK',1,3,5,4);
+ door(z,9,12,'hall',9,3,'down'); door(z,10,12,'hall',9,3,'down');
+ obj(z,'fridge',1,3); obj(z,'kcounter',2,3,{w:4,tone:'#8a6a4a'});
+ act(z,1,3,{type:'msg',text:"Inside: one jar of jam, a carton of milk, and a sign that says 'JOEY'S. DO NOT EAT.' on everything."});
+ for(let x=2;x<6;x++) act(z,x,3,{type:'msg',text:"Pizza boxes. Several. Stacked with real architectural ambition."});
+ // TV area
+ obj(z,'rug',7,5,{w:7,h:4,low:true,tone:'#6a5a3a'});
+ obj(z,'tv',9,3); obj(z,'dogstatue',12,3);
+ act(z,9,3,{type:'msg',text:"The TV is paused on Baywatch. Nobody is allowed to unpause it but Joey and Chandler."}); act(z,10,3,{type:'msg',text:"The TV is paused on Baywatch. Nobody is allowed to unpause it but Joey and Chandler."});
+ act(z,12,3,{type:'msg',text:"A big white ceramic dog. It stares into the middle distance with great dignity."});
+ obj(z,'recliner',8,6); obj(z,'recliner',11,6);
+ act(z,8,6,{type:'msg',text:"Joey's recliner. He calls her Rosita. Do not, under any circumstances, sit in Rosita."});
+ act(z,11,6,{type:'msg',text:"Chandler's recliner. It reclines. That's really all he needs in life."});
+ obj(z,'foosball',14,8);
+ act(z,14,8,{type:'msg',text:"The foosball table. Chandler has been undefeated since 1994. (Allegedly.)"}); act(z,15,8,{type:'msg',text:"The foosball table. Chandler has been undefeated since 1994. (Allegedly.)"});
+ obj(z,'window',16,0,{w:2}); obj(z,'frame',5,1,{tone:'#3a5a8a'}); obj(z,'plant',18,3); obj(z,'plant',1,11);
+ z.npcs.push({id:'joey',name:'Joey',cast:true,x:9,y:9,dir:'down',talk:'joey',reward:'hugsy',wander:[6,7,8,4],walkOn:['wood'],look:{skin:'#e8bf9a',hair:'#2a1d17',style:'short',shirt:'#4a5a8a',pants:'#2b2b30'}});
+ z.npcs.push({id:'chandler',name:'Chandler',cast:true,x:16,y:8,dir:'left',talk:'chandler',reward:'dog',look:{skin:'#efc9a8',hair:'#4a3426',style:'short',shirt:'#5a7a5a',pants:'#3b3b4a'}});
+ z.npcs.push({id:'duck',name:'Duck',x:4,y:8,dir:'right',talk:'duck',wander:[1,4,18,8],walkOn:['wood','tileK'],look:{animal:'duck'}});
+ z.npcs.push({id:'chick',name:'Chick',x:5,y:9,dir:'right',talk:'chick',wander:[1,4,18,8],walkOn:['wood','tileK'],look:{animal:'chick'}});
 })();

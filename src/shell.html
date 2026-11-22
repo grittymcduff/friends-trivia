@@ -77,17 +77,17 @@ button:disabled{cursor:default}
 kbd{background:#fff;border:1px solid #2a1a3a;border-radius:3px;padding:0 4px;font-size:10px;font-weight:800}
 /* Title */
 #title{position:absolute;inset:0;background:linear-gradient(180deg,rgba(20,10,30,.55),rgba(20,10,30,.85));display:flex;align-items:center;justify-content:center}
-#tBox{width:430px;padding:14px 18px 16px;text-align:center}
-#tBox h1{margin:0;font-family:Georgia,serif;font-size:25px;color:#5b3a8c;letter-spacing:.01em}
+#tBox{width:440px;padding:10px 18px 12px;text-align:center}
+#tBox h1{margin:0;font-family:Georgia,serif;font-size:23px;color:#5b3a8c;letter-spacing:.01em}
 #tBox h1 span{color:#d9782f}
-#tBox .sub{font-size:11px;font-weight:700;color:#7a6a8a;margin:2px 0 10px}
-.row{display:flex;align-items:center;gap:8px;margin:5px 0;justify-content:center}
+#tBox .sub{font-size:11px;font-weight:700;color:#7a6a8a;margin:2px 0 4px}
+.row{display:flex;align-items:center;gap:8px;margin:4px 0;justify-content:center}
 .row label{width:54px;text-align:right;font-weight:800;font-size:11px}
 .row input{font-family:inherit;font-size:13px;font-weight:700;padding:5px 8px;border:2px solid #2a1a3a;border-radius:6px;width:180px}
 .sw{display:flex;gap:4px}.sw button{width:22px;height:22px;padding:0;box-shadow:none}.sw button.on{outline:3px solid #5b3a8c;outline-offset:1px}
-#pStyle button{width:auto;padding:0 6px;font-size:10px;background:#fff4d6}
-#preview{width:104px;height:72px;image-rendering:pixelated}
-#tBtns{display:flex;flex-direction:column;gap:6px;margin-top:10px}
+.sw.tx button{width:auto;padding:0 6px;font-size:10px;background:#fff4d6}
+#preview{width:104px;height:72px;image-rendering:pixelated;margin:2px 0 0}
+#tBtns{display:flex;flex-direction:column;gap:5px;margin-top:8px}
 #tBtns button{font-size:13px;padding:8px}
 #btnNew{background:#ffd84a}
 /* Touch */
@@ -130,7 +130,9 @@ kbd{background:#fff;border:1px solid #2a1a3a;border-radius:3px;padding:0 4px;fon
    <div class="row"><label>Name</label><input id="pName" maxlength="14" placeholder="Your name"></div>
    <div class="row"><label>Shirt</label><div class="sw" id="pShirt"></div></div>
    <div class="row"><label>Skin</label><div class="sw" id="pSkin"></div></div>
-   <div class="row"><label>Hair</label><div class="sw" id="pHair"></div><div class="sw" id="pStyle"></div></div>
+   <div class="row"><label>Hair</label><div class="sw" id="pHair"></div></div>
+   <div class="row"><label></label><div class="sw tx" id="pStyle"></div></div>
+   <div class="row"><label>Look</label><div class="sw tx" id="pBuild"></div><div class="sw tx" id="pOutfit"></div></div>
    <div id="tBtns"><button id="btnNew">New Game ▶</button><button id="btnCont" class="hidden">Continue ▶</button></div>
   </div>
  </div>

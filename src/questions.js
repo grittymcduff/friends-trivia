@@ -58,6 +58,33 @@ const QB = [
 {t:'monica', q:"What number is Monica's apartment in the later seasons?", a:["20","19","5","14"]},
 {t:'easy', q:"What do the friends build to poke Ugly Naked Guy across the street?", a:["A giant poking device made of chopsticks","A slingshot","A really long umbrella","A paper airplane launcher"]},
 {t:'easy', q:"In which city do Ross and Emily get married?", a:["London","Paris","Las Vegas","Barbados"]},
+
+// ---- v0.2: Monica's deck ----
+{t:'monica easy', q:"What does Monica do for a living?", a:["She's a chef","She's a food critic","She runs a bakery","She's a personal trainer"]},
+{t:'monica easy', q:"What is the name of Monica's brother?", a:["Ross","Ben","Frank","Richard"]},
+{t:'monica', q:"How many categories of towels does Monica have?", a:["Eleven","Three","Seven","Twenty"], f:"Chandler is stunned to learn that 'everyday use' and 'fancy' are only the beginning."},
+{t:'monica', q:"What is the Geller Cup?", a:["A troll doll nailed to a piece of wood","A silver trophy from Monica's school","A chipped coffee mug","A bowling trophy"], f:"Ross and Monica fought over it in Thanksgiving touch football games growing up."},
+{t:'monica', q:"What does Monica's older boyfriend Richard do for a living?", a:["Ophthalmologist","Dentist","Lawyer","Professor"]},
+{t:'monica chandler', q:"Where do Monica and Chandler first get together?", a:["London, at Ross's wedding","Las Vegas","Barbados","Atlantic City"]},
+{t:'monica chandler', q:"What are the names of Monica and Chandler's twins?", a:["Erica and Jack","Emma and Ben","Leslie and Frank","Jill and Jack"]},
+{t:'monica', q:"Who did Monica's apartment originally belong to?", a:["Her grandmother","Her parents","Rachel","Mr. Heckles"], f:"It's rent-controlled, which is how the gang can afford such a big place."},
+{t:'monica chandler', q:"In the proposal episode, who tries to propose first?", a:["Monica","Chandler","Joey, as a joke","Rachel, by accident"], f:"Monica gets too emotional to finish, so Chandler takes over."},
+// ---- v0.2: Chandler's deck ----
+{t:'chandler easy', q:"What is Chandler's last name?", a:["Bing","Bong","Bang","Banks"]},
+{t:'chandler', q:"Why does Chandler spend Thanksgiving in a box?", a:["To make up for kissing Joey's girlfriend","He lost a bet with Ross","To hide from Janice","He's practicing a magic act"]},
+{t:'chandler', q:"Which city does Chandler get transferred to for work?", a:["Tulsa","Yemen","Minsk","Atlantic City"], f:"He falls asleep in a meeting and agrees to it without realizing."},
+{t:'chandler', q:"Which career does Chandler switch to in the later seasons?", a:["Advertising","Teaching","Real estate","Accounting"]},
+{t:'chandler', q:"What does Chandler have trouble doing in photos?", a:["Smiling normally","Keeping his eyes open","Standing still","Looking at the camera"]},
+{t:'chandler joey', q:"After their entertainment unit fiasco, what do Joey and Chandler end up with?", a:["A canoe","A foosball table","A duck","A jukebox"]},
+{t:'chandler', q:"Where does Chandler tell Janice he's moving so he can break up with her?", a:["Yemen","Tulsa","Minsk","London"]},
+{t:'chandler', q:"While Joey is living elsewhere, which strange roommate does Chandler get stuck with?", a:["Eddie","Eric","Mr. Heckles","Gunther"]},
+// ---- v0.2: Joey's deck ----
+{t:'joey easy', q:"What is Joey's last name?", a:["Tribbiani","Tortelli","Tribeca","Taglia"]},
+{t:'joey easy', q:"What is Joey's famous pickup line?", a:["\"How you doin'?\"","\"Hey there, gorgeous.\"","\"Come here often?\"","\"What's up?\""]},
+{t:'joey', q:"How is Dr. Drake Ramoray written off Days of Our Lives?", a:["He falls down an elevator shaft","He moves to Paris","He's struck by lightning","He wanders off with amnesia"]},
+{t:'joey', q:"What is the name of Joey's imaginary childhood friend?", a:["Maurice","Mr. Peanut","Ken Adams","Hugsy"]},
+{t:'joey chandler', q:"To get back at Chandler, Joey puts on what?", a:["Every piece of Chandler's clothing","Chandler's bathrobe","A wedding dress","A duck costume"]},
+{t:'joey', q:"What name does Joey give his favorite recliner?", a:["Rosita","Big Leather","Barcalounger Bob","Sandra"]},
 ];
 
 /* ===== Collectibles =====
@@ -69,10 +96,10 @@ const ITEMS = [
  {id:'trifle',   name:"Rachel's Trifle",           from:'Rachel · Central Perk',  desc:"Ladyfingers, jam, custard, raspberries… then beef sautéed with peas and onions.", hint:"Rachel is between tables. Maybe she'll quiz you."},
  {id:'painting', name:"Phoebe's Creepy Painting",  from:'Phoebe · Central Perk',  desc:"It's staring at you. It's definitely staring at you.", hint:"Phoebe is tuning her guitar in the corner."},
  {id:'turkey',   name:'The Thanksgiving Turkey',   from:'Couch Challenge',        desc:"Comes with sunglasses and a little fez. Not optional.", hint:"Sit on the orange couch and see who joins you."},
- {id:'dog',      name:'The White Dog Statue',      from:"Joey & Chandler's",      desc:"", hint:"Coming soon: apartment 19, across the hall."},
- {id:'hugsy',    name:'Hugsy',                     from:"Joey & Chandler's",      desc:"", hint:"Coming soon: apartment 19. Joey doesn't share him."},
- {id:'frame',    name:'The Yellow Peephole Frame', from:"Monica's Apartment",     desc:"", hint:"Coming soon: apartment 20, upstairs."},
- {id:'cup',      name:'The Geller Cup',            from:"Monica's Apartment",     desc:"", hint:"Coming soon: apartment 20. Very competitive."},
+ {id:'dog',      name:'The White Dog Statue',      from:'Chandler · Apt 19',      desc:"Big, white, ceramic and staring. Joey thinks it's the classiest thing they own.", hint:"Chandler is hanging around the foosball table in apartment 19."},
+ {id:'hugsy',    name:'Hugsy',                     from:'Joey · Apt 19',          desc:"Joey's bedtime penguin pal. You can borrow him. Borrow.", hint:"Joey might share him. Might."},
+ {id:'frame',    name:'The Yellow Peephole Frame', from:'The Apartment Quiz · Apt 20', desc:"The little yellow frame from around Monica's peephole. It never looked right anywhere else.", hint:"Ross is running a quiz in apartment 20."},
+ {id:'cup',      name:'The Geller Cup',            from:'Monica · Apt 20',        desc:"A troll doll nailed to a block of wood. The most fought-over trophy in the Geller family.", hint:"Monica is in the kitchen. She's very competitive."},
  {id:'pants',    name:"Ross's Leather Pants",      from:"Ross's Apartment",       desc:"", hint:"Coming soon: across the street."},
  {id:'armadillo',name:'Holiday Armadillo Costume', from:"Ross's Apartment",       desc:"", hint:"Coming soon: across the street."},
  {id:'headshot', name:"Joey's Headshot",           from:'Silvercup Studios',      desc:"", hint:"Coming soon: take the subway to Queens."},
