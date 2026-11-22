@@ -4,6 +4,12 @@ A private, Pokémon-style pixel-art trivia adventure set in Friends' Greenwich V
 
 **Play:** open `index.html` in a browser, or turn on GitHub Pages for this repo (Settings → Pages → deploy from `main`, root folder).
 
+## v0.8: "The One Where Everyone Plays"
+
+- **Wear your collectibles:** on the shelf, wearable items have a "Wear it" or "Carry it" button. There's a head slot (the turkey with sunglasses and fez, Joey's London hat, the Vegas veil, Monica's diner wig), a body slot (the Holiday Armadillo costume, Ross's leather pants) and a hand slot (umbrella, Hugsy, mug, shopping bag, Janice's purse, ping-pong paddle, hockey puck). A preview of your character sits at the top of the shelf.
+- **Player profiles:** everyone who plays on the same device gets their own save. The title screen lists the three most recent players. Older single saves are moved over automatically.
+- **Leaderboard** (🏅 button, L key, or from the title screen): ranks every player on the device by score and shows story items, superfan extras, sightings, correct answers and where they are. Players on other devices can press "Copy" next to their share code and text it over, and pasting it into "Add a friend's score" adds them to the board.
+
 ## v0.7: "The One With All the Stuff"
 
 - **Set dressing:** 22 new kinds of furniture and props, and many with something to read when you interact. Highlights: Joey and Chandler's canoe, kitchen table and pizza-box tower; Monica's reading nook, sideboard and coat rack; Ross's bookshelves and desk; the office copier and filing cabinets; Bloomingdale's mirrors and shoe cases; the museum's velvet ropes, banners and info desk; studio set walls and craft services; airport luggage and a coffee kiosk; London benches and a postbox; beach umbrellas, towels, loungers, sandcastles and surfboards in Barbados and Montauk.

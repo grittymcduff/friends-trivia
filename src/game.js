@@ -305,6 +305,16 @@ function dressUp(g,L,dir,f,sk){const ink='#1a1a2a',side=dir==='left',back=dir===
  if(L.costume==='layers'){const cs=['#5a7a5a','#c0573a','#3a5a8a','#e8b830'];for(let i=0;i<4;i++)px(g,cs[i],2+(i%2),10+i*2,12-(i%2)*2,3);px(g,'#7a5a3a',2,12,1,6);px(g,'#7a5a3a',13,12,1,6);px(g,'#e8b830',4,10,8,2);px(g,'#3a5a8a',4,0,8,3);px(g,'#5a7aa8',4,0,8,1)}
  if(L.hat==='turkey'){const b='#b86a2c',bd='#9a5422';for(let y=0;y<9;y++){const w=y<2?6:y<7?10:8;px(g,y%3?b:bd,8-w/2,y,w,1)}px(g,'#f4ead2',2,6,2,2);px(g,'#f4ead2',12,6,2,2);
   if(!back){px(g,'#151515',side?3:4,6,side?4:8,2);if(!side)px(g,'#151515',7,6,2,1)}px(g,'#c0262c',6,0,4,2);px(g,'#e8b820',10,1,1,3)}
+ if(L.hat==='veil'){px(g,'#f4f1ea',3,1,1,14);px(g,'#f4f1ea',12,1,1,14);if(back||side)px(g,'#f4f1ea',side?8:3,2,side?4:10,13);px(g,'#e8b820',5,0,6,1);px(g,'#ff9ad0',7,0,2,1)}
+ if(L.hat==='wig'){const w='#f0d070',wd='#d8b050';px(g,w,3,0,10,4);if(back)px(g,w,2,1,12,13);else if(side){px(g,w,7,1,6,12);px(g,wd,11,4,2,8)}else{px(g,w,2,2,2,11);px(g,w,12,2,2,11);px(g,wd,2,11,2,2);px(g,wd,12,11,2,2);px(g,w,4,3,3,1);px(g,w,9,3,3,1)}}
+ if(L.held){const hx=side?5:back?11:12,hy=side?14:13;switch(L.held){
+  case'umbrella':px(g,'#3a3a44',hx,hy-8,1,10);px(g,'#c0262c',hx-1,hy-9,3,5);px(g,'#ffffff',hx,hy-8,1,3);break;
+  case'hugsy':px(g,'#24222a',hx-1,hy,4,5);px(g,'#f4f1ea',hx,hy+1,2,3);px(g,'#f0a030',hx,hy+2,1,1);break;
+  case'bag':px(g,'#7a4a28',hx-1,hy+1,4,4);px(g,'#3a2414',hx,hy,2,1);break;
+  case'purse':px(g,'#e8c070',hx-1,hy+1,4,3);px(g,'#3a2414',hx,hy+2,1,1);px(g,'#3a2414',hx+1,hy,1,1);break;
+  case'paddle':px(g,'#c0262c',hx-1,hy-3,3,3);px(g,'#9a6438',hx,hy,1,3);break;
+  case'mug':px(g,'#f4f1ea',hx-1,hy,3,3);px(g,'#f4f1ea',hx+2,hy+1,1,1);break;
+  case'puck':px(g,'#1c1c22',hx-1,hy+1,3,2);break}}
  if(L.hat==='unionjack'){px(g,'#1a3a8a',4,0,8,3);px(g,'#f4f1ea',4,1,8,1);px(g,'#f4f1ea',7,0,2,3);px(g,'#c0262c',7,0,1,3);px(g,'#c0262c',4,1,8,1);px(g,'#1a3a8a',3,3,10,1)}
  if(L.hat==='redcap'){px(g,'#c0262c',4,0,8,3);px(g,'#e04a4a',5,0,4,1);if(!back)px(g,'#9a1c20',side?1:4,3,side?5:8,1)}
  if(L.camera&&!back){px(g,'#24222a',6,13,4,3);px(g,'#7ad0ff',7,14,1,1);px(g,'#24222a',5,11,1,2);px(g,'#24222a',10,11,1,2)}
@@ -425,8 +435,13 @@ setInterval(musicTick,90);
 /* ===================== Save ===================== */
 let S=null;
 function freshSave(name,look){return{v:1,name,look,items:{},stars:0,seen:{},zone:'village',x:15,y:10,dir:'up',talked:{}}}
-function save(){if(!S)return;S.zone=Zn?Zn.id:S.zone;S.x=player.x;S.y=player.y;S.dir=player.dir;try{localStorage.setItem(SAVE_KEY,JSON.stringify(S))}catch(e){}}
-function loadSave(){try{const s=JSON.parse(localStorage.getItem(SAVE_KEY)||'null');if(s&&s.v===1)return s}catch(e){}return null}
+/* Profiles: every player on this device gets their own save, all kept in one store. */
+const PKEY='friendsTrivia_profiles';
+function loadStore(){let st=null;try{st=JSON.parse(localStorage.getItem(PKEY)||'null')}catch(e){}if(!st||!st.saves)st={cur:null,saves:{},imports:{}};st.imports=st.imports||{};
+ try{const old=JSON.parse(localStorage.getItem(SAVE_KEY)||'null');if(old&&old.v===1&&!st.saves[old.name]){st.saves[old.name]=old;st.cur=old.name}}catch(e){}return st}
+function writeStore(st){try{localStorage.setItem(PKEY,JSON.stringify(st))}catch(e){}}
+function save(){if(!S)return;S.zone=Zn?Zn.id:S.zone;S.x=player.x;S.y=player.y;S.dir=player.dir;S.updated=Date.now();const st=loadStore();st.saves[S.name]=S;st.cur=S.name;writeStore(st);try{localStorage.removeItem(SAVE_KEY)}catch(e){}}
+function loadSave(){const st=loadStore();return st.cur&&st.saves[st.cur]||null}
 
 /* ===================== Zones, collision, movement ===================== */
 let Zn=null,solid=null,npcs=[],taxis=[],state='title',fadeT=0,clock=0;
@@ -650,13 +665,36 @@ function showCredits(){state='menu';const c=$('#credits');c.classList.remove('hi
  const g=$('#crCv').getContext('2d');g.imageSmoothingEnabled=false;g.clearRect(0,0,320,48);ITEMS.filter(it=>S.items[it.id]).forEach((it,i)=>g.drawImage(itemIcon(it.id),(i%13)*24+2,(i/13|0)*16,22,22));
  [523,659,784,659,784,1047].forEach((f,i)=>beep(f,.22,'triangle',.06,i*.18))}
 
+/* ===================== Wearables ===================== */
+const WEAR={turkey:{slot:'head',hat:'turkey'},hat:{slot:'head',hat:'unionjack'},veil:{slot:'head',hat:'veil'},wig:{slot:'head',hat:'wig'},
+ armadillo:{slot:'body',costume:'armadillo'},pants:{slot:'body',pants:'#6b3a1e',outfit:'pants'},
+ umbrella:{slot:'hand',held:'umbrella'},hugsy:{slot:'hand',held:'hugsy'},bag:{slot:'hand',held:'bag'},purse:{slot:'hand',held:'purse'},paddle:{slot:'hand',held:'paddle'},mug:{slot:'hand',held:'mug'},puck:{slot:'hand',held:'puck'}};
+function playerLook(){const L=Object.assign({},S.look);for(const id of Object.values(S.equip||{})){const w=WEAR[id];if(!w||!S.items[id])continue;const{slot,...rest}=w;Object.assign(L,rest)}return L}
+function refreshPlayer(){player.spr=charSprites(playerLook())}
+function toggleWear(id){const w=WEAR[id];if(!w)return;S.equip=S.equip||{};if(S.equip[w.slot]===id){delete S.equip[w.slot];toast('Took off: '+ITEM(id).name)}else{S.equip[w.slot]=id;toast('Now wearing: '+ITEM(id).name);SFX.sel()}refreshPlayer();save();openColl()}
+function drawDoll(){const c=$('#doll');if(!c)return;const g=c.getContext('2d');g.imageSmoothingEnabled=false;g.clearRect(0,0,c.width,c.height);const sp=charSprites(playerLook());g.drawImage(sp.down[0],0,0,32,48);g.drawImage(sp.left[0],34,0,32,48)}
+
+/* ===================== Leaderboard ===================== */
+function statsOf(p){const items=p.items||{},main=ITEMS.filter(i=>!i.bonus),bon=ITEMS.filter(i=>i.bonus);const m=main.filter(i=>items[i.id]).length,b=bon.filter(i=>items[i.id]).length,e=Object.keys(p.eggs||{}).length,st=p.stars||0;
+ return{name:p.name,m,b,e,st,done:!!items.key,zone:p.zone,score:m*100+b*150+e*50+st*5+(items.key?500:0),t:p.updated||0}}
+function shareCode(){const x=statsOf(S);return'TOWTG1:'+btoa(unescape(encodeURIComponent(JSON.stringify({n:x.name,m:x.m,b:x.b,e:x.e,s:x.st,d:x.done?1:0,z:x.zone,t:Date.now()}))))}
+function importCode(txt){const m=String(txt).trim().match(/TOWTG1:([A-Za-z0-9+/=]+)/);if(!m)return'That doesn\'t look like a score code. It should start with TOWTG1:';
+ try{const o=JSON.parse(decodeURIComponent(escape(atob(m[1]))));if(!o.n)throw 0;const st=loadStore();st.imports[o.n]={name:String(o.n).slice(0,20),m:+o.m|0,b:+o.b|0,e:+o.e|0,st:+o.s|0,done:!!o.d,zone:o.z,score:(+o.m|0)*100+(+o.b|0)*150+(+o.e|0)*50+(+o.s|0)*5+(o.d?500:0),t:+o.t||Date.now(),imported:true};writeStore(st);return'Added '+o.n+'!'}catch(e){return'Hmm, that code didn\'t work. Try copying it again.'}}
+function zoneName(id){return ZONES[id]?ZONES[id].name:'—'}
+function openBoard(fromTitle){if(!fromTitle)state='menu';const st=loadStore();const rows=[...Object.values(st.saves).map(statsOf),...Object.values(st.imports).filter(i=>!st.saves[i.name])].sort((a,b)=>b.score-a.score);
+ $('#board').classList.remove('hidden');
+ $('#boardRows').innerHTML=rows.length?rows.map((r,i)=>`<tr class="${S&&r.name===S.name?'me':''}"><td>${['🥇','🥈','🥉'][i]||i+1}</td><td><b>${esc(r.name)}</b>${r.imported?' <small>(shared)</small>':''}</td><td><b>${r.score}</b></td><td>${r.m}/${ITEMS.filter(i=>!i.bonus).length}${r.b?` +${r.b}`:''}</td><td>${r.e}/${EGGS.length}</td><td>${r.st}</td><td>${r.done?'🔑 Finished!':esc(zoneName(r.zone))}</td></tr>`).join(''):'<tr><td colspan="7">No players yet!</td></tr>';
+ $('#myCode').value=S?shareCode():'';$('#shareRow').classList.toggle('hidden',!S);$('#importMsg').textContent=''}
+function closeBoard(){$('#board').classList.add('hidden');if(state==='menu')state='world'}
+
 /* ===================== Collection & help ===================== */
 function openColl(){state='menu';$('#coll').classList.remove('hidden');const got=ITEMS.filter(i=>S.items[i.id]).length;
- $('#collCount').textContent=`${got} / ${ITEMS.length}`;
- const card=it=>{const has=S.items[it.id];return`<div class="card ${has?'got':''} ${it.bonus?'bonus':''}"><canvas data-id="${it.id}" width="64" height="64"></canvas><b>${has?esc(it.name):'???'}</b><small>${has?esc(it.desc):esc(it.hint)}</small><em>${esc(it.from)}</em></div>`};
+ $('#collCount').textContent=`${got} / ${ITEMS.length}`;drawDoll();
+ const card=it=>{const has=S.items[it.id],w=WEAR[it.id],on=w&&S.equip&&S.equip[w.slot]===it.id;return`<div class="card ${has?'got':''} ${it.bonus?'bonus':''}"><canvas data-id="${it.id}" width="64" height="64"></canvas><b>${has?esc(it.name):'???'}</b><small>${has?esc(it.desc):esc(it.hint)}</small><em>${esc(it.from)}</em>${has&&w?`<button class="wear ${on?'on':''}" data-wear="${it.id}">${on?'✓ Wearing · take off':(w.slot==='hand'?'Carry it':'Wear it')}</button>`:''}</div>`};
  $('#collGrid').innerHTML='<h3>The Story</h3>'+ITEMS.filter(i=>!i.bonus).map(card).join('')+'<h3>Superfan Extras <small>(optional, very hard)</small></h3>'+ITEMS.filter(i=>i.bonus).map(card).join('')+`<h3>Secret Sightings <small>(${Object.keys(S.eggs||{}).length} of ${EGGS.length} spotted, keep exploring!)</small></h3>`+EGGS.map(e=>{const f=S.eggs&&S.eggs[e.id];return`<div class="card egg ${f?'got':''}"><canvas data-egg="${e.id}" width="64" height="64"></canvas><b>${f?esc(e.title):'???'}</b><small>${esc(e.hint)}</small></div>`}).join('');
+ $('#collGrid').querySelectorAll('button[data-wear]').forEach(b=>b.onclick=e=>{e.stopPropagation();toggleWear(b.dataset.wear)});
  $('#collGrid').querySelectorAll('canvas').forEach(c=>{const g=c.getContext('2d');g.imageSmoothingEnabled=false;if(c.dataset.egg){const e=EGGS.find(q=>q.id===c.dataset.egg),ic=eggIcon(e);g.drawImage(S.eggs&&S.eggs[e.id]?ic:silhouette(ic),0,0,64,64);return}const ic=itemIcon(c.dataset.id);g.drawImage(S.items[c.dataset.id]?ic:silhouette(ic),0,0,64,64)})}
-function closePanels(){for(const id of['#coll','#help','#subway','#credits'])$(id).classList.add('hidden');state='world'}
+function closePanels(){for(const id of['#coll','#help','#subway','#credits','#board'])$(id).classList.add('hidden');state='world'}
 function openHelp(){state='menu';$('#help').classList.remove('hidden')}
 
 /* ===================== HUD ===================== */
@@ -721,6 +759,7 @@ addEventListener('keydown',e=>{if(e.target.tagName==='INPUT')return;keys[e.key]=
  else if(e.code==='Escape'||e.code==='KeyX'||e.code==='Backspace')pressB();
  else if(e.code==='KeyC'&&(state==='world'||state==='menu')){if(state==='menu')closePanels();else openColl()}
  else if(e.code==='KeyM'){toggleMute()}
+ else if(e.code==='KeyL'&&state==='world')openBoard();
  else if(e.code==='Equal'||e.code==='NumpadAdd')cycleZoom(1);
  else if(e.code==='Minus'||e.code==='NumpadSubtract')cycleZoom(-1);
  else if(state==='trivia'&&/^Digit[1-4]$/.test(e.code))answer(+e.code.slice(5)-1)});
@@ -738,6 +777,9 @@ $('#btnColl').onclick=()=>{if(state==='world')openColl();else if(state==='menu')
 $('#btnHelp').onclick=()=>{if(state==='world')openHelp()};
 $('#btnSnd').onclick=toggleMute;
 $('#btnZoom').onclick=()=>cycleZoom();
+$('#btnBoard').onclick=()=>{if(state==='world')openBoard()};$('#btnBoardT').onclick=()=>openBoard(true);$('#boardClose').onclick=closeBoard;
+$('#btnCopy').onclick=()=>{const t=$('#myCode');t.select();let ok=false;try{navigator.clipboard.writeText(t.value).then(()=>{$('#importMsg').textContent='Copied! Text it to her (or paste it anywhere).'}).catch(()=>{$('#importMsg').textContent='Select the code above and copy it.'});ok=true}catch(e){}if(!ok)$('#importMsg').textContent='Select the code above and copy it.'};
+$('#btnImport').onclick=()=>{const m=importCode($('#importBox').value);$('#importBox').value='';openBoard(state!=='menu');$('#importMsg').textContent=m};
 document.querySelectorAll('.close').forEach(b=>b.onclick=closePanels);
 
 /* ===================== Title & boot ===================== */
@@ -748,13 +790,15 @@ function drawPreview(){const c=$('#preview'),g=c.getContext('2d');g.imageSmoothi
 function setupTitle(){const sw=(id,arr,key,isCol=true)=>{$(id).innerHTML=arr.map((v,i)=>`<button data-i="${i}" class="${i===pick[key]?'on':''}" ${isCol?`style="background:${v}"`:''}>${isCol?'':v}</button>`).join('');
   $(id).querySelectorAll('button').forEach(b=>b.onclick=()=>{pick[key]=+b.dataset.i;SFX.sel();setupTitle()})};
  sw('#pShirt',SHIRTS,'shirt');sw('#pSkin',SKINS,'skin');sw('#pHair',HAIRS,'hair');sw('#pStyle',STYLES,'style',false);sw('#pBuild',BUILDS,'build',false);sw('#pOutfit',OUTFITS,'outfit',false);drawPreview();
- const sv=loadSave();$('#btnCont').classList.toggle('hidden',!sv);if(sv)$('#btnCont').textContent=`Continue as ${sv.name} ▶`}
-function begin(s,isNew){try{AC=AC||new(window.AudioContext||window.webkitAudioContext)();AC.resume();music.next=AC.currentTime+.2}catch(e){}S=s;player.spr=charSprites(S.look);$('#title').classList.add('hidden');$('#hud').classList.remove('hidden');
+ const st=loadStore(),list=Object.values(st.saves).sort((a,b)=>(b.updated||0)-(a.updated||0));
+ $('#profList').innerHTML=list.slice(0,3).map(p=>`<button data-n="${esc(p.name)}">Continue as ${esc(p.name)} <small>· ${Object.keys(p.items||{}).length}/${ITEMS.length} · ${p.stars||0}★</small></button>`).join('');
+ $('#profList').querySelectorAll('button').forEach(b=>b.onclick=()=>{const p=loadStore().saves[b.dataset.n];if(p)begin(p,false)})}
+function begin(s,isNew){try{AC=AC||new(window.AudioContext||window.webkitAudioContext)();AC.resume();music.next=AC.currentTime+.2}catch(e){}S=s;S.equip=S.equip||{};S.eggs=S.eggs||{};refreshPlayer();$('#title').classList.add('hidden');$('#hud').classList.remove('hidden');
  loadZone(S.zone||'village',S.x??15,S.y??10,S.dir||'up');state='world';updHud();
  if(isNew)say([{text:`Welcome to the Village, ${S.name}!`},{text:"That's Central Perk right in front of you. Walk up to the door to go inside."},{text:"Arrows or WASD to move (hold Shift to hurry). Space to talk. C opens your collectibles shelf."},{text:"Find people with a ? over their heads. They want to quiz you."}])}
-$('#btnNew').onclick=()=>{const nm=($('#pName').value||'').trim().slice(0,14)||'Friend';const sv=loadSave();if(sv&&!confirmNew())return;begin(freshSave(nm,lookFromPick()),true)};
+$('#btnNew').onclick=()=>{let nm=($('#pName').value||'').trim().slice(0,14)||'Friend';const st=loadStore();if(st.saves[nm]){let k=2;while(st.saves[nm+' '+k])k++;nm=(nm.slice(0,11)+' '+k)}begin(freshSave(nm,lookFromPick()),true)};
 function confirmNew(){const b=$('#btnNew');if(b.dataset.arm){delete b.dataset.arm;return true}b.dataset.arm=1;b.textContent='Overwrite saved game? Click again';setTimeout(()=>{delete b.dataset.arm;b.textContent='New Game ▶'},3000);return false}
-$('#btnCont').onclick=()=>{const sv=loadSave();if(sv)begin(sv,false)};
+
 
 function fit(){const s=Math.min(innerWidth/640,innerHeight/416);const g=$('#game');g.style.transform=`scale(${s})`;$('#holder').style.width=640*s+'px';$('#holder').style.height=416*s+'px'}
 addEventListener('resize',fit);

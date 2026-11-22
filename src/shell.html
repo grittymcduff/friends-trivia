@@ -97,9 +97,18 @@ kbd{background:#fff;border:1px solid #2a1a3a;border-radius:3px;padding:0 4px;fon
 #crCv{width:320px;height:48px;image-rendering:pixelated}
 #crNote{font-family:Georgia,serif;font-size:15px;line-height:1.5;max-width:460px;white-space:pre-wrap;background:#fff;border:2px solid #e2b82a;border-radius:8px;padding:10px 14px}
 #crBy{font-weight:800;color:#d9782f}
+/* Leaderboard & wearables */
+#board{position:absolute;z-index:5;inset:14px;padding:12px 16px;overflow:auto;display:flex;flex-direction:column;gap:7px}
+#board table{width:100%;border-collapse:collapse;font-size:11px}#board th{text-align:left;border-bottom:2px solid #2a1a3a;padding:3px 4px}#board td{padding:4px;border-bottom:1px dashed #d9c49a}
+#board tr.me td{background:#fff2b8}#board input{font-family:inherit;font-size:10px;padding:4px 6px;border:2px solid #2a1a3a;border-radius:5px;width:300px}
+#importMsg{font-weight:800;color:#1f8a3a;min-height:14px}.muted{color:#7a6a8a}
+#doll{width:66px;height:48px;image-rendering:pixelated}
+.card .wear{margin-top:4px;font-size:9px;padding:2px 6px}.card .wear.on{background:#bff0c4}
+#profList{display:flex;flex-direction:column;gap:4px}#profList button{font-size:12px;padding:6px}#profList small{font-weight:600;color:#7a6a8a}
+#btnBoardT{font-size:12px;padding:6px;background:#f2eaf8}
 /* Title */
 #title{position:absolute;inset:0;background:linear-gradient(180deg,rgba(20,10,30,.55),rgba(20,10,30,.85));display:flex;align-items:center;justify-content:center}
-#tBox{width:440px;padding:10px 18px 12px;text-align:center}
+#tBox{width:440px;padding:10px 18px 12px;text-align:center;max-height:404px;overflow:auto}
 #tBox h1{margin:0;font-family:Georgia,serif;font-size:23px;color:#5b3a8c;letter-spacing:.01em}
 #tBox h1 span{color:#d9782f}
 #tBox .sub{font-size:11px;font-weight:700;color:#7a6a8a;margin:2px 0 4px}
@@ -127,7 +136,7 @@ kbd{background:#fff;border:1px solid #2a1a3a;border-radius:3px;padding:0 4px;fon
  <div id="hud" class="hidden">
   <div id="zoneTag" class="box">Greenwich Village</div>
   <div id="counts" class="box"><span title="Collectibles">🏆 <b id="cntItems">0/12</b></span><span title="Correct answers">⭐ <b id="cntStars">0</b></span></div>
-  <div id="hudBtns"><button id="btnColl">🏆 Shelf (C)</button><button id="btnHelp">❔</button><button id="btnZoom">🔍 Normal</button><button id="btnSnd">🔊</button></div>
+  <div id="hudBtns"><button id="btnColl">🏆 Shelf (C)</button><button id="btnBoard">🏅</button><button id="btnHelp">❔</button><button id="btnZoom">🔍 Normal</button><button id="btnSnd">🔊</button></div>
  </div>
  <div id="toast" class="box"></div>
  <div id="dlg" class="box hidden"><div id="dlgName"></div><div id="dlgText"></div><div id="dlgChoices"></div><div id="dlgMore">▼</div></div>
@@ -136,17 +145,22 @@ kbd{background:#fff;border:1px solid #2a1a3a;border-radius:3px;padding:0 4px;fon
   <div id="tvBody"><div id="tvMid"><canvas id="tvPic" class="hidden" width="256" height="160"></canvas><div id="tvQ"></div></div><div id="tvOpts"></div><div id="tvFoot"><div id="tvFact" class="hidden"></div><button id="tvNext" class="hidden">Next ▶</button></div></div>
   <div id="tvRes" class="hidden"></div>
  </div>
- <div id="coll" class="box hidden"><div class="ph"><h2>🏆 The Shelf</h2><b id="collCount"></b><button class="close">Close ✕</button></div><div id="collGrid"></div></div>
+ <div id="coll" class="box hidden"><div class="ph"><canvas id="doll" width="66" height="48"></canvas><h2>🏆 The Shelf</h2><b id="collCount"></b><button class="close">Close ✕</button></div><div id="collGrid"></div></div>
  <div id="help" class="box hidden"><div class="ph"><h2>How to play</h2><button class="close">Close ✕</button></div>
   <ul><li><kbd>←↑↓→</kbd> or <kbd>WASD</kbd> to walk. Hold <kbd>Shift</kbd> to hurry.</li>
   <li><kbd>Space</kbd> / <kbd>Enter</kbd> to talk, read signs, sit, and continue. <kbd>Esc</kbd> to back out.</li>
   <li>In trivia, click an answer or press <kbd>1</kbd>–<kbd>4</kbd>.</li>
-  <li><kbd>C</kbd> opens your shelf of collectibles. <kbd>M</kbd> toggles sound. <kbd>+</kbd> / <kbd>−</kbd> (or the 🔍 button) zoom in and out.</li>
+  <li><kbd>C</kbd> opens your shelf of collectibles (wear hats, costumes and props from there!). <kbd>L</kbd> or 🏅 opens the leaderboard. <kbd>M</kbd> toggles sound. <kbd>+</kbd> / <kbd>−</kbd> (or the 🔍 button) zoom in and out.</li>
   <li>Keep your eyes open while you explore. Some very strange things turn up around the city at random…</li>
   <li>A yellow <b>?</b> over a cast member means they have a collectible for you. A white <b>?</b> over a stranger means they have a quick question.</li>
   <li>Your progress saves automatically in this browser.</li></ul></div>
  <div id="subway" class="box hidden"><div class="ph"><h2>🚇 Subway Map</h2><button class="close">Close ✕</button></div><div id="subList"></div></div>
  <div id="credits" class="box hidden"><h2>The One Where It All Comes Together</h2><div class="sub">You found everyone, answered everything, and earned the key to apartment 20.</div><canvas id="crCv" width="320" height="48"></canvas><div id="crStats"></div><div id="crNote" class="hidden"></div><div id="crBy"></div><button class="close">Keep exploring ▶</button></div>
+ <div id="board" class="box hidden"><div class="ph"><h2>🏅 Leaderboard</h2><button id="boardClose">Close ✕</button></div>
+  <table><thead><tr><th></th><th>Player</th><th>Score</th><th>Story items</th><th>Sightings</th><th>⭐</th><th>Status</th></tr></thead><tbody id="boardRows"></tbody></table>
+  <div id="shareRow"><b>Share your score:</b> <input id="myCode" readonly><button id="btnCopy">Copy</button></div>
+  <div><b>Add a friend's score:</b> <input id="importBox" placeholder="Paste a TOWTG1: code"><button id="btnImport">Add</button></div>
+  <div id="importMsg"></div><small class="muted">Score: 100 per story item, 150 per superfan extra, 50 per sighting, 5 per correct answer, +500 for finishing.</small></div>
  <div id="travel"><div id="travelText"></div></div>
  <div id="title">
   <div id="tBox" class="box">
@@ -159,7 +173,7 @@ kbd{background:#fff;border:1px solid #2a1a3a;border-radius:3px;padding:0 4px;fon
    <div class="row"><label>Hair</label><div class="sw" id="pHair"></div></div>
    <div class="row"><label></label><div class="sw tx" id="pStyle"></div></div>
    <div class="row"><label>Look</label><div class="sw tx" id="pBuild"></div><div class="sw tx" id="pOutfit"></div></div>
-   <div id="tBtns"><button id="btnNew">New Game ▶</button><button id="btnCont" class="hidden">Continue ▶</button></div>
+   <div id="tBtns"><button id="btnNew">New Game ▶</button><div id="profList"></div><button id="btnBoardT">🏅 Leaderboard</button></div>
   </div>
  </div>
  <div id="touch" class="hidden"><div id="dpad"><button data-d="up">▲</button><button data-d="left">◀</button><button data-d="right">▶</button><button data-d="down">▼</button></div><div id="ab"><button id="btnB">B</button><button id="btnA">A</button></div></div>
