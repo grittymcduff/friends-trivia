@@ -4,6 +4,14 @@ A private, Pokémon-style pixel-art trivia adventure set in Friends' Greenwich V
 
 **Play:** open `index.html` in a browser, or turn on GitHub Pages for this repo (Settings → Pages → deploy from `main`, root folder).
 
+## v1.2: "The One Where You Get Redrawn Too"
+
+- **HD player character** built from colour-keyed template art: the template marks each part (skin, shirt, pants, shoes, hair), and the game paints those parts in the colours you pick, so any combination looks hand-drawn.
+- **New customiser:** 7 hairstyles (long, ponytail, puffy, shaggy, spiky, buzz, bald), freckles on or off, any shirt, skin and hair colour, and pants, skirt or dress. Skirts and dresses use the bare-legs look under a flared hem.
+- **Wearables on the HD player:** Ross's leather pants are now drawn in HD (shiny black). Monica's diner wig swaps your hair for a blonde shag. Hats, the veil, the armadillo costume and carried items are still the small pixel props, scaled onto the new body.
+- Older saves carry over: bob becomes shaggy, short becomes buzz, and bun becomes ponytail.
+- To rebuild after changing the template art: `python3 tools/prep_player.py <folder>`, with sheets named `base`, `freckles`, `ponytail`, `puffy`, `long`, `spiky`, `buzz` and `shaggy`.
+
 ## v1.1: "The One Where Everyone Gets Redrawn"
 
 - **The whole cast is HD:** all six friends in every location look, plus Gunther, Mr. Heckles (with broom), Jack and Judy, Frank Jr., Janice, Richard, Estelle and Mike, the finale cast, and the chick.
@@ -133,5 +141,6 @@ Cast members currently use generic placeholder sprites with name tags. To swap i
 
 - More trips: Atlantic City, Tulsa
 - HD sprites for the MSG usher, Eddie, the apartment duck, and the missing looks (Ross's brown shirt, Joey's red shirt, Chandler's green shirt)
-- HD townspeople and the player character
+- HD townspeople (the player template could be reused for them)
+- HD hats and carried items for the player
 - Redraw the maps to match the HD character art

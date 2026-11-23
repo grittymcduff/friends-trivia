@@ -105,7 +105,7 @@ kbd{background:#fff;border:1px solid #2a1a3a;border-radius:3px;padding:0 4px;fon
 #board table{width:100%;border-collapse:collapse;font-size:11px}#board th{text-align:left;border-bottom:2px solid #2a1a3a;padding:3px 4px}#board td{padding:4px;border-bottom:1px dashed #d9c49a}
 #board tr.me td{background:#fff2b8}#board input{font-family:inherit;font-size:10px;padding:4px 6px;border:2px solid #2a1a3a;border-radius:5px;width:300px}
 #importMsg{font-weight:800;color:#1f8a3a;min-height:14px}.muted{color:#7a6a8a}
-#doll{width:66px;height:48px;image-rendering:pixelated}
+#doll{width:92px;height:48px;image-rendering:pixelated}
 .card .wear{margin-top:4px;font-size:9px;padding:2px 6px}.card .wear.on{background:#bff0c4}
 #profList{display:flex;flex-direction:column;gap:4px}#profList button{font-size:12px;padding:6px}#profList small{font-weight:600;color:#7a6a8a}
 #btnBoardT{font-size:12px;padding:6px;background:#f2eaf8}
@@ -120,7 +120,7 @@ kbd{background:#fff;border:1px solid #2a1a3a;border-radius:3px;padding:0 4px;fon
 .row input{font-family:inherit;font-size:13px;font-weight:700;padding:5px 8px;border:2px solid #2a1a3a;border-radius:6px;width:180px}
 .sw{display:flex;gap:4px}.sw button{width:22px;height:22px;padding:0;box-shadow:none}.sw button.on{outline:3px solid #5b3a8c;outline-offset:1px}
 .sw.tx button{width:auto;padding:0 6px;font-size:10px;background:#fff4d6}
-#preview{width:104px;height:72px;image-rendering:pixelated;margin:2px 0 0}
+#preview{width:140px;height:72px;image-rendering:pixelated;margin:2px 0 0}
 #tBtns{display:flex;flex-direction:column;gap:5px;margin-top:8px}
 #tBtns button{font-size:13px;padding:8px}
 #btnNew{background:#ffd84a}
@@ -149,7 +149,7 @@ kbd{background:#fff;border:1px solid #2a1a3a;border-radius:3px;padding:0 4px;fon
   <div id="tvBody"><div id="tvMid"><canvas id="tvPic" class="hidden" width="256" height="160"></canvas><div id="tvQ"></div></div><div id="tvOpts"></div><div id="tvFoot"><div id="tvFact" class="hidden"></div><button id="tvNext" class="hidden">Next ▶</button></div></div>
   <div id="tvRes" class="hidden"></div>
  </div>
- <div id="coll" class="box hidden"><div class="ph"><canvas id="doll" width="66" height="48"></canvas><h2>🏆 The Shelf</h2><b id="collCount"></b><button class="close">Close ✕</button></div><div id="collGrid"></div></div>
+ <div id="coll" class="box hidden"><div class="ph"><canvas id="doll" width="92" height="48"></canvas><h2>🏆 The Shelf</h2><b id="collCount"></b><button class="close">Close ✕</button></div><div id="collGrid"></div></div>
  <div id="help" class="box hidden"><div class="ph"><h2>How to play</h2><button class="close">Close ✕</button></div>
   <ul><li><kbd>←↑↓→</kbd> or <kbd>WASD</kbd> to walk, or just <b>click (or tap) where you want to go</b>. Click a person or sign to walk over and talk to it. Hold <kbd>Shift</kbd> to hurry.</li>
   <li><kbd>Space</kbd> / <kbd>Enter</kbd> to talk, read signs, sit, and continue. <kbd>Esc</kbd> to back out.</li>
@@ -171,13 +171,14 @@ kbd{background:#fff;border:1px solid #2a1a3a;border-radius:3px;padding:0 4px;fon
   <div id="tBox" class="box">
    <h1>The One With <span>The Trivia Game</span></h1>
    <div class="sub">A Greenwich Village adventure · made with love</div>
-   <canvas id="preview" width="104" height="72"></canvas>
+   <canvas id="preview" width="140" height="72"></canvas>
    <div class="row"><label>Name</label><input id="pName" maxlength="14" placeholder="Your name"></div>
    <div class="row"><label>Shirt</label><div class="sw" id="pShirt"></div></div>
    <div class="row"><label>Skin</label><div class="sw" id="pSkin"></div></div>
    <div class="row"><label>Hair</label><div class="sw" id="pHair"></div></div>
    <div class="row"><label></label><div class="sw tx" id="pStyle"></div></div>
-   <div class="row"><label>Look</label><div class="sw tx" id="pBuild"></div><div class="sw tx" id="pOutfit"></div></div>
+   <div class="row"><label>Face</label><div class="sw tx" id="pBuild"></div></div>
+   <div class="row"><label>Outfit</label><div class="sw tx" id="pOutfit"></div></div>
    <div id="tBtns"><button id="btnNew">New Game ▶</button><div id="profList"></div><button id="btnBoardT">🏅 Leaderboard</button></div>
   </div>
  </div>
@@ -1344,7 +1345,7 @@ function carSprite(col,taxi){const k=col+taxi;if(carCache[k])return carCache[k];
 /* ===================== ART: characters ===================== */
 const charCache={};
 function hdKey(look,id){return(look&&look.hd)||HD_CAST[id]}
-function charSprites(look,id){const hk=hdKey(look,id);if(hk&&hdSprites[hk])return hdSprites[hk];if(id&&customSprites[id])return customSprites[id];const k=JSON.stringify(look);if(charCache[k])return charCache[k];
+function charSprites(look,id){if(look&&look.player){if(PL.ready)return playerSprites(look);look=procLook(look)}const hk=hdKey(look,id);if(hk&&hdSprites[hk])return hdSprites[hk];if(id&&customSprites[id])return customSprites[id];const k=JSON.stringify(look);if(charCache[k])return charCache[k];
  const out={down:[],up:[],left:[],right:[]};
  for(const dir of['down','up','left'])for(let f=0;f<3;f++)out[dir].push(drawChar(look,dir,f));
  out.right=out.left.map(mirror);return charCache[k]=out}
@@ -1423,6 +1424,60 @@ function loadHD(){
    hdSprites[key]=out;if(typeof npcs!=='undefined')for(const n of npcs)if(hdKey(n.look,n.id)===key)n.spr=out};im.src=src}
  for(const[kind,src]of Object.entries(HD_PROPS)){const im=new Image();im.onload=()=>{const[c,g]=mk(im.width,im.height);g.drawImage(im,0,0);c.hd=true;hdProps[kind]=c};im.src=src}
  for(const[id,src]of Object.entries(HD_ITEMS)){const im=new Image();im.onload=()=>{const[c,g]=mk(im.width,im.height);g.drawImage(im,0,0);c.hd=true;hdItems[id]=c;delete itemCache[id]};im.src=src}}
+/* v1.2: the player character is built from colour-keyed template sheets (tools/prep_player.py).
+ * Each sheet is a label map: every pixel says which part it is (skin, shirt, hair...), and
+ * playerSprites() paints the parts in the colours the player picked, then adds outfits and wearables. */
+const PL={ready:false,meta:null,sheets:{}},playerCache={};
+const P_OUT=1,P_SKIN=2,P_SKIN2=3,P_SKIN3=4,P_SHIRT=5,P_SHIRT2=6,P_PANTS=7,P_SHOES=8,P_SHOES2=9,P_HAIR=10,P_HAIR2=11,P_FRECKLE=12,P_SKIRT=20,P_SKIRT2=21,P_SHINE=22;
+const STYLE_MAP={bob:'shaggy',short:'buzz',bun:'ponytail'};   // hairstyles from saves made before v1.2
+function loadPlayerArt(){fetch('sprites/player/meta.json').then(r=>r.json()).then(meta=>{const names=['base','freckles',...meta.styles];let left=names.length;
+ for(const n of names){const im=new Image();im.onload=()=>{const[c,g]=mk(im.width,im.height);g.drawImage(im,0,0);const d=g.getImageData(0,0,im.width,im.height).data,lab=new Uint8Array(im.width*im.height);
+  for(let i=0;i<lab.length;i++)lab[i]=Math.round(d[i*4]/20);PL.sheets[n]={w:im.width,lab};
+  if(--left===0){PL.meta=meta;PL.ready=true;if(S)refreshPlayer();else player.spr=charSprites(lookFromPick());if(state==='title')drawPreview()}};im.src='sprites/player/'+n+'.png'}}).catch(()=>{})}
+function hexRGB(h){const n=parseInt(h.slice(1,7),16);return[n>>16,n>>8&255,n&255]}
+function playerSprites(L){
+ let style=STYLE_MAP[L.style]||L.style||'bald',hair=L.hair||'#4a3426';
+ if(L.hat==='wig'){style='shaggy';hair='#f0d070'}                 // Monica's diner wig is a hair swap
+ if(!PL.meta.styles.includes(style))style='bald';
+ const key=JSON.stringify([style,hair,L.skin,L.shirt,L.pants,L.outfit,!!L.freckles,!!L.leather,L.hat,L.costume,L.held]);if(playerCache[key])return playerCache[key];
+ const sk=L.skin||'#f1c9a5',sh=L.shirt||'#5b9bd5',pa=L.leather?'#1d1b22':(L.pants||'#3b4a6b'),outfit=L.leather?'pants':(L.outfit||'pants'),skc=outfit==='dress'?sh:(L.skirt||pa);
+ const C=[];C[P_OUT]='#1e1a2e';C[P_SKIN]=sk;C[P_SKIN2]=shade(sk,-.12);C[P_SKIN3]=shade(sk,-.24);C[P_SHIRT]=sh;C[P_SHIRT2]=shade(sh,-.22);C[P_PANTS]=pa;C[P_SHOES]='#3b302c';C[P_SHOES2]='#2a221f';
+ C[P_HAIR]=hair;C[P_HAIR2]=shade(hair,-.3);C[P_FRECKLE]=shade(sk,-.36);C[P_SKIRT]=skc;C[P_SKIRT2]=shade(skc,-.2);C[P_SHINE]='#6e6c7c';
+ const RGB=C.map(c=>c&&hexRGB(c));
+ const sheet=PL.sheets[style==='bald'?'base':style],fr=PL.sheets.freckles,[CW,CH]=PL.meta.cell,W=sheet.w;
+ const out={hd:true,player:true,down:[],up:[],left:[],right:[]};
+ ['down','up','left','right'].forEach((d,r)=>{for(let f=0;f<3;f++){
+  const lab=new Uint8Array(CW*CH);let py0=CH,py1=-1;
+  for(let y=0;y<CH;y++)for(let x=0;x<CW;x++){const i=(r*CH+y)*W+f*CW+x;let v=sheet.lab[i];if(L.freckles&&fr.lab[i]===P_FRECKLE&&(v===P_SKIN||v===P_SKIN2))v=P_FRECKLE;lab[y*CW+x]=v;if(v===P_PANTS){if(y<py0)py0=y;if(y>py1)py1=y}}
+  if(py1>0&&outfit!=='pants'){ // skirts and dresses: bare legs (the no-pants look) with a flared skirt on top
+   const end=py0+Math.round((py1-py0)*(outfit==='dress'?.58:.42)),fill=[];
+   for(let y=py0;y<=end;y++){let x0=-1,x1=-1;for(let x=0;x<CW;x++)if(lab[y*CW+x]===P_PANTS){if(x0<0)x0=x;x1=x}if(x0<0)continue;const fl=Math.round((y-py0)/(end-py0+1)*3);
+    for(let x=Math.max(0,x0-fl);x<=Math.min(CW-1,x1+fl);x++){const k=y*CW+x,v=lab[k];if(v===0||v===P_PANTS||v===P_OUT)fill.push([k,y===end?P_SKIRT2:P_SKIRT])}}
+   for(const[k,v]of fill)lab[k]=v;
+   for(let k=0;k<lab.length;k++)if(lab[k]===P_PANTS)lab[k]=P_SKIN2;
+   const isSk=v=>v===P_SKIRT||v===P_SKIRT2,add=[];
+   for(let y=0;y<CH;y++)for(let x=0;x<CW;x++){const k=y*CW+x;if(lab[k]!==0)continue;if((x>0&&isSk(lab[k-1]))||(x<CW-1&&isSk(lab[k+1]))||(y>0&&isSk(lab[k-CW]))||(y<CH-1&&isSk(lab[k+CW])))add.push(k)}
+   for(const k of add)lab[k]=P_OUT;
+   for(let x=0;x<CW;x++)for(let y=end+1;y<CH;y++){const k=y*CW+x;if(isSk(lab[k-CW])&&lab[k]!==0&&lab[k]!==P_OUT){lab[k]=P_OUT;break}}}
+  if(L.leather)for(let y=0;y<CH;y++)for(let x=2;x<CW;x++){const k=y*CW+x;if(lab[k]===P_PANTS&&lab[k-1]===P_PANTS&&lab[k-2]!==P_PANTS&&(y+x)%5)lab[k]=P_SHINE}
+  const[c,g]=mk(CW,CH),id=g.createImageData(CW,CH),D=id.data;
+  for(let k=0;k<lab.length;k++){const col=RGB[lab[k]];if(!col)continue;D[k*4]=col[0];D[k*4+1]=col[1];D[k*4+2]=col[2];D[k*4+3]=255}
+  g.putImageData(id,0,0);playerOverlays(g,L,d,f,PL.meta.anchors[d][f]);c.hd=true;out[d].push(c)}});
+ return playerCache[key]=out}
+// Hats, costumes and held items are still the 16x24 pixel props, scaled onto the HD body:
+// hats to the head, costumes to the whole figure, held things to the front hand.
+const HAT_LIFT={unionjack:1.6,redcap:1.6,veil:.6};
+function playerOverlays(g,L,d,f,a){const parts=[];if(L.hat&&L.hat!=='wig')parts.push(['head',{hat:L.hat}]);if(L.costume)parts.push(['body',{costume:L.costume}]);if(L.held)parts.push(['hand',{held:L.held}]);
+ const side=d==='left'||d==='right',flip=d==='right';
+ for(const[kind,sub]of parts){const[c,pg]=mk(16,24);dressUp(pg,sub,flip?'left':d,f,L.skin||'#f1c9a5');outline(c);const src=flip?mirror(c):c;
+  const fx=x=>flip?16-x:x;let dx,dy,dw,dh;
+  if(kind==='head'){const[h0,h1]=side?[fx(4),fx(11)].sort((p,q)=>p-q):[4,12],[x0,y0,x1,y1]=a.head,lift=HAT_LIFT[sub.hat]||0,sx=(x1-x0+1)/(h1-h0),sy=(y1-y0+1)/8*(lift>1?.7:1);dx=x0-h0*sx;dy=Math.max(-sy*.3,y0-(1+lift)*sy);dw=16*sx;dh=24*sy}
+  else if(kind==='body'){const[x0,y0,x1,y1]=a.body,sx=(x1-x0+1)/11,sy=(y1-y0+1)/21;dx=x0-3*sx;dy=y0-1*sy;dw=16*sx;dh=24*sy}
+  else{const[,by0,,by1]=a.body,s2=(by1-by0)/22*.62,hx=side?fx(5):d==='up'?11:12;dx=a.hand[0]-hx*s2;dy=a.hand[1]-16*s2;dw=16*s2;dh=24*s2}
+  g.imageSmoothingEnabled=false;g.drawImage(src,dx,dy,dw,dh)}}
+// when the player art can't load (single-file copy), fall back to the old generated look
+const FALLBACK_STYLE={ponytail:'bun',puffy:'bob',shaggy:'short',spiky:'short',buzz:'short'};
+function procLook(L){const st=STYLE_MAP[L.style]||L.style;return Object.assign({},L,{style:FALLBACK_STYLE[st]||st,fem:L.fem!==undefined?L.fem:['long','ponytail'].includes(st)})}
 // draw any icon/sprite into a box, smoothing only HD art (the procedural art stays crisp)
 function art(g,src,x,y,w,h){g.imageSmoothingEnabled=!!src.hd;if(src.hd)g.imageSmoothingQuality='high';g.drawImage(src,x,y,w,h);g.imageSmoothingEnabled=false}
 function itemArt(id){return hdItems[id]||itemIcon(id)}
@@ -1806,10 +1861,10 @@ function showCredits(){state='menu';const c=$('#credits');c.classList.remove('hi
 const WEAR={turkey:{slot:'head',hat:'turkey'},hat:{slot:'head',hat:'unionjack'},veil:{slot:'head',hat:'veil'},wig:{slot:'head',hat:'wig'},
  armadillo:{slot:'body',costume:'armadillo'},pants:{slot:'body',pants:'#1d1b22',outfit:'pants',leather:true},
  umbrella:{slot:'hand',held:'umbrella'},hugsy:{slot:'hand',held:'hugsy'},bag:{slot:'hand',held:'bag'},purse:{slot:'hand',held:'purse'},paddle:{slot:'hand',held:'paddle'},mug:{slot:'hand',held:'mug'},puck:{slot:'hand',held:'puck'}};
-function playerLook(){const L=Object.assign({},S.look);for(const id of Object.values(S.equip||{})){const w=WEAR[id];if(!w||!S.items[id])continue;const{slot,...rest}=w;Object.assign(L,rest)}return L}
+function playerLook(){const L=Object.assign({player:true},S.look);for(const id of Object.values(S.equip||{})){const w=WEAR[id];if(!w||!S.items[id])continue;const{slot,...rest}=w;Object.assign(L,rest)}return L}
 function refreshPlayer(){player.spr=charSprites(playerLook())}
 function toggleWear(id){const w=WEAR[id];if(!w)return;S.equip=S.equip||{};if(S.equip[w.slot]===id){delete S.equip[w.slot];toast('Took off: '+ITEM(id).name)}else{S.equip[w.slot]=id;toast('Now wearing: '+ITEM(id).name);SFX.sel()}refreshPlayer();save();openColl()}
-function drawDoll(){const c=$('#doll');if(!c)return;const g=c.getContext('2d');g.imageSmoothingEnabled=false;g.clearRect(0,0,c.width,c.height);const sp=charSprites(playerLook());g.drawImage(sp.down[0],0,0,32,48);g.drawImage(sp.left[0],34,0,32,48)}
+function drawDoll(){const c=$('#doll');if(!c)return;const g=c.getContext('2d');g.imageSmoothingEnabled=false;g.clearRect(0,0,c.width,c.height);const sp=charSprites(playerLook());const w=sp.hd?Math.round(48*HD_CW/HD_CH):32;art(g,sp.down[0],0,0,w,48);art(g,sp.right[0],w+2,0,w,48)}
 
 /* ===================== Leaderboard ===================== */
 function statsOf(p){const items=p.items||{},main=ITEMS.filter(i=>!i.bonus),bon=ITEMS.filter(i=>i.bonus);const m=main.filter(i=>items[i.id]).length,b=bon.filter(i=>items[i.id]).length,e=Object.keys(p.eggs||{}).length,st=p.stars||0;
@@ -1931,13 +1986,13 @@ $('#btnImport').onclick=()=>{const m=importCode($('#importBox').value);$('#impor
 document.querySelectorAll('.close').forEach(b=>b.onclick=closePanels);
 
 /* ===================== Title & boot ===================== */
-const SHIRTS=['#d9534f','#f0ad4e','#5cb85c','#5b9bd5','#8e6bbf','#e07aa0'],SKINS=['#f1c9a5','#e0ac7e','#c68a5a','#8d5a3b','#5e3a26'],HAIRS=['#2a1d17','#4a3426','#7a4b2a','#c9a253','#b5462a'],STYLES=['long','bob','short','bun','bald'],BUILDS=['feminine','masculine'],OUTFITS=['pants','skirt','dress'];
-let pick={shirt:3,skin:0,hair:2,style:0,build:0,outfit:0};
-function lookFromPick(){return{skin:SKINS[pick.skin],hair:HAIRS[pick.hair],style:STYLES[pick.style],shirt:SHIRTS[pick.shirt],pants:'#3b4a6b',fem:pick.build===0,outfit:OUTFITS[pick.outfit]}}
-function drawPreview(){const c=$('#preview'),g=c.getContext('2d');g.imageSmoothingEnabled=false;g.clearRect(0,0,c.width,c.height);const sp=charSprites(lookFromPick());g.drawImage(sp.down[0],0,0,48,72);g.drawImage(sp.left[0],56,0,48,72)}
+const SHIRTS=['#d9534f','#f0ad4e','#5cb85c','#5b9bd5','#8e6bbf','#e07aa0'],SKINS=['#f1c9a5','#e0ac7e','#c68a5a','#8d5a3b','#5e3a26'],HAIRS=['#2a1d17','#4a3426','#7a4b2a','#c9a253','#b5462a'],STYLES=['long','ponytail','puffy','shaggy','spiky','buzz','bald'],FRECKLES=['no freckles','freckles'],OUTFITS=['pants','skirt','dress'];
+let pick={shirt:3,skin:0,hair:2,style:0,freckles:0,outfit:0};
+function lookFromPick(){return{player:true,skin:SKINS[pick.skin],hair:HAIRS[pick.hair],style:STYLES[pick.style],shirt:SHIRTS[pick.shirt],pants:'#3b4a6b',freckles:pick.freckles===1,outfit:OUTFITS[pick.outfit]}}
+function drawPreview(){const c=$('#preview'),g=c.getContext('2d');g.imageSmoothingEnabled=false;g.clearRect(0,0,c.width,c.height);const sp=charSprites(lookFromPick());const w=sp.hd?Math.round(72*HD_CW/HD_CH):48;art(g,sp.down[0],0,0,w,72);art(g,sp.right[0],w+8,0,w,72)}
 function setupTitle(){const sw=(id,arr,key,isCol=true)=>{$(id).innerHTML=arr.map((v,i)=>`<button data-i="${i}" class="${i===pick[key]?'on':''}" ${isCol?`style="background:${v}"`:''}>${isCol?'':v}</button>`).join('');
   $(id).querySelectorAll('button').forEach(b=>b.onclick=()=>{pick[key]=+b.dataset.i;SFX.sel();setupTitle()})};
- sw('#pShirt',SHIRTS,'shirt');sw('#pSkin',SKINS,'skin');sw('#pHair',HAIRS,'hair');sw('#pStyle',STYLES,'style',false);sw('#pBuild',BUILDS,'build',false);sw('#pOutfit',OUTFITS,'outfit',false);drawPreview();
+ sw('#pShirt',SHIRTS,'shirt');sw('#pSkin',SKINS,'skin');sw('#pHair',HAIRS,'hair');sw('#pStyle',STYLES,'style',false);sw('#pBuild',FRECKLES,'freckles',false);sw('#pOutfit',OUTFITS,'outfit',false);drawPreview();
  const st=loadStore(),list=Object.values(st.saves).sort((a,b)=>(b.updated||0)-(a.updated||0));
  $('#profList').innerHTML=list.slice(0,3).map(p=>`<button data-n="${esc(p.name)}">Continue as ${esc(p.name)} <small>· ${Object.keys(p.items||{}).length}/${ITEMS.length} · ${p.stars||0}★</small></button>`).join('');
  $('#profList').querySelectorAll('button').forEach(b=>b.onclick=()=>{const p=loadStore().saves[b.dataset.n];if(p)begin(p,false)})}
@@ -1957,7 +2012,7 @@ function loop(now){const dt=Math.min(.05,(now-last)/1000);last=now;clock+=dt;
  if(Zn&&state!=='title'){updPlayer(dt);updNpcs(dt);updTaxis(dt);updDialog(dt);saveT+=dt;if(saveT>5){saveT=0;save()}draw()}
  syncTouch();requestAnimationFrame(loop)}
 try{const z=+localStorage.getItem('friendsTrivia_zoom');if([1,2,3].includes(z))setZoom(z,true);else setZoom(2,true)}catch(e){setZoom(2,true)}
-fit();setupTitle();setupTouch();loadCustomSprites();loadHD();
+fit();setupTitle();setupTouch();loadCustomSprites();loadHD();loadPlayerArt();
 // title-screen backdrop: render the village behind the menu
 player.spr=charSprites(lookFromPick());loadZone('village',15,10,'up',true);state='title';
 (function titleBg(){if(state!=='title')return;clock+=.016;updNpcs(.016);updTaxis(.016);drawTitleBg();requestAnimationFrame(titleBg)})();
