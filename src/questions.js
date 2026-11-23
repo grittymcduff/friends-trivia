@@ -329,6 +329,11 @@ const ITEMS = [
  {id:'nametag',  name:"'Crap Bag' Name Tag",        from:'Mike · Barbados', desc:"'Hello, my name is Crap Bag.' Mike is very committed to the bit.", hint:"Phoebe's favorite piano player is in Barbados.", bonus:true},
  {id:'polaroid', name:'The Photo Wall Polaroid',    from:'The Photo Wall · Upstairs Hallway', desc:"A snapshot of an orange couch. Somehow it says everything.", hint:"There's a wall of photos in the upstairs hallway.", bonus:true},
  {id:'trophy',   name:'The Super Fan Trophy',       from:'Quiz Night · Central Perk', desc:"Awarded for seven out of ten on the hardest questions in the game. Engraved: 'Could you BE any more of a fan?'", hint:"The Quiz Night host at Central Perk has the hardest questions in the game.", bonus:true},
+ // Hidden collectibles (v1.5, bonus): found in the world, not won from a quiz
+ {id:'cheesecake',name:"Mrs. Braverman's Cheesecake", from:'Upstairs Hallway', desc:"From Mama's Little Bakery, Chicago. Delivered to the wrong apartment. Eaten off the floor. Worth it.", hint:"Something delicious ended up on the hallway floor.", bonus:true},
+ {id:'grantaxi',  name:"Phoebe's Taxi",          from:'Greenwich Village', desc:"A beat-up old yellow cab. Phoebe drives it like she's being chased, and the glovebox is full of guitar picks.", hint:"An old yellow cab is parked near Phoebe's building.", bonus:true},
+ {id:'moistmaker',name:'The Moist Maker',         from:'The Museum', desc:"Turkey, cranberry, and an extra slice of gravy-soaked bread in the middle. MY SANDWICH?!", hint:"Someone at the museum left their lunch in the staff fridge.", bonus:true},
+ {id:'marcel',    name:'Marcel',                  from:"Ross's Apartment", desc:"Ross's capuchin monkey. Loves 'The Lion Sleeps Tonight.' Hates being called 'just a monkey.'", hint:"Something small and furry is loose in Ross's apartment.", bonus:true},
  // Finale
  {id:'key',      name:"The Key to Apartment 20",    from:'The Last One · Central Perk', desc:"Everyone leaves their keys on the counter one last time. You get to keep this one.", hint:"Collect everything else, then head to the orange couch."},
 ];

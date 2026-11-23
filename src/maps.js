@@ -39,7 +39,7 @@ function msgDoor(z,x,y,text){ act(z,x,y,{type:'msg',text}); }
  msgDoor(z,1,8,"Nobody answers. Somewhere inside, a dog is barking at a vacuum.");
  msgDoor(z,7,8,"The buzzer is broken. Someone taped a note to it: 'KNOCK LOUDER.'");
  door(z,18,8,'hall',6,7,'up');
- door(z,32,8,'rossapt',8,10,'up');
+ door(z,32,8,'rossapt',16,13,'up');
  msgDoor(z,37,8,"A sign on the door: 'Super is on vacation. Do not ask about the heat.'");
  msgDoor(z,43,8,"Closed for a private party. It smells amazing.");
 
@@ -52,7 +52,14 @@ function msgDoor(z,x,y,text){ act(z,x,y,{type:'msg',text}); }
  msgDoor(z,4,24,"Tonight: an experimental play starring an actor named Joey Tribbiani.\nThe theatre opens in a later update. (Bring earplugs.)");
  msgDoor(z,9,24,"Nobody's home.");
  msgDoor(z,15,24,"VILLAGE CIGARS. Lottery tickets, newspapers, and gum. The shop opens in a later update.");
- msgDoor(z,29,24,"'5 Morton St' says the mailbox… close enough. This is Phoebe's building.\n(Her apartment opens in a later update!)");
+ door(z,29,24,'phoebe',20,13,'up');
+ // Phoebe's taxi (v1.5 collectible), parked outside her building
+ obj(z,'grantaxi',30,14);
+ for(const x of [30,31]) act(z,x,14,{type:'collect',item:'grantaxi',lines:["An old yellow cab, parked half on the curb. One hubcap is missing. The meter is running. Nobody is inside.","A cassette is sticking out of the tape deck. The label says 'SMELLY CAT (DEMO).'"],
+  q:"Whose cab is this?",answers:["Phoebe's","Joey's","Gunther's","Mr. Treeger's"],
+  win:"Phoebe pops her head out of the building. 'Oh, you found my taxi! Keep the keys for a while. Just pump the brakes twice. And don't open the trunk.'",
+  lose:"A note on the dashboard: 'If found, return to P. Buffay. NOT the other Phoebe.' Try again.",
+  have:"Phoebe's taxi. The keys are in your pocket. The trunk is still a mystery."});
  msgDoor(z,37,24,"You hear someone practicing the tuba. You back away slowly.");
 
  // --- Street furniture ---
@@ -92,46 +99,62 @@ function msgDoor(z,x,y,text){ act(z,x,y,{type:'msg',text}); }
  T('t7',44,16,{skin:'#e0ac7e',hair:'#2a1d17',style:'bald',shirt:'#5a6a3a',pants:'#3b2e26'},["Pizza place is closed for a private party. Some guy rented the whole thing to propose. Bold."],false);
 })();
 
-/* ---------------- Central Perk (interior) ---------------- */
+/* ---------------- Central Perk (interior) ----------------
+ * v1.5 layout from the floor plan: counter on the left, the orange couch on the big rug at the front,
+ * the red couch at the back, café tables in the middle, the window nook on the right, restrooms and stairs behind. */
+const wallS=(z,x,y,w,h)=>paint(z,'wallS',x,y,w,h);
+const solidAt=(z,x,y)=>obj(z,'stub',x,y);   // invisible blocker (stairs, fixtures under wall art)
 (function(){
- const z = Z('perk','Central Perk',22,15,'wood'); z.tune='perk';
+ const z = Z('perk','Central Perk',24,17,'wood'); z.tune='perk';
  z.bg='#120d0a';
- paint(z,'brick',0,0,22,2); paint(z,'wains',0,2,22,1);
- paint(z,'wallS',0,0,1,15); paint(z,'wallS',21,0,1,15);
- paint(z,'front',0,14,22,1); paint(z,'mat',10,14,2,1);
- door(z,10,14,'village',13,9,'down'); door(z,11,14,'village',13,9,'down');
-
+ paint(z,'brick',0,0,24,2); paint(z,'wains',0,2,24,1);
+ wallS(z,0,0,1,17); wallS(z,23,0,1,17);
+ paint(z,'front',0,16,24,1); paint(z,'mat',11,16,2,1);
+ door(z,11,16,'village',13,9,'down'); door(z,12,16,'village',13,9,'down');
+ // restrooms and the back stairs
+ paint(z,'bath',1,3,4,3); wallS(z,5,2,1,4); wallS(z,1,6,5,1); paint(z,'bath',2,6,1,1);
+ obj(z,'toilet',1,3); obj(z,'sink',3,3);
+ act(z,1,3,{type:'msg',text:"The Central Perk restroom. There's a line. There's always a line."});
+ paint(z,'stairs',6,3,2,2); solidAt(z,6,3); solidAt(z,7,3);
+ act(z,6,3,{type:'msg',text:"Stairs up to the storeroom. A sign: 'EMPLOYEES ONLY. THIS MEANS YOU, RACHEL.'"}); act(z,7,3,{type:'msg',text:"Stairs up to the storeroom. Gunther keeps the good muffins up there."});
  // wall decor
- obj(z,'wallsign',2,0,{w:8,text:'Central Perk'});
- obj(z,'menu',13,0,{w:4});
- obj(z,'window',18,0,{w:2}); obj(z,'frame',11,1); obj(z,'frame',17,1,{tone:'#3f6b8a'});
- // couch corner
- obj(z,'rug',2,7,{w:9,h:5,low:true});
- obj(z,'couch',4,8,{w:4});
- obj(z,'armchair',3,10,{face:'right'}); obj(z,'armchair',8,10,{face:'left'});
- obj(z,'coffee',5,10,{w:2});
- for(let x=4;x<8;x++) act(z,x,8,{type:'couch'});
- act(z,5,10,{type:'msg',text:"The coffee table. Someone left a magazine open to a quiz: 'Which Friend Are You?'"});
- act(z,6,10,{type:'msg',text:"The coffee table. Someone left a magazine open to a quiz: 'Which Friend Are You?'"});
- act(z,3,10,{type:'msg',text:"A comfy armchair. The couch looks better, though."});
- act(z,8,10,{type:'msg',text:"A comfy armchair. The couch looks better, though."});
- // counter (row 4), Gunther behind it on row 3
- obj(z,'counter',12,4,{w:9});
- obj(z,'block',12,3);
- for(let x=12;x<21;x++) act(z,x,4,{type:'counter'});
- // tables
- for(const [x,y] of [[14,8],[18,8],[14,11],[18,11]]){ obj(z,'table',x,y); obj(z,'chair',x-1,y); obj(z,'chair',x+1,y); act(z,x,y,{type:'msg',text:'Someone left half a muffin and a very cold latte.'}); }
+ obj(z,'wallsign',9,0,{w:8,text:'Central Perk'});
+ obj(z,'menu',2,0,{w:4}); obj(z,'bigwindow',18,0,{w:4}); obj(z,'frame',17,1,{tone:'#3f6b8a'});
+ // the counter (Gunther behind it)
+ obj(z,'counter',1,9,{w:7}); obj(z,'block',1,8);
+ for(let x=1;x<8;x++) act(z,x,9,{type:'counter'});
+ // red couch at the back
+ obj(z,'rug',9,3,{w:8,h:4,low:true,tone:'#d8b878'});
+ obj(z,'couch',10,4,{w:4,color:'#b8322a'}); obj(z,'coffee',11,6,{w:2}); obj(z,'armchair',9,6,{face:'right'}); obj(z,'armchair',15,5,{color:'#b8322a'});
+ for(let x=10;x<14;x++) act(z,x,4,{type:'msg',text:"The red couch. Nice, but everybody knows the orange one is where it happens."});
+ // café tables in the middle
+ obj(z,'rug',9,8,{w:6,h:4,low:true,geo:true,tone:'#d89a9a'});
+ for(const [x,y] of [[10,9],[13,9],[10,11]]){ obj(z,'table',x,y); obj(z,'chair',x-1,y); obj(z,'chair',x+1,y); act(z,x,y,{type:'msg',text:'Someone left half a muffin and a very cold latte.'}); }
+ // the orange couch
+ obj(z,'rug',2,11,{w:8,h:5,low:true,tone:'#c890a8'});
+ obj(z,'couch',4,11,{w:4});
+ obj(z,'armchair',3,13,{face:'right'}); obj(z,'armchair',8,12,{color:'#6f8f3a'});
+ obj(z,'coffee',5,13,{w:2});
+ for(let x=4;x<8;x++) act(z,x,11,{type:'couch'});
+ act(z,5,13,{type:'msg',text:"The coffee table. Someone left a magazine open to a quiz: 'Which Friend Are You?'"});
+ act(z,6,13,{type:'msg',text:"The coffee table. Someone left a magazine open to a quiz: 'Which Friend Are You?'"});
+ act(z,3,13,{type:'msg',text:"A comfy armchair. The couch looks better, though."});
+ act(z,8,12,{type:'msg',text:"The green armchair. Chandler's spot, unless Joey got here first."});
+ // the window nook
+ obj(z,'rug',17,9,{w:5,h:4,low:true,geo:true,tone:'#e0a050'});
+ obj(z,'couch',18,9,{w:3,color:'#d9782f'}); obj(z,'table',18,11); obj(z,'table',20,11); obj(z,'chair',21,11);
+ obj(z,'table',20,6); obj(z,'chair',19,6); obj(z,'chair',21,6);
+ act(z,18,11,{type:'msg',text:"A table by the window. Perfect for people-watching on Grove St."});
  // Phoebe's corner
- obj(z,'mic',3,12);
- // plants
- obj(z,'plant',1,3); obj(z,'plant',20,6); obj(z,'plant',1,13); obj(z,'plant',20,13);
+ obj(z,'mic',1,14);
+ obj(z,'plant',8,3); obj(z,'plant',22,3); obj(z,'plant',1,15); obj(z,'plant',22,15); obj(z,'floorlamp',16,3);
 
- // --- Cast (placeholder sprites + name tags; swap in your own art, see README) ---
- z.npcs.push({id:'gunther',name:'Gunther',cast:true,x:16,y:3,dir:'down',talk:'gunther',reward:'mug',look:{skin:'#efc9a8',hair:'#4a3426',style:'short',shirt:'#4a4a58',pants:'#2b2b30',apron:true}});
- z.npcs.push({id:'rachel',name:'Rachel',cast:true,x:16,y:10,dir:'down',talk:'rachel',reward:'trifle',couch:true,wander:[10,6,11,7],walkOn:['wood'],look:{skin:'#efc9a8',hair:'#4a3426',style:'long',fem:true,outfit:'skirt',shirt:'#6aa6cf',pants:'#3b3b4a',apron:true}});
- z.npcs.push({id:'phoebe',name:'Phoebe',cast:true,x:2,y:12,dir:'right',talk:'phoebe',reward:'painting',couch:true,guitar:true,look:{skin:'#efc9a8',hair:'#4a3426',style:'long',fem:true,outfit:'dress',shirt:'#b884c9',pants:'#5a4a7a'}});
+ // --- Cast ---
+ z.npcs.push({id:'gunther',name:'Gunther',cast:true,x:4,y:8,dir:'down',talk:'gunther',reward:'mug',look:{skin:'#efc9a8',hair:'#4a3426',style:'short',shirt:'#4a4a58',pants:'#2b2b30',apron:true}});
+ z.npcs.push({id:'rachel',name:'Rachel',cast:true,x:12,y:12,dir:'down',talk:'rachel',reward:'trifle',couch:true,wander:[9,8,9,6],walkOn:['wood'],look:{skin:'#efc9a8',hair:'#4a3426',style:'long',fem:true,outfit:'skirt',shirt:'#6aa6cf',pants:'#3b3b4a',apron:true}});
+ z.npcs.push({id:'phoebe',name:'Phoebe',cast:true,x:2,y:14,dir:'right',talk:'phoebe',reward:'painting',couch:true,guitar:true,look:{skin:'#efc9a8',hair:'#4a3426',style:'long',fem:true,outfit:'dress',shirt:'#b884c9',pants:'#5a4a7a'}});
  // Super Fan Quiz Night: the hardest deck in the game
- cast(z,'quizhost','Quiz Night Host',2,5,'right',{skin:'#e0ac7e',hair:'#2a1d17',style:'short',shirt:'#7a2a3a',pants:'#2b2b30'},
+ cast(z,'quizhost','Quiz Night Host',16,13,'left',{skin:'#e0ac7e',hair:'#2a1d17',style:'short',shirt:'#7a2a3a',pants:'#2b2b30'},
   {reward:'trophy',tags:'sf',n:10,need:7,
    greet:["Welcome to Super Fan Quiz Night! I write the questions nobody else knows.","Cameos. Quotes. Which season. How old everyone was. The deep cuts."],
    offer:"Ten Super Fan questions. Get seven right and the trophy is yours. Each correct answer is worth three stars.",
@@ -141,86 +164,137 @@ function msgDoor(z,x,y,text){ act(z,x,y,{type:'msg',text}); }
    again:"Back for another Quiz Night round? New questions every time."});
  // customers
  const C=(id,x,y,dir,look,lines,quiz)=>z.npcs.push({id,x,y,dir,look,lines,quiz,seated:true});
- C('c1',13,8,'right',{skin:'#c68a5a',hair:'#2a1d17',style:'short',shirt:'#d0a040',pants:'#3a3a44'},["This is my fourth coffee. I can see sounds now."],true);
- C('c2',19,11,'left',{skin:'#f1c9a5',hair:'#c9a253',style:'bun',fem:true,shirt:'#4f8a6a',pants:'#3a3a44'},["I come here every day hoping to get the orange couch. Every. Single. Day. It's always taken by the same six people."],true);
- C('c3',17,8,'right',{skin:'#5e3a26',hair:'#1c1410',style:'long',fem:true,outfit:'skirt',shirt:'#c0573a',pants:'#2b3a55'},["The guy behind the counter has been staring at the waitress for an hour. Is that… normal here?"],false);
+ C('c1',9,9,'right',{skin:'#c68a5a',hair:'#2a1d17',style:'short',shirt:'#d0a040',pants:'#3a3a44'},["This is my fourth coffee. I can see sounds now."],true);
+ C('c2',21,11,'left',{skin:'#f1c9a5',hair:'#c9a253',style:'bun',fem:true,shirt:'#4f8a6a',pants:'#3a3a44'},["I come here every day hoping to get the orange couch. Every. Single. Day. It's always taken by the same six people."],true);
+ C('c3',14,9,'left',{skin:'#5e3a26',hair:'#1c1410',style:'long',fem:true,outfit:'skirt',shirt:'#c0573a',pants:'#2b3a55'},["The guy behind the counter has been staring at the waitress for an hour. Is that… normal here?"],false);
 })();
 
-/* ---------------- Upstairs hallway (Monica's building) ---------------- */
+/* ---------------- Upstairs hallway (Monica's building) ----------------
+ * v1.5: matched to the set photo: peach plaster over dark wainscot, green doors, a window at the end. */
 (function(){
- const z = Z('hall','Upstairs Hallway',14,9,'wood'); z.tune='home';
+ const z = Z('hall','Upstairs Hallway',14,9,'hallf'); z.tune='home';
  paint(z,'wallH',0,0,14,2); paint(z,'wains',0,2,14,1);
- paint(z,'wallS',0,0,1,9); paint(z,'wallS',13,0,1,9);
+ wallS(z,0,0,1,9); wallS(z,13,0,1,9);
  paint(z,'frontA',0,8,14,1); paint(z,'stairs',6,8,2,1);
- obj(z,'walldoor',4,2,{color:'#5b3a8c',num:'20',frame:true});
- obj(z,'walldoor',9,2,{color:'#7a5232',num:'19'});
- door(z,4,2,'monica',10,13,'up'); door(z,9,2,'joey',9,11,'up');
+ obj(z,'walldoor',4,2,{color:'#2f7a5a',num:'20',frame:true}); obj(z,'wreath',4,0);
+ obj(z,'walldoor',9,2,{color:'#2f6a4a',num:'19'});
+ door(z,4,2,'monica',8,15,'up'); door(z,9,2,'joey',11,14,'up');
  door(z,6,8,'village',18,9,'down'); door(z,7,8,'village',18,9,'down');
- obj(z,'frame',7,1,{tone:'#4a7a6a'}); obj(z,'plant',1,3); obj(z,'plant',12,3);
- obj(z,'rug',3,4,{w:8,h:3,low:true,tone:'#5a3a6a'});
+ obj(z,'frame',7,1,{tone:'#4a7a6a'}); obj(z,'window',11,0,{w:2}); obj(z,'plant',1,3); obj(z,'plant',12,3);
+ obj(z,'trash',12,7);
+ // the cheesecake (v1.5 collectible) and the spot where it landed
+ obj(z,'splat',6,5);
+ for(const [x,y] of [[6,4],[5,5],[7,5],[6,6]]) act(z,x,y,{type:'msg',text:"A splat of cheesecake on the hallway floor.\nThe forks next to it suggest two people tried very hard not to waste it."});
+ obj(z,'cheesecake',10,3);
+ act(z,10,3,{type:'collect',item:'cheesecake',lines:["A bakery box outside Apartment 19. The label says 'Mama's Little Bakery, Chicago.' It's not addressed to anyone who lives here.","There's one slice left. It smells incredible."],
+  q:"Who was this cheesecake actually delivered for?",answers:["Mrs. Braverman, downstairs","Mrs. Geller","Mr. Heckles","Mr. Treeger"],
+  win:"Mrs. Braverman. Who has never once collected her own cheesecake. You take the box. It's practically yours by now.",lose:"Hmm. The label says otherwise. (Look closer at who lives downstairs.)",
+  have:"The bakery box is empty. Not a crumb. Somebody (you) has no regrets."});
  act(z,7,2,{type:'quiz',name:'The Photo Wall',icon:'polaroid',script:{narrate:true,greet:["A wall of framed snapshots: a purple door, an orange couch, a turkey in sunglasses… Someone has labeled them with questions.","A sticky note: 'Picture round! Six photos. Get five right and take a Polaroid.'"],offer:"Play the picture round?",tags:'pic',prefer:'pic',n:6,need:5,reward:'polaroid',yes:"Let's look",no:'Maybe later',noReply:'The photos will wait.',win:"You recognized almost everything! You peel a Polaroid off the wall. Nobody will notice. (Monica will notice.)",lose:"Hmm, a few of those got by you. Look closer next time!"}});
 })();
 
-/* ---------------- Monica's apartment (#20) ---------------- */
+/* ---------------- Monica's apartment (#20) ----------------
+ * v1.5 layout from the floor plan: bathroom and kitchen on the left, living room in the middle under the
+ * arched window, Monica's and Rachel's bedrooms on the right. */
 (function(){
- const z = Z('monica',"Monica's Apartment",22,15,'wood'); z.tune='home';
+ const z = Z('monica',"Monica's Apartment",26,17,'wood'); z.tune='home';
  z.bg='#140e1c';
- paint(z,'wallP',0,0,22,2); paint(z,'wains',0,2,22,1);
- paint(z,'wallS',0,0,1,15); paint(z,'wallS',21,0,1,15);
- paint(z,'frontA',0,14,22,1); paint(z,'mat',10,14,2,1);
- paint(z,'tileK',1,3,9,6);
- door(z,10,14,'hall',4,3,'down'); door(z,11,14,'hall',4,3,'down');
- // kitchen along the back wall
- obj(z,'fridge',1,3); obj(z,'kcounter',2,3,{w:4,sink:true}); obj(z,'stove',6,3); obj(z,'kcounter',7,3,{w:2});
- obj(z,'kcounter',3,6,{w:4});
- act(z,1,3,{type:'msg',text:"The fridge is organized by food group, then color, then expiration date. There's a label maker in here too."});
- act(z,6,3,{type:'msg',text:"Something is simmering. You are not allowed to touch it."});
- for(let x=2;x<6;x++) act(z,x,3,{type:'msg',text:"Spotless. You could perform surgery on this counter."});
- for(let x=3;x<7;x++) act(z,x,6,{type:'msg',text:"A cutting board, a very sharp knife, and a stack of eleven differently colored towels."});
- // big window on the back wall
- obj(z,'bigwindow',12,0,{w:4});
- for(let x=12;x<16;x++) act(z,x,2,{type:'msg',text:"Across the street, an apartment with the blinds wide open.\nYou close the curtains. Some things can't be unseen."});
- obj(z,'frame',17,1,{tone:'#6a8a4a'}); obj(z,'frame',9,1,{tone:'#b06a3a'});
- // dining table
- obj(z,'dtable',11,6,{w:3}); obj(z,'chair',10,6); obj(z,'chair',14,6);
- for(let x=11;x<14;x++) act(z,x,6,{type:'msg',text:"The dining table, set for eight. Monica says it's 'just a casual dinner.'"});
- // living room
- obj(z,'rug',13,9,{w:8,h:4,low:true,tone:'#3f5a7a'});
- obj(z,'couch',15,9,{w:4,color:'#e6dcc6'}); obj(z,'coffee',16,11,{w:2}); obj(z,'armchair',14,11,{face:'right'}); obj(z,'armchair',19,11,{face:'left'});
- for(let x=15;x<19;x++) act(z,x,9,{type:'msg',text:"A very nice couch. Monica would like you to sit on it… carefully. Coasters are on the table."});
- act(z,16,11,{type:'msg',text:"A bowl of index cards in Ross's handwriting. 'APARTMENT QUIZ: DO NOT TOUCH.'"}); act(z,17,11,{type:'msg',text:"A bowl of index cards in Ross's handwriting. 'APARTMENT QUIZ: DO NOT TOUCH.'"});
- obj(z,'plant',20,3); obj(z,'plant',20,13); obj(z,'plant',1,13);
- z.npcs.push({id:'monica',name:'Monica',cast:true,x:5,y:5,dir:'down',talk:'monica',reward:'cup',wander:[1,4,9,5],walkOn:['tileK','wood'],look:{skin:'#efc9a8',hair:'#2a1d17',style:'bob',fem:true,shirt:'#c0573a',pants:'#2b2b30'}});
- z.npcs.push({id:'ross',name:'Ross',cast:true,x:17,y:12,dir:'down',talk:'ross',reward:'frame',look:{skin:'#efc9a8',hair:'#4a3426',style:'short',shirt:'#7a8a6a',pants:'#3b3b4a'}});
+ paint(z,'wallP',0,0,26,2); paint(z,'wains',0,2,26,1);
+ wallS(z,0,0,1,17); wallS(z,25,0,1,17);
+ paint(z,'frontA',0,16,26,1); paint(z,'mat',8,16,2,1);
+ door(z,8,16,'hall',4,3,'down'); door(z,9,16,'hall',4,3,'down');
+ // bathroom
+ paint(z,'bath',1,3,5,4); wallS(z,6,2,1,5); wallS(z,1,7,6,1); paint(z,'bath',6,5,1,1);
+ obj(z,'bathtub',1,3); obj(z,'sink',3,3); obj(z,'toilet',5,3);
+ act(z,1,3,{type:'msg',text:"The bathtub. Monica has a schedule for it. It is laminated."}); act(z,2,3,{type:'msg',text:"The bathtub. Monica has a schedule for it. It is laminated."});
+ act(z,3,3,{type:'msg',text:"Eleven kinds of soap, arranged by scent intensity."});
+ // kitchen
+ paint(z,'tileK',1,8,7,6);
+ obj(z,'fridge',1,8); obj(z,'kcounter',2,8,{w:3,tone:'#4fa3a5'}); obj(z,'stove',5,8); obj(z,'kcounter',6,8,{w:2,tone:'#4fa3a5'});
+ obj(z,'kcounter',2,11,{w:3,tone:'#4fa3a5'});
+ act(z,1,8,{type:'msg',text:"The fridge is organized by food group, then color, then expiration date. There's a label maker in here too."});
+ act(z,5,8,{type:'msg',text:"Something is simmering. You are not allowed to touch it."});
+ for(const x of [2,3,4,6,7]) act(z,x,8,{type:'msg',text:"Spotless. You could perform surgery on this counter."});
+ act(z,2,11,{type:'msg',text:"A cutting board, a very sharp knife, and a stack of eleven differently colored towels."});
+ act(z,3,11,{type:'msg',text:"A glass bowl of trifle. Ladyfingers, jam, custard, raspberries… and a layer of beef sautéed with peas and onions.\nThe pages of the cookbook were stuck together. Rachel's trifle is a collectible: ask her about it at Central Perk."});
+ act(z,4,11,{type:'msg',text:"A recipe card in Monica's handwriting: 'Nestlé Toll House' — crossed out. 'Phoebe's grandmother's' — crossed out. 'Nesley Toulouse' — circled."});
+ // dining table and living room under the arched window
+ obj(z,'dining',8,9);
+ for(const [x,y] of [[8,9],[9,9],[10,9],[8,10],[9,10],[10,10]]) act(z,x,y,{type:'msg',text:"The dining table, set for eight. Monica says it's 'just a casual dinner.'"});
+ obj(z,'bigwindow',10,0,{w:4});
+ for(let x=10;x<14;x++) act(z,x,3,{type:'msg',text:"Across the street, an apartment with the blinds wide open.\nYou close the curtains. Some things can't be unseen."});
+ obj(z,'kcounter',14,3,{w:3,tone:'#6b4226'});
+ for(let x=14;x<17;x++) act(z,x,3,{type:'msg',text:"The sideboard. Inside: the good china, the everyday china, and the 'guest' china, which is different from the good china."});
+ obj(z,'frame',8,1,{tone:'#b06a3a'}); obj(z,'frame',15,1,{tone:'#6a8a4a'});
+ obj(z,'rug',11,8,{w:6,h:5,low:true,tone:'#d8c8a8'});
+ obj(z,'couch',12,8,{w:4,color:'#e6dcc6'}); obj(z,'coffee',13,10,{w:2}); obj(z,'armchair',11,10,{face:'right'}); obj(z,'armchair',16,10,{face:'left'});
+ for(let x=12;x<16;x++) act(z,x,8,{type:'msg',text:"A very nice couch. Monica would like you to sit on it… carefully. Coasters are on the table."});
+ act(z,13,10,{type:'msg',text:"A bowl of index cards in Ross's handwriting. 'APARTMENT QUIZ: DO NOT TOUCH.'"}); act(z,14,10,{type:'msg',text:"A bowl of index cards in Ross's handwriting. 'APARTMENT QUIZ: DO NOT TOUCH.'"});
+ obj(z,'bookshelf',8,3); act(z,8,3,{type:'msg',text:"Monica's bookshelf. The books are sorted by color, then height, then author. There is a label maker on the top shelf."});
+ obj(z,'floorlamp',17,3); obj(z,'plant',17,14); obj(z,'plant',11,14);
+ obj(z,'coatrack',7,15); act(z,7,15,{type:'msg',text:"The coat rack. Somebody's left a purse here. It might be Phoebe's. It might be from 1996."});
+ // bedrooms: Monica's (top), Rachel's (bottom)
+ wallS(z,18,2,1,14); paint(z,'wood',18,5,1,1); paint(z,'wood',18,12,1,1); wallS(z,19,9,6,1);
+ paint(z,'carpet',19,3,6,6); paint(z,'carpetR',19,10,6,6);
+ obj(z,'bed',21,3,{h:2}); obj(z,'nightstand',20,3); obj(z,'nightstand',23,3); obj(z,'bookshelf',24,7); obj(z,'armchair',20,7,{color:'#c9a0b8'});
+ act(z,21,4,{type:'msg',text:"Monica's bed. The sheets have been ironed. The pillows have been fluffed. To an exact height."}); act(z,22,4,{type:'msg',text:"Monica's bed. The corners are hospital-tight."});
+ act(z,24,7,{type:'msg',text:"Monica's closet shelf. Labeled bins: 'Shoes — Fancy', 'Shoes — Less Fancy', 'Shoes — Monica Is Not Allowed To Buy More'."});
+ obj(z,'bed',21,10,{h:2,color:'#e8a0b8'}); obj(z,'nightstand',20,10); obj(z,'nightstand',23,10); obj(z,'mirror',24,14); obj(z,'rack',20,14,{tone:'#e07aa0'});
+ act(z,21,11,{type:'msg',text:"Rachel's bed. Somewhere under these pillows is a list titled 'Pros and Cons.' You decide not to look."}); act(z,22,11,{type:'msg',text:"Rachel's bed. Very pink. Very comfy."});
+ act(z,20,14,{type:'msg',text:"Rachel's clothes. Half of them still have the tags on. She's 'deciding.'"}); act(z,21,14,{type:'msg',text:"Rachel's clothes. Half of them still have the tags on."});
+ z.npcs.push({id:'monica',name:'Monica',cast:true,x:4,y:9,dir:'down',talk:'monica',reward:'cup',wander:[1,9,7,4],walkOn:['tileK'],look:{skin:'#efc9a8',hair:'#2a1d17',style:'bob',fem:true,shirt:'#c0573a',pants:'#2b2b30'}});
+ z.npcs.push({id:'ross',name:'Ross',cast:true,x:16,y:12,dir:'down',talk:'ross',reward:'frame',look:{skin:'#efc9a8',hair:'#4a3426',style:'short',shirt:'#7a8a6a',pants:'#3b3b4a'}});
 })();
 
-/* ---------------- Joey & Chandler's apartment (#19) ---------------- */
+/* ---------------- Joey & Chandler's apartment (#19) ----------------
+ * v1.5 layout from the floor plan: the two recliners facing the entertainment unit, the couch under the
+ * windows, the kitchen island with stools, the foosball table, both bedrooms on the left, bathroom up top. */
 (function(){
- const z = Z('joey',"Joey & Chandler's",20,13,'wood'); z.tune='home';
+ const z = Z('joey',"Joey & Chandler's",24,16,'wood'); z.tune='home';
  z.bg='#120e0a';
- paint(z,'wallC',0,0,20,2); paint(z,'wains',0,2,20,1);
- paint(z,'wallS',0,0,1,13); paint(z,'wallS',19,0,1,13);
- paint(z,'frontA',0,12,20,1); paint(z,'mat',9,12,2,1);
- paint(z,'tileK',1,3,5,4);
- door(z,9,12,'hall',9,3,'down'); door(z,10,12,'hall',9,3,'down');
- obj(z,'fridge',1,3); obj(z,'kcounter',2,3,{w:4,tone:'#8a6a4a'});
- act(z,1,3,{type:'msg',text:"Inside: one jar of jam, a carton of milk, and a sign that says 'JOEY'S. DO NOT EAT.' on everything."});
- for(let x=2;x<6;x++) act(z,x,3,{type:'msg',text:"Pizza boxes. Several. Stacked with real architectural ambition."});
- // TV area
- obj(z,'rug',7,5,{w:7,h:4,low:true,tone:'#6a5a3a'});
- obj(z,'tv',9,3); obj(z,'dogstatue',12,3);
- act(z,9,3,{type:'msg',text:"The TV is paused on Baywatch. Nobody is allowed to unpause it but Joey and Chandler."}); act(z,10,3,{type:'msg',text:"The TV is paused on Baywatch. Nobody is allowed to unpause it but Joey and Chandler."});
- act(z,12,3,{type:'msg',text:"A big white ceramic dog. It stares into the middle distance with great dignity."});
- obj(z,'recliner',8,6); obj(z,'recliner',11,6);
- act(z,8,6,{type:'msg',text:"Joey's recliner. He calls her Rosita. Do not, under any circumstances, sit in Rosita."});
- act(z,11,6,{type:'msg',text:"Chandler's recliner. It reclines. That's really all he needs in life."});
- obj(z,'foosball',14,8);
- act(z,14,8,{type:'msg',text:"The foosball table. Chandler has been undefeated since 1994. (Allegedly.)"}); act(z,15,8,{type:'msg',text:"The foosball table. Chandler has been undefeated since 1994. (Allegedly.)"});
- obj(z,'window',16,0,{w:2}); obj(z,'frame',5,1,{tone:'#3a5a8a'}); obj(z,'plant',18,3); obj(z,'plant',1,11);
- z.npcs.push({id:'joey',name:'Joey',cast:true,x:9,y:9,dir:'down',talk:'joey',reward:'hugsy',wander:[6,7,8,4],walkOn:['wood'],look:{skin:'#e8bf9a',hair:'#2a1d17',style:'short',shirt:'#4a5a8a',pants:'#2b2b30'}});
- z.npcs.push({id:'chandler',name:'Chandler',cast:true,x:16,y:8,dir:'left',talk:'chandler',reward:'dog',look:{skin:'#efc9a8',hair:'#4a3426',style:'short',shirt:'#5a7a5a',pants:'#3b3b4a'}});
- z.npcs.push({id:'duck',name:'Duck',x:5,y:11,dir:'right',talk:'duck',wander:[1,4,18,8],walkOn:['wood','tileK'],look:{animal:'duck'}});
- z.npcs.push({id:'chick',name:'Chick',x:5,y:9,dir:'right',talk:'chick',wander:[1,4,18,8],walkOn:['wood','tileK'],look:{animal:'chick'}});
+ paint(z,'wallC',0,0,24,2); paint(z,'wains',0,2,24,1);
+ wallS(z,0,0,1,16); wallS(z,23,0,1,16);
+ paint(z,'frontA',0,15,24,1); paint(z,'mat',11,15,2,1);
+ door(z,11,15,'hall',9,3,'down'); door(z,12,15,'hall',9,3,'down');
+ // bedrooms: Chandler's (top), Joey's (bottom)
+ wallS(z,7,2,1,13); paint(z,'wood',7,5,1,1); paint(z,'wood',7,11,1,1); wallS(z,1,8,6,1);
+ obj(z,'bed',2,3,{h:2,color:'#2a3a7a'}); obj(z,'nightstand',4,3); obj(z,'desk',1,6); obj(z,'bookshelf',6,3);
+ act(z,2,4,{type:'msg',text:"Chandler's bed. Navy sheets. A copy of 'Weekend at Bernie's' on the nightstand, bookmarked."}); act(z,3,4,{type:'msg',text:"Chandler's bed. Navy sheets."});
+ act(z,1,6,{type:'msg',text:"Chandler's desk. A sticky note: 'Remember what you do for a living.' It doesn't help."}); act(z,2,6,{type:'msg',text:"Chandler's desk. Spreadsheets. So many spreadsheets."});
+ obj(z,'bed',2,10,{h:2,color:'#2a3a7a'}); obj(z,'nightstand',4,10); obj(z,'entertain',5,13); obj(z,'boxes',1,13);
+ act(z,2,11,{type:'msg',text:"Joey's bed. There's a stuffed penguin-shaped dent in the pillow. Hugsy is out. Somewhere."}); act(z,3,11,{type:'msg',text:"Joey's bed. 'Joey doesn't share food.' Or beds."});
+ act(z,5,13,{type:'msg',text:"Joey's dresser. A framed headshot of Joey sits on top. It's signed. To himself."}); act(z,6,13,{type:'msg',text:"Joey's dresser. One drawer is just sandwiches."});
+ // bathroom (top right)
+ paint(z,'bath',19,3,4,3); wallS(z,18,2,1,4); wallS(z,18,6,5,1); paint(z,'bath',21,6,1,1);
+ obj(z,'bathtub',19,3); obj(z,'toilet',21,3); obj(z,'sink',22,3);
+ act(z,19,3,{type:'msg',text:"The bathtub. Someone has left a rubber duck in it. The real duck is very jealous."});
+ // living room
+ obj(z,'window',9,0,{w:2}); obj(z,'window',14,0,{w:2});
+ obj(z,'couch',10,3,{w:4,color:'#c48a5a'}); obj(z,'coffee',11,5,{w:2}); obj(z,'floorlamp',9,3); obj(z,'dogstatue',15,3);
+ for(let x=10;x<14;x++) act(z,x,3,{type:'msg',text:"The couch. There's a permanent Joey-shaped dip on the left side."});
+ act(z,11,5,{type:'msg',text:"The coffee table. A TV Guide with every episode of Baywatch circled."}); act(z,12,5,{type:'msg',text:"The coffee table. A TV Guide with every episode of Baywatch circled."});
+ act(z,15,3,{type:'msg',text:"A big white ceramic dog. It stares into the middle distance with great dignity."});
+ obj(z,'rug',9,7,{w:5,h:5,low:true,tone:'#8a8a90'});
+ obj(z,'entertain',8,9); obj(z,'recliner',11,8,{dark:true}); obj(z,'recliner',11,10,{dark:true});
+ act(z,8,9,{type:'msg',text:"The entertainment center. The TV is paused on Baywatch. Nobody is allowed to unpause it but Joey and Chandler."}); act(z,9,9,{type:'msg',text:"The TV is paused on Baywatch."});
+ act(z,11,8,{type:'msg',text:"Joey's recliner. He calls her Rosita. Do not, under any circumstances, sit in Rosita."});
+ act(z,11,10,{type:'msg',text:"Chandler's recliner. It reclines. That's really all he needs in life."});
+ // kitchen
+ paint(z,'tileK',15,7,8,5);
+ obj(z,'kcounter',16,7,{w:2,tone:'#e8e4d8'}); obj(z,'stove',18,7); obj(z,'kcounter',19,7,{w:2,tone:'#e8e4d8'}); obj(z,'fridge',22,7);
+ obj(z,'kcounter',17,9,{w:2,tone:'#f2efe6'}); obj(z,'stool',17,10); obj(z,'stool',18,10);
+ act(z,22,7,{type:'msg',text:"Inside: one jar of jam, a carton of milk, and a sign that says 'JOEY'S. DO NOT EAT.' on everything."});
+ for(const x of [16,17,19,20]) act(z,x,7,{type:'msg',text:"Pizza boxes. Several. Stacked with real architectural ambition."});
+ act(z,17,9,{type:'msg',text:"The kitchen island. A fruit bowl with one apple in it. The apple is plastic. Joey has bitten it twice."}); act(z,18,9,{type:'msg',text:"The kitchen island. Breakfast is cereal. Lunch is cereal. Dinner is Monica's."});
+ obj(z,'foosball',19,12);
+ act(z,19,12,{type:'msg',text:"The foosball table. Chandler has been undefeated since 1994. (Allegedly.)"}); act(z,20,12,{type:'msg',text:"The foosball table. Chandler has been undefeated since 1994. (Allegedly.)"});
+ obj(z,'canoe',14,13); act(z,14,13,{type:'msg',text:"The canoe. Joey and Chandler have a canoe in their living room. Nobody knows how to use it. Nobody is giving it back."});
+ for(const x of [15,16]) act(z,x,13,{type:'msg',text:"The canoe. Nobody is giving it back."});
+ obj(z,'plant',22,13); obj(z,'plant',8,3); obj(z,'coatrack',10,14);
+ z.npcs.push({id:'joey',name:'Joey',cast:true,x:13,y:12,dir:'down',talk:'joey',reward:'hugsy',wander:[9,12,5,2],walkOn:['wood'],look:{skin:'#e8bf9a',hair:'#2a1d17',style:'short',shirt:'#4a5a8a',pants:'#2b2b30'}});
+ z.npcs.push({id:'chandler',name:'Chandler',cast:true,x:18,y:12,dir:'right',talk:'chandler',reward:'dog',look:{skin:'#efc9a8',hair:'#4a3426',style:'short',shirt:'#5a7a5a',pants:'#3b3b4a'}});
+ z.npcs.push({id:'duck',name:'Duck',x:14,y:9,dir:'right',talk:'duck',wander:[13,8,9,4],walkOn:['wood','tileK'],look:{animal:'duck'}});
+ z.npcs.push({id:'chick',name:'Chick',x:16,y:11,dir:'right',talk:'chick',wander:[13,8,9,4],walkOn:['wood','tileK'],look:{animal:'chick'}});
 })();
 
 /* =====================================================================
@@ -269,18 +343,83 @@ function scene(id,name,w,h,fill,o){ const z=Z(id,name,w,h,fill); z.tune=o.tune||
 const homeAct=(z,x,y,label)=>act(z,x,y,{type:'fly',to:'airport',tx:13,ty:9,dir:'up',label:label||'Back to JFK'});
 
 /* ---------------- Ross's apartment (across the street) ---------------- */
-room('rossapt',"Ross's Apartment",18,12,{wall:'wallC',to:['village',32,9],exitX:8,extra(z){
- obj(z,'bigwindow',3,0,{w:3}); obj(z,'frame',8,1,{tone:'#6a5a3a'}); obj(z,'frame',10,1,{tone:'#3a5a6a'});
- obj(z,'rug',3,5,{w:7,h:4,low:true,tone:'#4a6a5a'}); obj(z,'couch',4,5,{w:4,color:'#6a7a5a'}); obj(z,'coffee',5,7,{w:2});
- for(let x=4;x<8;x++) act(z,x,5,{type:'msg',text:"Ross's couch. It's the one he pivoted up the stairs. It is now in two pieces, held together with optimism."});
- obj(z,'tv',13,3); act(z,13,3,{type:'msg',text:"A documentary about the Cretaceous period is paused. It has been paused for three days."}); act(z,14,3,{type:'msg',text:"A documentary about the Cretaceous period is paused. It has been paused for three days."});
- obj(z,'dinoskull',16,3); act(z,16,3,{type:'msg',text:"A replica dinosaur skull. Ross named it. He won't tell you what he named it."});
- obj(z,'trunk',15,8); act(z,15,8,{type:'quiz',name:'The Costume Trunk',icon:'armadillo',script:{narrate:true,greet:["A trunk labeled 'HOLIDAY STUFF — ROSS. DO NOT OPEN.' Something inside looks… armored.","Taped to the lid: 'Answer five Ross questions, get four right, and the costume is yours. Signed, the Holiday Armadillo.'"],offer:"Open the trunk?",tags:'ross',n:5,need:4,reward:'armadillo',yes:'Open it',no:'Leave it closed',noReply:'Probably wise.',win:"The trunk creaks open. Inside: one Holiday Armadillo costume, slightly dusty, completely magnificent.",lose:"The lid snaps shut. The armadillo is not impressed. Try again!"}});
- obj(z,'plant',1,3); obj(z,'plant',1,10);
- cast(z,'ross_h','Ross',10,8,'down',F('#efc9a8','#4a3426','short','#7a8a6a',{pants:'#3b3b4a'}),{reward:'pants',tags:'ross',n:5,need:4,
+room('rossapt',"Ross's Apartment",22,15,{wall:'wallC',to:['village',32,9],exitX:16,extra(z){
+ // v1.5 layout from the floor plan: two bedrooms and the bathroom along the top, the living room on the big
+ // rug, the round dining table in the corner, the galley kitchen on the right. Marcel is loose.
+ wallS(z,8,2,1,5); wallS(z,15,2,1,5); wallS(z,1,7,20,1); for(const x of [4,11,19]) paint(z,'wood',x,7,1,1);
+ paint(z,'carpet',1,3,7,4); paint(z,'carpet',9,3,6,4); paint(z,'bath',16,3,5,4); paint(z,'bath',19,7,1,1);
+ obj(z,'window',2,0,{w:2}); obj(z,'window',11,0,{w:2});
+ obj(z,'bed',3,3,{h:2,color:'#c0392b'}); obj(z,'nightstand',2,3); obj(z,'nightstand',5,3); obj(z,'armchair',6,5,{color:'#9cc8e6'});
+ act(z,3,4,{type:'msg',text:"Ross's bed. On the pillow: a dinosaur plush named 'Rexy.' Ross says it's Ben's. It is not Ben's."}); act(z,4,4,{type:'msg',text:"Ross's bed. Red sheets. Very romantic. Very 1997."});
+ obj(z,'bed',11,3,{h:2,color:'#7a9a4a'}); obj(z,'nightstand',10,3); obj(z,'nightstand',13,3); obj(z,'boxes',9,6,{},"A box labeled 'BEN'S TOYS.' On top: a tiny Holiday Armadillo doll.");
+ act(z,9,6,{type:'msg',text:"A box labeled 'BEN'S TOYS.' On top: a tiny Holiday Armadillo doll."});
+ act(z,11,4,{type:'msg',text:"The guest room. Ben's room on weekends. There's a glow-in-the-dark solar system on the ceiling, scientifically accurate."}); act(z,12,4,{type:'msg',text:"Ben's bed. A note: 'NO MONKEYS ON THE BED.'"});
+ obj(z,'toilet',16,3); obj(z,'sink',17,3); obj(z,'bathtub',19,3);
+ act(z,19,3,{type:'msg',text:"The bathtub. A bottle of baby powder and a bottle of lotion sit on the edge. Ross would like you not to ask."}); act(z,20,3,{type:'msg',text:"The bathtub. Very clean. Suspiciously clean."});
+ // living room
+ obj(z,'rug',4,9,{w:8,h:4,low:true,geo:true,tone:'#c8b088'});
+ obj(z,'couch',5,9,{w:4,color:'#7a4a2a'}); obj(z,'coffee',6,11,{w:2}); obj(z,'armchair',10,10,{color:'#2a2a30'});
+ for(let x=5;x<9;x++) act(z,x,9,{type:'msg',text:"Ross's couch. It's the one he pivoted up the stairs. It is now in two pieces, held together with optimism."});
+ act(z,6,11,{type:'msg',text:"The coffee table. A paper titled 'Why the Cretaceous Was Actually the Best Period (A Rebuttal).'"}); act(z,7,11,{type:'msg',text:"The coffee table. Coasters shaped like trilobites."});
+ obj(z,'tv',12,8); act(z,12,8,{type:'msg',text:"A documentary about the Cretaceous period is paused. It has been paused for three days."}); act(z,13,8,{type:'msg',text:"A documentary about the Cretaceous period is paused. It has been paused for three days."});
+ obj(z,'dinoskull',1,8); act(z,1,8,{type:'msg',text:"A replica dinosaur skull. Ross named it. He won't tell you what he named it."});
+ obj(z,'bookshelf',2,8); obj(z,'bookshelf',3,8);
+ for(const x of [2,3]) act(z,x,8,{type:'msg',text:"Ross's bookshelf: twelve books about dinosaurs, three books about dinosaurs for kids, and one book called 'Divorce and You.'"});
+ obj(z,'dining',1,11);
+ for(const [x,y] of [[1,11],[2,11],[3,11],[1,12],[2,12],[3,12]]) act(z,x,y,{type:'msg',text:"The dining table. Ross eats here alone most nights, reading about rocks. He calls it 'me time.'"});
+ obj(z,'floorlamp',11,13); obj(z,'plant',13,13); obj(z,'coatrack',18,13);
+ obj(z,'trunk',9,13);
+ act(z,9,13,{type:'quiz',name:'The Costume Trunk',icon:'armadillo',script:{narrate:true,greet:["A trunk labeled 'HOLIDAY STUFF — ROSS. DO NOT OPEN.' Something inside looks… armored.","Taped to the lid: 'Answer five Ross questions, get four right, and the costume is yours. Signed, the Holiday Armadillo.'"],offer:"Open the trunk?",tags:'ross',n:5,need:4,reward:'armadillo',yes:'Open it',no:'Leave it closed',noReply:'Probably wise.',win:"The trunk creaks open. Inside: one Holiday Armadillo costume, slightly dusty, completely magnificent.",lose:"The lid snaps shut. The armadillo is not impressed. Try again!"}});
+ // galley kitchen
+ paint(z,'tileK',15,8,6,4); wallS(z,14,8,1,4); paint(z,'tileK',14,10,1,1);
+ obj(z,'kcounter',15,8,{w:3,tone:'#e8e4d8'}); obj(z,'stove',18,8); obj(z,'fridge',20,8); obj(z,'table',19,10); obj(z,'chair',18,10); obj(z,'chair',20,10);
+ act(z,20,8,{type:'msg',text:"The fridge. A Thanksgiving leftovers sandwich used to live here. It's at the museum now. In danger."});
+ for(const x of [15,16,17]) act(z,x,8,{type:'msg',text:"The counter. A label maker (borrowed from Monica, never returned) and a jar of gravy."});
+ // Marcel (v1.5 collectible): catch him and answer his question
+ z.npcs.push({id:'marcel',name:'Marcel',x:7,y:13,dir:'left',talk:'collect',wander:[1,8,13,6],walkOn:['wood'],look:{animal:'monkey',hd:'marcel'},
+  collect:{item:'marcel',lines:["A small white-headed monkey is bouncing around the living room. He has a tiny banana and a very big attitude.","He stops. He stares at you. He seems to be waiting for something. A song, maybe?"],
+   q:"What's Marcel's favorite song?",answers:["The Lion Sleeps Tonight","Smelly Cat","Walking on Sunshine","Monkey Business"],
+   win:"You start humming 'The Lion Sleeps Tonight.' Marcel lights up, jumps onto your shoulder and refuses to get down. He's yours now. (Ross says it's fine. Ross is crying a little.)",
+   lose:"Marcel turns around and sulks. Wrong song. Very wrong song.",
+   have:"Marcel is hanging off the floor lamp. He waves. He's very happy you came back."}});
+ cast(z,'ross_h','Ross',9,12,'down',F('#efc9a8','#4a3426','short','#7a8a6a',{pants:'#3b3b4a'}),{reward:'pants',tags:'ross',n:5,need:4,
   greet:["Oh, hey! Welcome to my apartment. Yes, it's THAT apartment. Ugly Naked Guy's old place. I got it fair and square. Mostly.","I've been wearing my leather pants a lot lately. Big mistake, actually. Long story. Involves lotion and powder."],
   offer:"Five questions about me. Four right and you can have the pants. Please. Take the pants.",yes:'Quiz me',no:'Ask about the pants',noReply:"No. We don't talk about the pants. …Okay, we talk about them a little.",
   win:"You know me better than my own family! Here. The pants. Never put lotion on with them on. Trust me.",lose:"Okay, that's fine. Totally fine. I'm fine! Come back anytime."});
+}});
+
+/* ---------------- Phoebe's apartment (v1.5, from the floor plan) ---------------- */
+room('phoebe',"Phoebe's Apartment",24,15,{wall:'wallG',to:['village',29,25],exitX:20,tune:'home',extra(z){
+ // bedroom on the left with the green bench, bathroom up top, galley kitchen with the island,
+ // living room with the green couch and the pink armchair, round dining table by the door
+ wallS(z,7,2,1,12); paint(z,'wood',7,9,1,1);
+ obj(z,'bed',2,7,{h:2,color:'#e8d898'}); obj(z,'nightstand',1,7); obj(z,'nightstand',4,7); obj(z,'couch',2,10,{w:3,color:'#3f8a4a'});
+ obj(z,'armchair',2,4,{color:'#e8c050'}); obj(z,'sidetable',5,4); obj(z,'plant',1,3); obj(z,'mirror',6,12);
+ act(z,2,7,{type:'msg',text:"Phoebe's bed. A dreamcatcher hangs over it. It has caught one (1) dream, which Phoebe says was about Gladys."}); act(z,3,7,{type:'msg',text:"Phoebe's bed. Very cozy. Smells faintly of incense and cat."});
+ for(let x=2;x<5;x++) act(z,x,10,{type:'msg',text:"A green bench at the foot of the bed. Phoebe meditates here. Or naps. She says it's the same thing."});
+ obj(z,'window',2,0,{w:2});
+ // bathroom
+ paint(z,'bath',8,3,6,3); wallS(z,14,2,1,4); wallS(z,8,6,7,1); paint(z,'bath',11,6,1,1);
+ obj(z,'sink',8,3); obj(z,'toilet',10,3); obj(z,'bathtub',12,3);
+ act(z,12,3,{type:'msg',text:"The clawfoot tub. A rubber duck, a candle, and a tiny sign: 'Ursula: this is not your bathroom.'"});
+ // kitchen
+ paint(z,'tileK',8,8,5,6);
+ obj(z,'kcounter',8,13,{w:3,tone:'#7ac8c8'}); obj(z,'stove',11,13); obj(z,'fridge',12,13); obj(z,'kcounter',9,10,{w:2,tone:'#7ac8c8'});
+ act(z,12,13,{type:'msg',text:"Phoebe's fridge. Magnets shaped like vegetables. A note: 'Buy cat food. (For the cat in my mom's soul.)'"});
+ act(z,9,10,{type:'msg',text:"The kitchen island. A bowl of fruit, and a cookie recipe from Phoebe's grandmother. (It's from the back of the chocolate chip bag.)"}); act(z,10,10,{type:'msg',text:"The kitchen island. A plate of cookies, still warm."});
+ for(const x of [8,9,10]) act(z,x,13,{type:'msg',text:"A spice rack organized by 'vibes.'"});
+ // living room
+ obj(z,'window',16,0,{w:3}); obj(z,'desk',15,3); obj(z,'armchair',20,3,{color:'#e8b830'}); obj(z,'floorlamp',22,3);
+ act(z,15,3,{type:'msg',text:"Phoebe's desk. Song lyrics in progress: 'Sticky Shoes,' 'Two of Them Kissed Last Night,' and a third one that's just the word 'cat' eleven times."}); act(z,16,3,{type:'msg',text:"Phoebe's desk. A massage-table brochure and a guitar pick."});
+ obj(z,'rug',14,7,{w:6,h:5,low:true,geo:true,tone:'#c8a0d0'});
+ obj(z,'couch',15,8,{w:4,color:'#5a9a3a'}); obj(z,'coffee',16,10,{w:2}); obj(z,'armchair',18,11,{color:'#d050a0'});
+ for(let x=15;x<19;x++) act(z,x,8,{type:'msg',text:"Phoebe's green couch. There's a guitar on it, and a pillow embroidered with 'SMELLY CAT.'"});
+ act(z,16,10,{type:'msg',text:"The coffee table. A deck of tarot cards, mid-reading. The top card is 'The Taxi.' That's not a real tarot card."}); act(z,17,10,{type:'msg',text:"The coffee table. Incense, a cassette tape, and a very old candle."});
+ obj(z,'dining',20,10);
+ for(const [x,y] of [[20,10],[21,10],[22,10],[20,11],[21,11],[22,11]]) act(z,x,y,{type:'msg',text:"The round dining table. Phoebe's set it for seven: six friends and her grandmother's spirit."});
+ obj(z,'plant',22,13); obj(z,'plant',13,7); obj(z,'coatrack',19,13);
+ z.npcs.push({id:'phoebe_h',x:16,y:12,dir:'down',look:{hd:'phoebe_sundress',skin:'#efc9a8',hair:'#4a3426',style:'long',fem:true,outfit:'dress',shirt:'#e8b830'},quiz:true,
+  wander:[14,12,6,2],walkOn:['wood'],lines:["Oh, hi! Welcome to my apartment! Watch out for the floorboard by the door. It has opinions.","My taxi's parked right outside, if you need a ride. I mean, it's not really a taxi anymore. It's a car that looks like a taxi. Spiritually it's still a taxi."]});
 }});
 
 /* ---------------- Midtown ---------------- */
@@ -289,7 +428,7 @@ street('midtown','Midtown',48,{cross:[20,38],subway:{x:4,y:26,label:'5 AV / 59 S
   {x:0,w:8,style:'slate',tower:true,shop:true,awning:'#3a3a46',signBg:'#1f1f26',sign:'9 WEST 57TH',doors:[{x:4,to:['office',8,10]}]},
   {x:8,w:6,style:'brick',shop:true,awning:'#8a2a2a',signBg:'#2a1a1a',sign:"RIFF'S",doors:[{x:3,msg:"Riff's. The gang's lunch spot next to Chandler's office. Today's special is a club sandwich the size of your head."}]},
   {x:14,w:12,style:'cream',shop:true,awning:'#2a2a2a',signBg:'#f4f1ea',signFg:'#1a1a1a',sign:"BLOOMINGDALE'S",doors:[{x:6,to:['bloomies',10,11]}]},
-  {x:26,w:8,style:'slate',shop:true,awning:'#2a3a5a',signBg:'#1b2340',sign:'RALPH LAUREN',doors:[{x:4,msg:"Ralph Lauren's corporate offices. Rachel works here in the later seasons. Visitors need an appointment (and great shoes)."}]},
+  {x:26,w:8,style:'slate',shop:true,awning:'#2a3a5a',signBg:'#1b2340',sign:'RALPH LAUREN',doors:[{x:4,to:['ralph',8,10]}]},
   {x:34,w:8,style:'cream',shop:true,awning:'#1a1a1a',signBg:'#1a1a1a',sign:'SAKS FIFTH AVE',doors:[{x:4,msg:"Saks Fifth Avenue. Rachel could spend an entire paycheck in the shoe department. She has."}]},
   {x:42,w:6,style:'brick',fire:true,tower:true,doors:[{x:3,kind:'stoop',msg:"An apartment building. Somebody upstairs is practicing the bagpipes."}]}],
  south:[
@@ -319,6 +458,21 @@ room('office',"Chandler's Office",18,12,{wall:'wallC',floor:'carpet',to:['midtow
  townie(z,'o1',14,6,F('#e0ac7e','#2a1d17','short','#5a7aa8'),["Chandler's the boss? Huh. He told me he's 'in transponstering.'"],true,[9,3,8,7],['carpet']);
  townie(z,'o2',5,6,F('#f1c9a5','#b5462a','bob','#b884c9',{fem:true,outfit:'skirt'}),["I've worked here for six years and I still don't know what we make."],true,[1,3,10,7],['carpet']);
 }});
+room('ralph',"Ralph Lauren: Rachel's Office",16,11,{wall:'wallC',floor:'carpetR',to:['midtown',30,9],exitX:7,tune:'city',extra(z){
+ // v1.5, from the set photos: the desk, the cream chair, the window with blinds and brown drapes, the mood board
+ obj(z,'drapewindow',5,0,{w:6,h:2}); obj(z,'frame',1,1,{tone:'#c9a24a'}); obj(z,'frame',13,1,{tone:'#8a3a3a'}); obj(z,'frame',3,1,{tone:'#3a5a8a'});
+ for(let x=5;x<11;x++) act(z,x,3,{type:'msg',text:"The view: Midtown skyscrapers through the blinds. Rachel says she can see Bloomingdale's from here. She can't."});
+ obj(z,'desk',7,5); obj(z,'officechair',8,4);
+ act(z,7,5,{type:'msg',text:"Rachel's desk. A laptop, fabric swatches, and a sticky note: 'Do NOT date the assistant.' It's been underlined three times."}); act(z,8,5,{type:'msg',text:"Rachel's desk. A framed photo of the gang at Central Perk, and a coffee from (where else) Central Perk."});
+ obj(z,'moodboard',12,4); act(z,12,4,{type:'msg',text:"The mood board for next season: tweeds, blazers, and one sketch labeled 'Ross? No.'"});
+ obj(z,'armchair',13,7,{face:'left'}); obj(z,'bookshelf',1,3); obj(z,'bookshelf',2,3); obj(z,'plant',14,3); obj(z,'floorlamp',11,3); obj(z,'coatrack',14,9);
+ for(const x of [1,2]) act(z,x,3,{type:'msg',text:"Look books from every season since 1967. Rachel has read all of them. Twice."});
+ obj(z,'mannequin',1,7); act(z,1,7,{type:'msg',text:"A mannequin in a sample from the fall line. It looks better on the mannequin. It always does."});
+ obj(z,'rack',3,8,{tone:'#3a3a44'}); for(const x of [3,4]) act(z,x,8,{type:'msg',text:"Samples waiting for Rachel's approval. She's approved all of them. She has great taste."});
+ z.npcs.push({id:'tag',name:'Tag',x:10,y:7,dir:'left',look:F('#f1c9a5','#4a3426','short','#5a7aa8',{pants:'#5a5a62'}),quiz:true,wander:[5,6,8,3],walkOn:['carpetR'],
+  lines:["Hi! I'm Tag, Rachel's assistant. I organize her schedule, her files, and her… other files.","She hired me for my 'organizational skills.' I'm pretty sure it was the organizational skills."]});
+}});
+
 room('bloomies',"Bloomingdale's",22,13,{wall:'wallC',floor:'marble',to:['midtown',20,9],exitX:10,tune:'city',extra(z){
  obj(z,'window',3,0,{w:2}); obj(z,'window',17,0,{w:2}); obj(z,'wallsign',7,0,{w:8,text:"Bloomingdale's"});
  for(const [x,y] of [[2,4],[5,4],[15,4],[18,4],[2,9],[18,9]]){ obj(z,'rack',x,y,{tone:['#d9534f','#5b9bd5','#f0ad4e','#8e6bbf','#5cb85c','#e07aa0'][(x+y)%6]}); act(z,x,y,{type:'msg',text:'A rack of very expensive clothes. You check one price tag and immediately put it back.'}); act(z,x+1,y,{type:'msg',text:'A rack of very expensive clothes. You check one price tag and immediately put it back.'}); }
@@ -380,9 +534,19 @@ street('uptown','Uptown',40,{cross:[28],south:'park',gaps:[18,34],subway:{x:4,y:
   townie(z,'u2',8,10,F('#c68a5a','#2a1d17','short','#7a5aa8'),["I'm a paleontologist at the museum. Well, an intern. Well, I volunteer. Well, I visit a lot."],true);
   townie(z,'u3',32,22,F('#5e3a26','#1c1410','long','#3a7fc0',{fem:true,outfit:'skirt'}),["I'm walking seven dogs. None of them are mine. This is my job. I love my job."],false);
  }});
-room('museum','Museum of Prehistoric History',24,14,{wall:'wallH',floor:'marble',to:['uptown',10,9],exitX:11,tune:'home',extra(z){
+room('museum','Museum of Prehistoric History',24,14,{wall:'wallH',floor:'rotunda',to:['uptown',10,9],exitX:11,tune:'home',extra(z){
  obj(z,'wallsign',6,0,{w:12,text:'Museum of Prehistoric History'});
- obj(z,'dino',8,5); for(let x=8;x<14;x++) for(const y of [5,6]) act(z,x,y,{type:'msg',text:"A full skeleton of a huge dinosaur. A tiny sign says: 'Do not touch. This means you, Ross's friends.'"});
+ // v1.5: the rotunda from the photo: red marble columns, murals, flags, the big skeleton on its rock base
+ obj(z,'mural',1,0,{w:4,h:2}); obj(z,'mural',19,0,{w:4,h:2}); obj(z,'flag',5,0,{h:2}); obj(z,'flag',18,0,{h:2});
+ obj(z,'column',4,3); obj(z,'column',19,3);
+ obj(z,'rockmound',8,6,{h:1});
+ obj(z,'officefridge',22,7);
+ act(z,22,7,{type:'collect',item:'moistmaker',lines:["The staff fridge, behind the information desk. Inside: yogurt, a sad salad, and a sandwich in plastic wrap with a sticky note.","The note says: 'ROSS'S SANDWICH. PLEASE DO NOT EAT.' Someone has already taken one bite."],
+  q:"What does Ross call the extra gravy-soaked slice of bread in the middle?",answers:["The Moist Maker","The Gravy Boat","The Secret Slice","The Sandwich Saver"],
+  win:"The Moist Maker. You take the sandwich into protective custody before anyone else gets to it. Somewhere, Ross senses that it's safe.",
+  lose:"Somewhere in the museum, a paleontologist screams 'MY SANDWICH?!' Try again.",
+  have:"The staff fridge. The sandwich is gone (you have it). A new note: 'WHO ATE MY SANDWICH.' It's not a question."});
+ obj(z,'dino',8,5,{lift:13}); for(let x=8;x<14;x++) for(const y of [7]) act(z,x,y,{type:'msg',text:"A full skeleton of a huge dinosaur. A tiny sign says: 'Do not touch. This means you, Ross's friends.'"});
  for(const [x,y] of [[2,4],[21,4],[2,9],[21,9]]){ obj(z,'case',x,y); act(z,x,y,{type:'msg',text:['A fossilized fern. Very old. Very fern.','A display of dinosaur teeth. Some of them are bigger than your hand.','A trilobite. Ross wrote the label. It is four paragraphs long.','A model of a caveman diorama. One of the cavemen looks suspiciously like a museum employee.'][(x+y)%4]}); }
  obj(z,'bench',5,10); obj(z,'bench',16,10);
  act(z,20,2,{type:'msg',text:"PLANETARIUM: CLOSED. (Ross once arranged a private after-hours date in there. Very romantic. Very dark.)"});
@@ -449,7 +613,7 @@ scene('vegas','Las Vegas, Nevada',24,14,'nroad',{bg:'#0c0814',extra(z){
  msgDoor(z,5,8,"A 24-hour wedding chapel. Two people you know very well got married here after a lot of drinks. Neither remembers it.");
  obj(z,'building',12,1,{w:12,h:8,style:'neon',shop:true,awning:'#e8b820',signBg:'#1a1a0a',signFg:'#ffd84a',sign:'CAESARS PALACE',doors:[{x:6,kind:'shop'}]});
  msgDoor(z,18,8,"Caesars Palace. Inside, an actor in a gladiator outfit is posing for photos and very much living his dream.");
- obj(z,'cab',19,11); homeAct(z,19,11,'Back to JFK'); homeAct(z,20,11,'Back to JFK');
+ obj(z,'cab',19,11,{yellow:true}); homeAct(z,19,11,'Back to JFK'); homeAct(z,20,11,'Back to JFK');
  obj(z,'lamp',11,10); obj(z,'palm',2,13); obj(z,'palm',22,13);
  cast(z,'rachel_v','Rachel',8,11,'down',F('#efc9a8','#4a3426','long','#f4f1ea',{fem:true,outfit:'dress'}),{reward:'veil',tags:'rachel ross',n:5,need:4,
   greet:["Oh my God. Okay. Don't freak out. I may have gotten married last night. To Ross. In there.","Neither of us remembers it. There's a photo. We're both wearing… sombreros? Why are there sombreros?"],
@@ -494,11 +658,11 @@ superfan('hall','heckles','Mr. Heckles',2,6,'right',F('#e8d4b8','#d8d8d0','bald'
  ["You're disturbing me. I can hear everything. I could hear you walking up the stairs.","I was going to complain about the noise, but you seem like a nice young person. Quiet. Nicely quiet."],
  "You want my broom? You'll have to earn it.",
  "Fine. Take the broom. Bang on whatever you want. I'll complain about it later.","Wrong! Too loud, AND wrong. Come back when you've studied. Quietly.");
-superfan('monica','jack','Jack Geller',12,8,'up',F('#efc9a8','#d8d8d0','bald','#5a6a8a',{pants:'#3a3a44'}),'geller','porsche',
+superfan('monica','jack','Jack Geller',12,13,'up',F('#efc9a8','#d8d8d0','bald','#5a6a8a',{pants:'#3a3a44'}),'geller','porsche',
  ["Well, hello there! I'm Jack Geller. Monica's father. Ross's too, I'm told.","Judy and I came over for dinner. Monica's been 'resting' the roast for forty-five minutes."],
  "Tell you what: get these right and I'll give you the keys to the Porsche. The keychain, anyway.",
  "Hey, you're sharp! Here's the keychain. Don't tell Ross.","Close! That's okay. Nobody gets the Chi-Chi question right.");
-superfan('monica','judy','Judy Geller',9,9,'right',F('#efc9a8','#8a8a8a','bob','#8e4a6a',{fem:true,outfit:'skirt',pants:'#3a3a44'}),'geller','album',
+superfan('monica','judy','Judy Geller',9,13,'right',F('#efc9a8','#8a8a8a','bob','#8e4a6a',{fem:true,outfit:'skirt',pants:'#3a3a44'}),'geller','album',
  ["Oh, hello, dear. I'm Judy. Monica's mother. You must be one of her friends. She has so many now.","I brought the family album. Mostly so everyone can see Ross's graduation. Again."],
  "Answer a few questions and you can have the album. Ross is in most of the pictures, of course.",
  "Well! Aren't you clever. Here's the album. Monica is in it… somewhere.","Oh, that's all right, dear. Not everybody can be a doctor.");
@@ -571,22 +735,6 @@ const EGGS=[
  *  v0.7: set dressing for the emptier rooms
  * ===================================================================== */
 function dress(zid,list){const z=ZONES[zid];for(const d of list){const[kind,x,y,o,msg]=d;obj(z,kind,x,y,o||{});if(msg){const w=(o&&o.w&&!['towel','rug'].includes(kind))?o.w:(['canoe'].includes(kind)?3:['flat'].includes(kind)?2:1);for(let i=0;i<w;i++)act(z,x+i,y,{type:'msg',text:msg})}}}
-dress('monica',[
- ['rug',2,9,{w:6,h:4,low:true,tone:'#8a5a7a'}],
- ['bookshelf',1,10,{},"Monica's bookshelf. The books are sorted by color, then height, then author. There is a label maker on the top shelf."],
- ['floorlamp',1,12],['armchair',3,10,{face:'right'}],['sidetable',4,11],
- ['kcounter',16,3,{w:3,tone:'#6b4226'},"The sideboard. Inside: the good china, the everyday china, and the 'guest' china, which is different from the good china."],
- ['chair',11,5],['chair',13,5],['floorlamp',14,9],['sidetable',20,9],['coatrack',8,13,{},"The coat rack. Somebody's left a purse here. It might be Phoebe's. It might be from 1996."],
- ['poster',5,1,{tone:'#6a8aa8'}]]);
-dress('joey',[
- ['table',3,8],['chair',2,8],['chair',4,8],
- ['canoe',14,4,{},"The canoe. Joey and Chandler have a canoe in their living room. Nobody knows how to use it. Nobody is giving it back."],
- ['boxes',18,9,{},"A stack of pizza boxes, carefully saved 'for emergencies.'"],['boxes',18,10],
- ['floorlamp',13,4],['poster',2,1,{tone:'#e05a2a'}],['poster',13,1,{tone:'#2f6fa8'}],['coatrack',8,11]]);
-dress('rossapt',[
- ['bookshelf',10,3,{},"Ross's bookshelf: twelve books about dinosaurs, three books about dinosaurs for kids, and one book called 'Divorce and You.'"],['bookshelf',11,3],
- ['cubicle',13,6,{},"Ross's desk. A half-written paper titled 'Why the Cretaceous Was Actually the Best Period (A Rebuttal).'"],
- ['floorlamp',16,6],['armchair',9,6,{face:'left'}],['boxes',16,10,{},"A box labeled 'BEN'S TOYS.' On top: a tiny Holiday Armadillo doll."],['poster',14,1,{tone:'#7a6a3a'}],['coatrack',7,10]]);
 dress('office',[
  ['cubicle',13,4,{},"An empty cubicle with a sign: 'Reserved for whoever replaces the guy who quit after Chandler's last pep talk.'"],['cubicle',6,8],
  ['copier',15,7,{},"The copier. It's jammed. It has always been jammed. It will always be jammed."],['trash',10,10],['plant',16,4],['bookshelf',1,3,{tone:'#6a6a72'},"Filing cabinets. One drawer is labeled 'WENUS.' Another is labeled 'DO NOT ASK ABOUT THE WENUS.'"],['bookshelf',1,4,{tone:'#6a6a72'}]]);
@@ -597,10 +745,10 @@ dress('bloomies',[
 dress('diner',[
  ['booth',15,5],['stool',9,5],['table',3,8],['chair',2,8],['chair',4,8],['plant',16,3],['menu',11,0,{w:3}],['trash',1,3]]);
 dress('museum',[
- ...[7,8,9,10,11,12,13,14].map(x=>['stanchion',x,7,{},x===7?"A velvet rope keeps visitors away from the skeleton. Someone has added a handwritten sign: 'ESPECIALLY YOU, JOEY.'":null]),
+ ...[7,8,9,10,11,12,13,14].map(x=>['stanchion',x,9,{},x===7?"A velvet rope keeps visitors away from the skeleton. Someone has added a handwritten sign: 'ESPECIALLY YOU, JOEY.'":null]),
  ['case',5,4],['case',18,4],['dinoskull',5,7,{},"A triceratops skull on a pedestal. Ross has named it. He won't say what."],
  ['kcounter',19,7,{w:3,tone:'#5a4a2a'},"The information desk. A brochure: 'The Museum of Prehistoric History: Now With 40% More History!'"],
- ['banner',3,0,{tone:'#5b3a8c'}],['banner',20,0,{tone:'#2f6b3a'}],['plant',1,3],['plant',22,3],['plant',22,12]]);
+ ['plant',1,3],['plant',22,3],['plant',22,12]]);
 dress('studio',[
  ['flat',12,3,{tone:'#e8c8a8'},"A set wall for a fancy living room. From the back, it's just plywood and tape. Very glamorous."],['flat',14,3,{tone:'#e8c8a8'}],
  ['couch',12,5,{w:3,color:'#8e6bbf'},"The set couch. Dr. Drake Ramoray has had at least four dramatic conversations on this couch."],['plant',16,5],

@@ -28,17 +28,16 @@ const HD_SPRITES = {
  monica_turkey:'Monica_Turkey_on_her_head_sunglasses_and_fez', ross_armadillo:'Ross_Holiday_Armadillo_costume',
  joey_tourist:'Joey_London_flag_hat_camera_and_map', joey_porsche:'Joey_BoxPorsche', chandler_box:'Chandler_InABox',
  joey_layers:'Joey_EverythingChandlerOwns', ross_leatherpants:'Ross_LeatherPants', duck_runaway:'Duck_Runaway', chick:'Chick_Apartment',
+ eddie:'eddie', usher:'usher', duck_hd:'duck_hd', marcel:'marcel',
 };
 // Which sheet each cast NPC (by id in maps.js) wears. Secret sightings set look.hd in EGGS instead.
 // Not in the art bundle yet, so these stand in: Ross brown shirt (ross_m), Joey red shirt (joey_l), Chandler green shirt (chandler).
-// Eddie and the MSG usher have no sheet yet: they're drawn from the player templates (npcLook).
-// The apartment duck borrows the runaway duck's art.
 const HD_CAST = {
  gunther:'gunther', rachel:'rachel_waitress', phoebe:'phoebe_guitar', monica:'monica_bob', ross:'ross_green', joey:'joey_navy', chandler:'chandler_work', chick:'chick',
  ross_h:'ross_home', chandler_o:'chandler_work', rachel_b:'rachel_work', monica_d:'monica_diner', ross_m:'ross_green', joey_s:'joey_doctor', joey_l:'joey_navy',
  rachel_v:'rachel_vegas', monica_b:'monica_barbados', phoebe_m:'phoebe_sundress',
  heckles:'heckles', jack:'jack', judy:'judy', frankjr:'frankjr', janice:'janice', richard:'richard', estelle:'estelle', mike:'mike',
- duck:'duck_runaway', monica_f:'monica_bob', chandler_f:'chandler_work', joey_f:'joey_navy', ross_f:'ross_green',
+ duck:'duck_hd', eddie:'eddie', usher:'usher', marcel:'marcel', monica_f:'monica_bob', chandler_f:'chandler_work', joey_f:'joey_navy', ross_f:'ross_green',
 };
 const HD_PROPS = { carcover:'sprites/hd/Joey_BoxPorsche_prop.png' };
 /* v1.3: HD Greenwich Village art (tools/prep_village.py), 8 px per world pixel.
@@ -57,7 +56,8 @@ function loadVillageArt(){
  for(const[k,f]of Object.entries(HD_PROP_FILES))get(f,im=>{hdVProps[k]=im;carHDCache={}})}
 // the parked/driving car template has a magenta body: repaint it per colour, keeping its shading
 let carHDCache={};
-function carHD(col,taxi){const k=(taxi?'taxi':col);if(carHDCache[k])return carHDCache[k];const src=hdVProps[taxi?'taxi':'car'];if(!src)return null;
+function carHD(col,taxi,model){const k=(taxi?'taxi'+(model||''):col+(model||''));if(carHDCache[k])return carHDCache[k];
+ const src=taxi?(model?hdIn.car_taxi90:hdVProps.taxi):model?hdIn['car_'+model+'_t']:hdVProps.car;if(!src)return null;
  const[c,g]=mk(src.width,src.height);g.drawImage(src,0,0);
  if(!taxi){const d=g.getImageData(0,0,c.width,c.height),a=d.data,[R,G,B]=hexRGB(col);
   for(let i=0;i<a.length;i+=4){const r=a[i],gg=a[i+1],b=a[i+2];if(r>110&&b>110&&gg<r*.62&&gg<b*.62){const l=(r+b)/2/255*1.15;a[i]=Math.min(255,R*l);a[i+1]=Math.min(255,G*l);a[i+2]=Math.min(255,B*l)}}
@@ -69,7 +69,62 @@ function drawHDProp(im,cx,by,shadow,flip){const w=im.width/8,h=im.height/8;
  ctx.imageSmoothingEnabled=true;ctx.imageSmoothingQuality='high';
  if(flip){ctx.save();ctx.translate(cx,0);ctx.scale(-1,1);ctx.drawImage(im,-w/2,by-h,w,h);ctx.restore()}else ctx.drawImage(im,cx-w/2,by-h,w,h);
  ctx.imageSmoothingEnabled=false}
-const HD_ITEMS = { pants:'sprites/items/Item_LeatherPants.png' };
+/* v1.5: HD interiors and trip props (tools/prep_interiors.py), also 8 px per world pixel.
+ * HD_IN maps an object kind to its sprite. t: magenta template, repainted with o.color / o.tone (t is the default);
+ * sl: drawn sliced to the object's width (ends kept, middle repeated); box: stretched over the object's box (rugs, towels);
+ * wall: hung on the wall inside the object's box (rep: repeated across a wide box). */
+const IN='sprites/interior/';
+const HD_IN={chair:{},table:{},coffee:{},bookshelf:{},coatrack:{},floorlamp:{},sidetable:{},fridge:{},stove:{},plant:{},trash:{},tv:{},foosball:{},dogstatue:{},recliner:{},
+ bed:{cream:true},bathtub:{},toilet:{},sink:{},entertain:{},nightstand:{},dining:{},canoe:{},boxes:{},trunk:{},dinoskull:{},booth:{},jukebox:{},mic:{},
+ cubicle:{},copier:{},cooler:{},mannequin:{},mirror:{},case:{},stanchion:{},camera:{},stagelight:{},hospbed:{},seats:{},gatedesk:{},palm:{},lounger:{},
+ icebox:{},sandcastle:{},grill:{},pingpong:{},bus:{},cab:{},phonebox:{},postbox:{},clocktower:{},dino:{},desk:{},officechair:{},moodboard:{},column:{},rockmound:{},
+ officefridge:{},grantaxi:{},cheesecake:{},sandwich:{f:'sandwich_wrapped'},splat:{flat:true},
+ couch:{f:'couch_t',t:'#d9782f',sl:true},kcounter:{f:'kcounter_t',t:'#8a6a4a',sl:true},counter:{f:'perkcounter',sl:true},
+ stool:{f:'stool_t',t:'#c0262c'},rack:{f:'rack_t',t:'#8e6bbf'},luggage:{f:'luggage_t',t:'#3a5a8a'},umbrella:{f:'umbrella_t',t:'#d9534f'},surfboard:{f:'surfboard_t',t:'#e8b830'},
+ rug:{f:'rug_ornate_t',t:'#b4532e',box:true},towel:{f:'towel_t',t:'#e05a7a',box:true,rot:true},
+ window:{wall:true,rep:true},bigwindow:{wall:true,rep:true},drapewindow:{wall:true,rep:true},frame:{wall:true},mural:{wall:true},flag:{wall:true},wreath:{wall:true},
+ menu:{wall:true,box:true},walldoor:{wall:true,box:true}};
+const HD_FLOOR={wood:'floor_wood',marble:'floor_marble',sand:'floor_sand',water:'floor_water',carpet:'floor_carpet',carpetR:'floor_carpet_rose',conc:'floor_conc',
+ hallf:'floor_hall',tileK:'floor_tileK',tileD:'floor_tileD',bath:'floor_bath',rotunda:'floor_rotunda',stairs:'floor_stairs',
+ brick:'wall_brick',wallC:'wall_plaster',wallH:'wall_plaster_peach',wallP:'wall_plaster_lavender',wallG:'wall_plaster_sage',wains:'wall_wains'};
+const CAR_MODELS=['','wagon','van','compact'];
+const hdIn={},hdFloor={},hdInCache={};
+function loadInteriorArt(){
+ const files=new Set([...Object.entries(HD_IN).map(([k,v])=>v.f||k),'armchair','armchair_t','rug_geo_t','dinertable','car_wagon_t','car_van_t','car_compact_t','car_taxi90']);
+ for(const f of files){const im=new Image();im.onload=()=>{hdIn[f]=im;for(const k in hdInCache)delete hdInCache[k];carHDCache={}};im.src=IN+f+'.png'}
+ for(const[t,f]of Object.entries(HD_FLOOR)){const im=new Image();im.onload=()=>{hdFloor[t]=im};im.src=IN+f+'.png'}}
+// repaint a template: 'mag' swaps the magenta body colour, 'cream' swaps a cream quilt; shading is kept
+function recolor(im,col,mode){const[c,g]=mk(im.width,im.height);g.drawImage(im,0,0);const d=g.getImageData(0,0,c.width,c.height),a=d.data,T=hexRGB(col);
+ for(let i=0;i<a.length;i+=4){const r=a[i],gg=a[i+1],b=a[i+2],mx=Math.max(r,gg,b),mn=Math.min(r,gg,b),L=(mx+mn)/510;let hit=false,f;
+  if(mode==='cream'){hit=r>165&&gg>145&&b>100&&r-b>16&&r-b<95&&r-gg<45;f=L/.82}
+  else{const sat=mx?(mx-mn)/mx:0;if(sat>.16&&mx>40&&gg===mn){let h=(r===mx?(gg-b)/(mx-mn):4+(r-gg)/(mx-mn))*60;if(h<0)h+=360;hit=h>275&&h<350}f=L/.5}
+  if(hit)for(let k=0;k<3;k++)a[i+k]=f<=1?T[k]*f:T[k]+(255-T[k])*Math.min(1,(f-1)*.9)}
+ g.putImageData(d,0,0);return c}
+function inSpec(o){if(o.kind==='armchair')return o.face?{f:'armchair',flip:o.face==='left'}:{f:'armchair_t',t:'#8a5a3a'};
+ if(o.kind==='rug'&&o.geo)return Object.assign({},HD_IN.rug,{f:'rug_geo_t'});
+ if(o.kind==='table'&&o.diner)return{f:'dinertable'};
+ if(o.kind==='cab'&&o.yellow)return{f:'car_taxi90'};
+ const s=HD_IN[o.kind];return s&&Object.assign({f:o.kind},s)}
+function inImg(o,sp){const base=hdIn[sp.f];if(!base)return null;const col=sp.t?(o.color||o.tone||sp.t):(sp.cream&&o.color)||null,dk=!!o.dark;
+ if(!col&&!dk)return base;const k=sp.f+'|'+col+'|'+dk;if(hdInCache[k])return hdInCache[k];
+ let c=col?recolor(base,col,sp.cream?'cream':'mag'):base;
+ if(dk){const[d,g]=mk(c.width,c.height);g.filter='brightness(.38) saturate(.5)';g.drawImage(c,0,0);c=d}
+ return hdInCache[k]=c}
+function smooth(on){ctx.imageSmoothingEnabled=on;if(on)ctx.imageSmoothingQuality='high'}
+// wide furniture: keep both ends at their natural size and repeat the middle to fill W world px
+function drawSliced(im,x0,by,W){const s=1/8,H=im.height*s,e=Math.round(im.width*.24),ew=e*s,mw=im.width-2*e,tw=mw*s;
+ ctx.fillStyle='rgba(0,0,0,.18)';ctx.beginPath();ctx.ellipse(x0+W/2,by-1,W*.47,3,0,0,7);ctx.fill();smooth(true);
+ ctx.drawImage(im,0,0,e,im.height,x0,by-H,ew,H);ctx.drawImage(im,im.width-e,0,e,im.height,x0+W-ew,by-H,ew,H);
+ for(let x=x0+ew;x<x0+W-ew-.01;){const w=Math.min(tw,x0+W-ew-x);ctx.drawImage(im,e,0,w/s,im.height,x,by-H,w+.05,H);x+=w}smooth(false)}
+// flat things: rugs and towels stretch over their box; wall pieces fit inside it
+function drawFlat(im,sp,x,y,w,h){smooth(true);
+ if(sp.box&&sp.rot&&w>h){ctx.save();ctx.translate(x+w/2,y+h/2);ctx.rotate(Math.PI/2);ctx.drawImage(im,-h/2,-w/2,h,w);ctx.restore()}
+ else if(sp.box)ctx.drawImage(im,x,y,w,h);
+ else{const asp=im.width/im.height,n=sp.rep?Math.max(1,Math.round(w/(h*asp))):1,cw=w/n;let dw=cw,dh=dw/asp;if(dh>h){dh=h;dw=dh*asp}
+  for(let i=0;i<n;i++)ctx.drawImage(im,x+i*cw+(cw-dw)/2,y+(h-dh)/2,dw,dh)}
+ smooth(false)}
+const HD_ITEMS = { pants:'sprites/items/Item_LeatherPants.png', trifle:IN+'trifle.png', cheesecake:IN+'cheesecake.png', moistmaker:IN+'sandwich.png',
+ grantaxi:IN+'grantaxi.png', marcel:IN+'marcel_icon.png' };
 
 const TS=16, SAVE_KEY='friendsTrivia_v1';
 let SC=2,VW=20,VH=13;
@@ -131,12 +186,14 @@ function makeTile(t,v){const[c,g]=mk(16,16);const r=mulberry(v*101+t.charCodeAt(
  case'carpet':px(g,'#5a6a7e',0,0,16,16);noise(g,r,['#526276','#62748a'],40);break;
  case'tileD':for(let y=0;y<16;y+=8)for(let x=0;x<16;x+=8)px(g,((x+y)>>3)&1?'#2a2a30':'#ece8e0',x,y,8,8);break;
  case'conc':px(g,'#8a8a8e',0,0,16,16);noise(g,r,['#7e7e84','#96969a'],30);if(v===1)px(g,'#6e6e74',3,9,8,1);break;
+ case'bath':return makeTile('tileK',v);case'hallf':px(g,'#968c8c',0,0,16,16);noise(g,r,['#8e8484','#a29898'],24);break;case'carpetR':px(g,'#98786a',0,0,16,16);noise(g,r,['#8c6e60','#a68474'],36);break;
+ case'rotunda':return makeTile('marble',v);case'wallG':px(g,'#bec8a8',0,0,16,16);px(g,'#ccd6b8',0,0,16,2);break;
  case'nroad':px(g,'#1e1626',0,0,16,16);noise(g,r,['#2a1e36','#160f1e'],24);if(v===2)px(g,'#ff6fb0',2,7,4,1);if(v===3)px(g,'#7ad0ff',10,3,3,1);break;
  default:px(g,'#16121e',0,0,16,16);
  }
  return c}
 const ROADT=new Set(['road','laneH','laneV','inter','crossH','crossV']);
-const SOLID_T=new Set(['brick','wains','wallS','front','roofs','void','wallP','wallH','wallC','frontA','water']);
+const SOLID_T=new Set(['brick','wains','wallS','front','roofs','void','wallP','wallH','wallC','wallG','frontA','water']);
 
 /* ===================== ART: buildings ===================== */
 const BSTY={brick:{wall:'#a24a32',d:'#83381f',trim:'#d8cbb0',roof:'#4a4148'},brown:{wall:'#7b4f3a',d:'#68412f',trim:'#c9b28f',roof:'#3f3638'},
@@ -303,7 +360,7 @@ function makeObj(o){let c,g,ox=0,oy;const fin=(cc,ol=true)=>{if(ol)outline(cc);r
  case'pingpong':{[c,g]=O(32,20);px(g,'#2f6b3a',0,2,32,10);px(g,'#ffffff',0,2,32,1);px(g,'#ffffff',15,2,2,10);px(g,'#f4f1ea',0,6,32,1);px(g,'#3a3a44',3,12,2,8);px(g,'#3a3a44',27,12,2,8);px(g,'#ffffff',22,0,2,2);fin(c);oy=-4;break}
  case'fountain':{[c,g]=O(48,44);ell(g,'#8a8a92',24,32,23,11);ell(g,'#5aa0d0',24,31,20,8);ell(g,'#8ac8f0',20,29,10,3);px(g,'#9a9aa4',20,12,8,20);ell(g,'#8a8a92',24,12,9,4);ell(g,'#5aa0d0',24,11,7,2);
   for(let i=0;i<6;i++){px(g,'#bfe4fa',22-i*2,4+i*2,2,2);px(g,'#bfe4fa',25+i*2,4+i*2,2,2)}px(g,'#bfe4fa',23,0,2,10);fin(c);oy=32-44;break}
- default:{[c,g]=O(16,16);px(g,'#f0f',0,0,16,16)}
+ default:{const t=fp(o);let w=o.w||1,h=o.h||1;if(t.length){w=Math.max(...t.map(q=>q[0]))-o.x+1;h=Math.max(...t.map(q=>q[1]))-o.y+1}[c,g]=O(w*16,h*16)}
  }
  return{c,ox,oy:oy??0}}
 const carCache={};
@@ -590,7 +647,8 @@ const DIRS={up:[0,-1],down:[0,1],left:[-1,0],right:[1,0]},OPP={up:'down',down:'u
 function rectT(x,y,w,h){const a=[];for(let j=y;j<y+h;j++)for(let i=x;i<x+w;i++)a.push([i,j]);return a}
 function fp(o){switch(o.kind){case'building':return rectT(o.x,o.y,o.w,o.h);
  case'couch':case'counter':case'kcounter':case'dtable':return rectT(o.x,o.y,o.w,1);case'tv':case'foosball':case'carcover':case'flat':case'cubicle':case'rack':case'booth':case'hospbed':case'gatedesk':case'pingpong':case'cab':case'clocktower':return rectT(o.x,o.y,2,1);case'bus':case'seats':case'canoe':return rectT(o.x,o.y,3,1);case'dino':return rectT(o.x,o.y,6,2);case'fountain':return rectT(o.x,o.y,3,2);case'car':case'bench':case'coffee':return rectT(o.x,o.y,2,1);case'barricade':return rectT(o.x,o.y,o.w||4,1);
- case'subway':return rectT(o.x,o.y,2,2);case'rug':case'wallsign':case'menu':case'window':case'frame':case'walldoor':case'bigwindow':case'board':case'towel':case'poster':case'banner':return[];default:return[[o.x,o.y]]}}
+ case'subway':return rectT(o.x,o.y,2,2);case'bed':return rectT(o.x,o.y,2,2);case'dining':return rectT(o.x,o.y,3,2);case'rockmound':return rectT(o.x,o.y,6,2);case'bathtub':case'entertain':case'desk':case'grantaxi':return rectT(o.x,o.y,2,1);
+ case'splat':case'mural':case'flag':case'wreath':case'drapewindow':case'rug':case'wallsign':case'menu':case'window':case'frame':case'walldoor':case'bigwindow':case'board':case'towel':case'poster':case'banner':return[];default:return[[o.x,o.y]]}}
 function setSolid(x,y,v){if(x>=0&&y>=0&&x<Zn.w&&y<Zn.h)solid[y*Zn.w+x]=v}
 function gAt(x,y){return Zn.g[y*Zn.w+x]}
 function isDoor(x,y){return Zn.doors.some(d=>d.x===x&&d.y===y)}
@@ -603,7 +661,7 @@ function loadZone(id,x,y,dir,nosave){Zn=ZONES[id];const eggNpcs=spawnEggs(nosave
  for(const e of eggNpcs)if(!npcs.some(n=>n.x===e.x&&n.y===e.y))npcs.push(Object.assign(e,{px:e.x*16,py:e.y*16,home:{x:e.x,y:e.y,dir:e.dir},moving:false,t:0,wait:1+R()*3,spr:charSprites(e.look)}));
  for(const e of EGGS)if(e.swap&&eggsHere.includes(e.id)){const n=npcs.find(q=>q.id===e.swap.npc);if(n){n.look=Object.assign({},n.look,e.look);n.spr=charSprites(n.look);n.egg=e.id}}
  if(S&&S.items)addFinaleCast();setTune(Zn.tune||'city');
- taxis=[];let k=0;for(const tr of Zn.taxiRows)for(let i=0;i<tr.n;i++){const taxi=(k++%3)!==2;taxis.push({row:tr.row,dir:tr.dir,x:(i+.3+R()*.4)*Zn.w*16/tr.n,sp:44+R()*16,honk:0,taxi,col:taxi?'#f2c230':['#3b6fb6','#8f2f2f','#6a8f4a'][k%3]})}
+ taxis=[];let k=0;for(const tr of Zn.taxiRows)for(let i=0;i<tr.n;i++){const taxi=(k++%3)!==2;taxis.push({row:tr.row,dir:tr.dir,x:(i+.3+R()*.4)*Zn.w*16/tr.n,sp:44+R()*16,honk:0,taxi,model:taxi?(k%2?'90':''):CAR_MODELS[k%4],col:taxi?'#f2c230':['#3b6fb6','#8f2f2f','#6a8f4a','#c9c9cf'][k%4]})}
  player.x=player.fx=x;player.y=player.fy=y;player.px=x*16;player.py=y*16;player.dir=dir;player.moving=false;player.sit=null;clickPath=null;clickMark=null;
  $('#zoneTag').textContent=Zn.name;if(!nosave){S.zone=id;save()}}
 function taxiAt(x,y){return taxis.some(t=>t.row===y&&x*16<t.x+32&&x*16+16>t.x)}
@@ -712,9 +770,15 @@ const TALK={
   if(!won){const L=pre.length?pre:sc.greet.map(t=>({who,text:t}));L.push({who,text:sc.offer,choices:[{label:sc.yes||"Let's do it",fn:()=>go(sc.reward)},{label:sc.no||'Not right now',fn:()=>say([{who,text:sc.noReply||'Okay, maybe later!'}])}]});say(L)}
   else say([...pre,{who,text:sc.again||(sc.narrate?"Try the challenge again, just for fun?":"Want to go again? Just for fun."),choices:[{label:'Sure',fn:()=>go(null)},{label:'Later',fn:()=>{}}]}])},
  egg(n){eggTalk(n.egg)},
+ collect(n){collectAct(n.collect)},
  townie(n){const lines=n.lines.map(t=>({text:t}));
   if(n.quiz&&!n.asked){lines.push({text:"Hey, quick question, settle a bet for me?",choices:[{label:'Sure',fn:()=>{n.asked=true;startTrivia({who:n,tags:'easy',n:1,need:1,quick:true,win:"Ha! Knew it. Thanks!",lose:"Huh. Guess we both learned something."})}},{label:'No time',fn:()=>{}}]})}
   say(lines)}};
+// v1.5: hidden collectibles. Find the spot, answer one question about it, and it goes on your shelf.
+function giveItem(id){if(S.items[id])return;S.items[id]=Date.now();save();updHud();SFX.ok();toast('New collectible: '+ITEM(id).name)}
+function collectAct(a){if(S.items[a.item]){say(a.have.split('\n'));return}
+ const ch=shuffle(a.answers.map((t,i)=>({label:t,fn:()=>{if(i===0){giveItem(a.item);say([{text:a.win},{text:`(${ITEM(a.item).name} added to your shelf. Press C to see it.)`}])}else say([{text:a.lose}])}})));
+ say([...a.lines.map(t=>({text:t})),{text:a.q,choices:ch}])}
 function talkTo(n){if(!n.seated)n.dir=OPP[player.dir];(TALK[n.talk]||(n.script?TALK.cast:TALK.townie))(n)}
 
 /* ===================== Click / tap to move ===================== */
@@ -754,11 +818,12 @@ function interact(){if(player.sit){standUp();return}if(player.moving)return;
  else if(a.type==='quiz')TALK.cast({name:a.name,icon:a.icon,script:a.script});
  else if(a.type==='subway')openSubway();
  else if(a.type==='egg')eggTalk(a.egg);
+ else if(a.type==='collect')collectAct(a);
  else if(a.type==='fly')say([{text:a.to==='airport'?'Head back to JFK?':`Board the flight to ${a.label}?`,choices:[{label:a.to==='airport'?'Head home':'Board ✈',fn:()=>travel(a.to==='airport'?'✈  Flying back to JFK…':`✈  Now boarding: ${a.label}`,a.to,a.tx,a.ty,a.dir)},{label:'Not yet',fn:()=>{}}]}]);
  else if(a.type==='counter'){const g=npcs.find(n=>n.id==='gunther');if(g){g.dir='down';talkTo(g)}}}
 function sitCouch(x,y){player.sit={x,y,fx:player.x,fy:player.y};player.x=player.fx=x;player.y=player.fy=y;player.px=x*16;player.py=y*16;player.dir='down';SFX.sel();
- const seats=[4,5,6,7].filter(s=>s!==x);const pals=npcs.filter(n=>n.couch);
- pals.forEach((n,i)=>{n.sit={hx:n.x,hy:n.y,hd:n.dir};n.x=n.fx=seats[i];n.y=n.fy=8;n.px=n.x*16;n.py=n.y*16;n.dir='down';n.moving=false});
+ const seats=Zn.acts.filter(a=>a.type==='couch'&&a.y===y&&a.x!==x).map(a=>a.x);const pals=npcs.filter(n=>n.couch);
+ pals.forEach((n,i)=>{n.sit={hx:n.x,hy:n.y,hd:n.dir};n.x=n.fx=seats[i];n.y=n.fy=y;n.px=n.x*16;n.py=n.y*16;n.dir='down';n.moving=false});
  if(finaleReady()){const done=S.items.key;say([{who:'Monica',text:"There you are! Everybody's here. All six of us. Well, seven, counting you."},{who:'Chandler',text:"Could this couch BE any more crowded?"},{who:'Joey',text:"Hey, how you doin'? …Sorry, habit."},{who:'Ross',text:"So we made one last quiz. About everything. Ten questions."},
   {who:'Rachel',text:done?"Want to do the last one again?":"Get eight right, and… well. We have something for you.",choices:[{label:"Let's do the last one",fn:()=>startTrivia({who:{name:'Everyone',couchIcon:true},tags:'all',n:10,need:8,reward:done?null:'key',win:"You did it! Everybody, keys on the counter. …Except one. That one's yours.",lose:"So close! The couch isn't going anywhere. Try again.",after:()=>{if(S.items.key)showCredits()}})},{label:'Just enjoy the moment',fn:()=>say([{text:"(Everyone's talking at once. Somebody's laughing. It's perfect.)"}])}]}]);return}
  const won=S.items.turkey;
@@ -766,7 +831,7 @@ function sitCouch(x,y){player.sit={x,y,fx:player.x,fy:player.y};player.x=player.
   {who:'Rachel',text:won?"Want to do the Couch Challenge again? Seven questions, about everyone.":"Okay, Couch Challenge: seven questions about all of us. Get five right and you get the turkey. Don't ask.",
    choices:[{label:"Start the Couch Challenge",fn:()=>startTrivia({who:{name:'The Couch',couchIcon:true},tags:'all',n:7,need:5,reward:won?null:'turkey',win:"YES! Couch champion! The turkey is yours. Sunglasses included.",lose:"Ooh, so close. The couch will be here when you're ready.",after:()=>say(["(Press Space to get up from the couch.)"])})},
     {label:'Just hang out',fn:()=>say([{text:"(You sink into the orange couch. This really is the best spot.)"},{text:"(Press Space to get up.)"}])}]}])}
-function standUp(){const s=player.sit;if(!s)return;let tx=s.x,ty=9;if(blocked(tx,ty)){tx=s.fx;ty=s.fy}player.x=player.fx=tx;player.y=player.fy=ty;player.px=tx*16;player.py=ty*16;player.sit=null;player.dir='down';
+function standUp(){const s=player.sit;if(!s)return;let tx=s.x,ty=s.y+1;if(blocked(tx,ty)){tx=s.fx;ty=s.fy}player.x=player.fx=tx;player.y=player.fy=ty;player.px=tx*16;player.py=ty*16;player.sit=null;player.dir='down';
  for(const n of npcs)if(n.sit){const h=n.sit;n.sit=null;let hx=h.hx,hy=h.hy;if(npcAt(hx,hy,n)||(hx===player.x&&hy===player.y)){hx=n.home.x;hy=n.home.y}n.x=n.fx=hx;n.y=n.fy=hy;n.px=hx*16;n.py=hy*16;n.dir=h.hd}save()}
 
 /* ===================== Trivia ===================== */
@@ -838,9 +903,9 @@ function eggIcon(e){const L=e.look||(e.npcs&&e.npcs[0].look),sp=L&&charSprites(L
 
 /* ===================== Finale ===================== */
 function finaleReady(){return ITEMS.every(i=>i.id==='key'||i.bonus||S.items[i.id])}
-const FINALE_CAST=[['monica_f','Monica',3,8,'down',{skin:'#efc9a8',hair:'#2a1d17',style:'bob',fem:true,shirt:'#c0573a',pants:'#2b2b30'}],['chandler_f','Chandler',3,10,'right',{skin:'#efc9a8',hair:'#4a3426',style:'short',shirt:'#5a7a5a',pants:'#3b3b4a'}],
- ['joey_f','Joey',8,10,'left',{skin:'#e8bf9a',hair:'#2a1d17',style:'short',shirt:'#4a5a8a',pants:'#2b2b30'}],['ross_f','Ross',9,8,'down',{skin:'#efc9a8',hair:'#4a3426',style:'short',shirt:'#7a8a6a',pants:'#3b3b4a'}]];
-function addFinaleCast(){if(Zn.id!=='perk'||!finaleReady())return;for(const[id,name,x,y,dir,look]of FINALE_CAST)if(!npcs.some(n=>n.id===id))npcs.push({id,name,cast:true,x,y,dir,look,seated:x===3&&y===10||x===8&&y===10,px:x*16,py:y*16,home:{x,y,dir},moving:false,t:0,wait:9,spr:charSprites(look,id),lines:["Go sit on the couch. Everybody's waiting!"]})}
+const FINALE_CAST=[['monica_f','Monica',3,11,'right',{skin:'#efc9a8',hair:'#2a1d17',style:'bob',fem:true,shirt:'#c0573a',pants:'#2b2b30'}],['chandler_f','Chandler',3,13,'right',{skin:'#efc9a8',hair:'#4a3426',style:'short',shirt:'#5a7a5a',pants:'#3b3b4a'}],
+ ['joey_f','Joey',8,12,'left',{skin:'#e8bf9a',hair:'#2a1d17',style:'short',shirt:'#4a5a8a',pants:'#2b2b30'}],['ross_f','Ross',9,13,'left',{skin:'#efc9a8',hair:'#4a3426',style:'short',shirt:'#7a8a6a',pants:'#3b3b4a'}]];
+function addFinaleCast(){if(Zn.id!=='perk'||!finaleReady())return;for(const[id,name,x,y,dir,look]of FINALE_CAST)if(!npcs.some(n=>n.id===id))npcs.push({id,name,cast:true,x,y,dir,look,seated:x===3&&y===13||x===8&&y===12,px:x*16,py:y*16,home:{x,y,dir},moving:false,t:0,wait:9,spr:charSprites(look,id),lines:["Go sit on the couch. Everybody's waiting!"]})}
 function showCredits(){state='menu';const c=$('#credits');c.classList.remove('hidden');
  const main=ITEMS.filter(i=>!i.bonus),bon=ITEMS.filter(i=>i.bonus);$('#crStats').innerHTML=`<b>${main.filter(i=>S.items[i.id]).length}</b> of ${main.length} story collectibles · <b>${bon.filter(i=>S.items[i.id]).length}</b> of ${bon.length} superfan extras · <b>${Object.keys(S.eggs||{}).length}</b> of ${EGGS.length} secret sightings · <b>${S.stars}</b> correct answers`;
  $('#crNote').classList.toggle('hidden',!PERSONAL_NOTE);$('#crNote').textContent=PERSONAL_NOTE;$('#crBy').textContent=MADE_BY;
@@ -891,14 +956,20 @@ function draw(){ctx.setTransform(1,0,0,1,0,0);ctx.fillStyle=Zn.bg;ctx.fillRect(0
  ctx.setTransform(SC*RS,0,0,SC*RS,-cx*SC*RS,-cy*SC*RS);ctx.imageSmoothingEnabled=false;
  const x0=Math.max(0,Math.floor(cx/16)),x1=Math.min(Zn.w-1,Math.floor((cx+vw)/16)),y0=Math.max(0,Math.floor(cy/16)),y1=Math.min(Zn.h-1,Math.floor((cy+vh)/16));
  const indoor=!Zn.taxiRows.length&&!Zn.g.includes('road');
- for(let y=y0;y<=y1;y++)for(let x=x0;x<=x1;x++){const t=Zn.g[y*Zn.w+x],G=!indoor&&hdGround[t];
-  if(G){const n=t==='walk'?2:4,S=128;let sx,sy;if(t==='laneH'||t==='crossH'){sx=(x%4)*S;sy=0}else if(t==='laneV'||t==='crossV'){sx=0;sy=(y%4)*S}else{sx=(x%n)*S;sy=(y%n)*S}
+ for(let y=y0;y<=y1;y++)for(let x=x0;x<=x1;x++){const t=Zn.g[y*Zn.w+x],G=(!indoor&&hdGround[t])||hdFloor[t];
+  if(G){const n=t==='walk'?2:4,S=128;let sx,sy;if(t==='laneH'||t==='crossH'){sx=(x%4)*S;sy=0}else if(t==='laneV'||t==='crossV'){sx=0;sy=(y%4)*S}else if(t==='wains'){sx=(x%4)*S;sy=0}else if(t==='stairs'){sx=0;sy=0}else{sx=(x%n)*S;sy=(y%n)*S}
    ctx.imageSmoothingEnabled=true;ctx.drawImage(G,sx,sy,S,S,x*16,y*16,16.05,16.05);ctx.imageSmoothingEnabled=false}
   else ctx.drawImage(tile(t,x,y),x*16,y*16);if(t==='walk')curb(x,y)}
  if(clickMark){clickMark.t+=.05;const a=.5+.4*Math.sin(clickMark.t*4),mx=clickMark.x*16+8,my=clickMark.y*16+12;ctx.fillStyle=`rgba(255,216,74,${a})`;ctx.beginPath();ctx.moveTo(mx,my-4);ctx.lineTo(mx+6,my);ctx.lineTo(mx,my+4);ctx.lineTo(mx-6,my);ctx.closePath();ctx.fill()}
  const vis=(x,y,w,h)=>x+w>=cx-40&&x<=cx+vw+40&&y+h>=cy-60&&y<=cy+vh+60;
  const L=[];
  for(const o of Zn.objs){const s=o.spr,dx=o.x*16+s.ox,dy=o.y*16+s.oy;if(!vis(dx,dy,s.c.width,s.c.height))continue;
+  const isp=inSpec(o),hi=isp&&inImg(o,isp);
+  if(hi&&(isp.box||isp.wall||isp.flat)){if(isp.flat){const w=hi.width/8,h=hi.height/8;smooth(true);ctx.drawImage(hi,dx+s.c.width/2-w/2,dy+s.c.height/2-h/2,w,h);smooth(false)}else drawFlat(hi,isp,dx,dy,s.c.width,s.c.height);
+   if(o.kind==='walldoor'&&o.frame){px(ctx,'#e2b82a',dx+5,dy+12,6,6);px(ctx,'#f2d45a',dx+5,dy+12,6,1);px(ctx,'#3a2a10',dx+7,dy+14,2,2)}continue}
+  if(hi){const fh=o.h||(['dino'].includes(o.kind)?2:1),by=isp.sl?(o.y+1)*16+2:dy+s.c.height-(o.lift||0);
+   if(isp.sl){const W=(o.w||1)*16;L.push({y:(o.y+1)*16,d:()=>drawSliced(hi,o.x*16,by,W)});continue}
+   const cx=dx+s.c.width/2;L.push({y:(o.y+fh)*16,d:()=>drawHDProp(hi,cx,by,!['stanchion','mic','coatrack','floorlamp','palm','clocktower','column'].includes(o.kind),isp.flip||(o.flip&&!isp.flip))});continue}
   if(o.low||o.kind==='wallsign'||o.kind==='menu'||o.kind==='window'||o.kind==='frame'||o.kind==='walldoor'||o.kind==='bigwindow'||o.kind==='board'||o.kind==='towel'||o.kind==='poster'||o.kind==='banner'){ctx.drawImage(s.c,dx,dy);continue}
   const fh=o.kind==='building'?o.h:(['subway','dino','fountain'].includes(o.kind)?2:1);const hp=hdProps[o.kind];
   if(o.kind==='building'&&o.hd&&hdFacades[o.hd]){const im=hdFacades[o.hd],w=o.w*16,h=im.height/8,by=(o.y+o.h)*16;
@@ -907,9 +978,9 @@ function draw(){ctx.setTransform(1,0,0,1,0,0);ctx.fillStyle=Zn.bg;ctx.fillRect(0
   if(vp&&o.kind!=='car'){const cx=dx+s.c.width/2,by=dy+s.c.height,shadow=!['fence','sign','subway','barricade'].includes(o.kind);
    if(o.kind==='barricade'){L.push({y:(o.y+fh)*16,d:()=>drawHDProp(vp,cx,by,true)});continue}
    L.push({y:(o.y+fh)*16,d:()=>drawHDProp(vp,cx,by,shadow)});continue}
-  if(o.kind==='car'&&hdVProps.car){const sp=carHD(o.color,false);L.push({y:(o.y+fh)*16,d:()=>drawHDProp(sp.l,dx+s.c.width/2,o.y*16+17,true,o.dir>0)});continue}
+  if(o.kind==='car'&&hdVProps.car){const sp=carHD(o.color,false,CAR_MODELS[o.model!==undefined?o.model:(o.x*7+o.y*3)%4])||carHD(o.color,false);L.push({y:(o.y+fh)*16,d:()=>drawHDProp(sp.l,dx+s.c.width/2,o.y*16+17,true,o.dir>0)});continue}
   L.push({y:(o.y+fh)*16,d:hp?()=>{const w=s.c.width,h=w*hp.height/hp.width;ctx.imageSmoothingEnabled=true;ctx.drawImage(hp,dx,dy+s.c.height-h,w,h);ctx.imageSmoothingEnabled=false}:()=>ctx.drawImage(s.c,dx,dy)})}
- for(const t of taxis){if(!vis(t.x,t.row*16-10,34,22))continue;L.push({y:(t.row+1)*16-.5,d:()=>{const hs=carHD(t.col,t.taxi);if(hs){drawHDProp(hs.l,t.x+17,t.row*16+17,true,t.dir>0);return}const sp=carSprite(t.col,t.taxi);ctx.drawImage(t.dir>0?sp.r:sp.l,Math.round(t.x),t.row*16+16-21)}})}
+ for(const t of taxis){if(!vis(t.x,t.row*16-10,34,22))continue;L.push({y:(t.row+1)*16-.5,d:()=>{const hs=carHD(t.col,t.taxi,t.model)||carHD(t.col,t.taxi);if(hs){drawHDProp(hs.l,t.x+17,t.row*16+17,true,t.dir>0);return}const sp=carSprite(t.col,t.taxi);ctx.drawImage(t.dir>0?sp.r:sp.l,Math.round(t.x),t.row*16+16-21)}})}
  for(const n of npcs)L.push({y:n.py+16+.3,d:()=>drawChar2(n,n.spr,n.dir,n.moving?(n.t<.5?1+((n.x+n.y)&1):0):0,n.px,n.py,n.sit||n.seated)});
  L.push({y:player.py+16+.6,d:()=>drawChar2(null,player.spr,player.dir,player.moving?(player.t<.55?1+player.step:0):0,player.px,player.py,player.sit)});
  L.sort((a,b)=>a.y-b.y);for(const e of L)e.d();
@@ -918,6 +989,7 @@ function draw(){ctx.setTransform(1,0,0,1,0,0);ctx.fillStyle=Zn.bg;ctx.fillRect(0
  const W2=(wx,wy)=>[(wx-cx)*2,(wy-cy)*2];
  ctx.textAlign='center';ctx.textBaseline='middle';
  for(const o of Zn.objs){if(o.kind==='building'&&o.sign){const hdS=o.hd&&hdFacades[o.hd]&&o.signLift;const[sx,sy]=hdS?W2(o.x*16+o.signCx,(o.y+o.h)*16-o.signLift):W2((o.x+(o.shopW||o.w)/2)*16,(o.y+o.h)*16-32+6.5);if(sx<-200||sx>640/k2+200)continue;ctx.font='bold 11px ui-monospace,Menlo,Consolas,monospace';ctx.fillStyle=o.signFg||'#f4e9c8';ctx.fillText(o.sign,sx,sy,hdS?o.signW*2:((o.shopW||o.w)*16-6)*2)}
+  else if(o.kind==='walldoor'&&o.num&&hdIn.walldoor){const[sx,sy]=W2(o.x*16+8,o.y*16-18+8.5);ctx.font='bold 8px ui-monospace,Menlo,monospace';ctx.fillStyle='#e8c860';ctx.fillText(o.num,sx,sy)}
   else if(o.kind==='wallsign'){const[sx,sy]=W2((o.x+o.w/2)*16,13);ctx.font='italic bold 22px Georgia,serif';ctx.fillStyle='#f3e1b0';ctx.fillText(o.text,sx,sy)}
   else if(o.kind==='sign'){const[sx,sy]=W2(o.x*16+8,o.y*16-22);ctx.font='bold 9px ui-monospace,Menlo,monospace';const w=ctx.measureText(o.text).width+8;ctx.fillStyle='#2f7a4a';ctx.fillRect(sx-w/2,sy-7,w,14);ctx.strokeStyle='#fff';ctx.lineWidth=1;ctx.strokeRect(sx-w/2+1.5,sy-5.5,w-3,11);ctx.fillStyle='#fff';ctx.fillText(o.text,sx,sy+.5)}
   else if(o.kind==='gatedesk'){const[sx,sy]=W2(o.x*16+16,o.y*16-10);ctx.font='bold 9px ui-monospace,Menlo,monospace';const w=ctx.measureText(o.text).width+10;ctx.fillStyle='#1a2a4a';ctx.fillRect(sx-w/2,sy-7,w,14);ctx.fillStyle='#ffd84a';ctx.fillText(o.text,sx,sy+.5)}
@@ -1013,7 +1085,7 @@ function loop(now){const dt=Math.min(.05,(now-last)/1000);last=now;clock+=dt;
  if(Zn&&state!=='title'){updPlayer(dt);updNpcs(dt);updTaxis(dt);updDialog(dt);saveT+=dt;if(saveT>5){saveT=0;save()}draw()}
  syncTouch();requestAnimationFrame(loop)}
 try{const z=+localStorage.getItem('friendsTrivia_zoom');if([1,2,3].includes(z))setZoom(z,true);else setZoom(2,true)}catch(e){setZoom(2,true)}
-fit();setupTitle();setupTouch();loadCustomSprites();loadHD();loadPlayerArt();loadVillageArt();
+fit();setupTitle();setupTouch();loadCustomSprites();loadHD();loadPlayerArt();loadVillageArt();loadInteriorArt();
 // title-screen backdrop: render the village behind the menu
 player.spr=charSprites(lookFromPick());loadZone('village',15,10,'up',true);state='title';
 (function titleBg(){if(state!=='title')return;clock+=.016;updNpcs(.016);updTaxis(.016);drawTitleBg();requestAnimationFrame(titleBg)})();

@@ -4,6 +4,27 @@ A private, Pokémon-style pixel-art trivia adventure set in Friends' Greenwich V
 
 **Play:** open `index.html` in a browser, or turn on GitHub Pages for this repo (Settings → Pages → deploy from `main`, root folder).
 
+## v1.6: "The One With All the Rooms"
+
+- **Every interior and trip destination is HD now:** new hand-drawn floors and walls (wood, marble, tile, carpet, plaster over wainscot, brick), plus furniture and props for every room, beach, and London. Couches, counters, rugs, racks, towels, umbrellas and luggage are painted in each piece's own colour.
+- **Rooms rebuilt from the floor plans:**
+  - Monica's has the bathroom, kitchen, living room under the arched window, and Monica's and Rachel's bedrooms.
+  - Joey & Chandler's has the recliners facing the entertainment unit, the kitchen island, the foosball table, and both bedrooms.
+  - Ross's has two bedrooms, the galley kitchen and the round dining table.
+  - Central Perk has the counter on the left, the orange couch on the big rug at the front, the red couch at the back, the window nook, the restrooms and the back stairs.
+- **New places:** Phoebe's apartment (her building's door in the Village now opens), and Rachel's office at Ralph Lauren in Midtown, with Tag.
+- **The hallway** matches the set photo: peach plaster, dark wainscot, green doors 19 and 20 (with the yellow peephole frame), and the window at the end. The museum is now the rotunda: red marble columns, murals, flags and the skeleton on its rock base.
+- **Hidden collectibles (bonus):** Mrs. Braverman's cheesecake (look for the splat in the hallway), Phoebe's taxi (parked outside her building), the Moist Maker (museum staff fridge) and Marcel (loose in Ross's apartment). Find one, answer its question, and it goes on your shelf. Rachel's trifle has new art.
+- **Traffic variety:** wagons, minivans and compacts in all colours, plus a '90s yellow cab.
+- **HD characters:** dedicated sheets for Eddie, the MSG usher, the apartment duck and Marcel.
+- Built with `tools/prep_interiors.py <folder>`. It cuts each 2x2 art sheet into four sprites at their in-game size, makes the floor and wall textures tile, generates the plainer floors, and normalises the character sheets.
+
+## v1.5: "The One for the Super Fans"
+
+- Trivia difficulty (Casual / Fan / Super Fan) on the title screen and in Help, with 80 new Super Fan questions.
+- Tough questions earn 2 stars, Super Fan questions 3.
+- A Quiz Night host at Central Perk: 10 Super Fan questions, 7 to win the bonus Super Fan Trophy.
+
 ## v1.4: "The One Where Nobody's Old-School"
 
 - **Every NPC is HD now.** The townspeople, café customers and passers-by, plus Eddie and the MSG usher, are drawn from the player character templates. Each keeps their colours, and short hair varies between buzz, shaggy and spiky so crowds don't look cloned.
@@ -154,7 +175,7 @@ Cast members currently use generic placeholder sprites with name tags. To swap i
 ## Ideas for later
 
 - More trips: Atlantic City, Tulsa
-- HD sprites for the MSG usher, Eddie, the apartment duck, and the missing looks (Ross's brown shirt, Joey's red shirt, Chandler's green shirt)
-- Dedicated HD sheets for Eddie, the MSG usher and the apartment duck
+- HD sprites for the missing looks (Ross's brown shirt, Joey's red shirt, Chandler's green shirt) and for Tag
 - HD hats and carried items for the player
-- HD buildings for the other neighborhoods and the interiors (same brief and tools as the Village)
+- HD buildings for the other neighborhoods (same brief and tools as the Village)
+- Floor plans for the diner, Chandler's office, the studio and the airport
