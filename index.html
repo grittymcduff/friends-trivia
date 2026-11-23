@@ -120,6 +120,8 @@ kbd{background:#fff;border:1px solid #2a1a3a;border-radius:3px;padding:0 4px;fon
 .row input{font-family:inherit;font-size:13px;font-weight:700;padding:5px 8px;border:2px solid #2a1a3a;border-radius:6px;width:180px}
 .sw{display:flex;gap:4px}.sw button{width:22px;height:22px;padding:0;box-shadow:none}.sw button.on{outline:3px solid #5b3a8c;outline-offset:1px}
 .sw.tx button{width:auto;padding:0 6px;font-size:10px;background:#fff4d6}
+.dnote{font-size:9px;color:#7a6a8a;margin:-2px 0 4px;text-align:center;min-height:11px}#help .dnote{display:inline;margin:0}
+.tvStars{color:#c98a00;font-weight:700}
 #preview{width:140px;height:72px;image-rendering:pixelated;margin:2px 0 0}
 #tBtns{display:flex;flex-direction:column;gap:5px;margin-top:8px}
 #tBtns button{font-size:13px;padding:8px}
@@ -158,6 +160,8 @@ kbd{background:#fff;border:1px solid #2a1a3a;border-radius:3px;padding:0 4px;fon
   <li>Keep your eyes open while you explore. Some very strange things turn up around the city at random…</li>
   <li>A yellow <b>?</b> over a cast member means they have a collectible for you. A white <b>?</b> over a stranger means they have a quick question.</li>
   <li>Walk into any subway entrance (from any side) to open the subway map.</li>
+  <li>Trivia difficulty: <span class="sw tx" id="hDiff" style="display:inline-flex;vertical-align:middle"></span> <span class="dnote" id="hDiffNote"></span></li>
+  <li>Harder questions are worth more: <b>★★</b> for tough ones, <b>★★★</b> for Super Fan questions. Think you know it all? Find the Quiz Night host at Central Perk.</li>
   <li>Your progress saves automatically in this browser.</li></ul></div>
  <div id="subway" class="box hidden"><div class="ph"><h2>🚇 Subway Map</h2><button class="close">Close ✕</button></div><div id="subList"></div></div>
  <div id="credits" class="box hidden"><h2>The One Where It All Comes Together</h2><div class="sub">You found everyone, answered everything, and earned the key to apartment 20.</div><canvas id="crCv" width="320" height="48"></canvas><div id="crStats"></div><div id="crNote" class="hidden"></div><div id="crBy"></div><button class="close">Keep exploring ▶</button></div>
@@ -179,6 +183,7 @@ kbd{background:#fff;border:1px solid #2a1a3a;border-radius:3px;padding:0 4px;fon
    <div class="row"><label></label><div class="sw tx" id="pStyle"></div></div>
    <div class="row"><label>Face</label><div class="sw tx" id="pBuild"></div></div>
    <div class="row"><label>Outfit</label><div class="sw tx" id="pOutfit"></div></div>
+   <div class="row"><label>Trivia</label><div class="sw tx" id="pDiff"></div></div>
    <div id="tBtns"><button id="btnNew">New Game ▶</button><div id="profList"></div><button id="btnBoardT">🏅 Leaderboard</button></div>
   </div>
  </div>
@@ -206,13 +211,13 @@ const QB = [
 // ---- Rachel's deck ----
 {t:'rachel easy', q:"Who does Rachel leave at the altar in the very first episode?", a:["Barry","Paolo","Joshua","Tag"], f:"She runs out on Barry and turns up at Central Perk still in her wedding dress."},
 {t:'rachel', q:"What is Barry's job?", a:["Orthodontist","Dentist","Podiatrist","Accountant"]},
-{t:'rachel', q:"Where does Rachel get her first fashion job after quitting Central Perk?", a:["Fortuna Fashions","Bloomingdale's","Ralph Lauren","Saks Fifth Avenue"], f:"The job mostly involves fetching coffee. Bloomingdale's comes next."},
+{t:'rachel', q:"Where does Rachel get her first fashion job after quitting Central Perk?", a:["Fortunata Fashions","Bloomingdale's","Ralph Lauren","Saks Fifth Avenue"], f:"The job mostly involves fetching coffee. Bloomingdale's comes next."},
 {t:'rachel', q:"What are the names of Rachel's two sisters?", a:["Amy and Jill","Amy and Ursula","Jill and Emily","Monica and Amy"]},
 {t:'rachel', q:"What does Rachel accidentally put in her Thanksgiving trifle?", a:["Beef sautéed with peas and onions","A jar of mayonnaise","Ketchup instead of jam","Smoked salmon"], f:"Two cookbook pages were stuck together, so half her trifle is a shepherd's pie."},
 {t:'rachel', q:"What is the name of Ross and Rachel's daughter?", a:["Emma","Erica","Ella","Emily"]},
 {t:'rachel ross', q:"At his wedding in London, whose name does Ross say instead of Emily's?", a:["Rachel's","Monica's","Carol's","Julie's"]},
 {t:'rachel ross', q:"Who insists, over and over, \"We were on a break!\"?", a:["Ross","Chandler","Joey","Rachel"]},
-{t:'rachel', q:"Which store does Rachel work at right after Fortuna Fashions?", a:["Bloomingdale's","Barneys","Macy's","Saks Fifth Avenue"]},
+{t:'rachel', q:"Which store does Rachel work at right after Fortunata Fashions?", a:["Bloomingdale's","Barneys","Macy's","Saks Fifth Avenue"]},
 
 // ---- Phoebe's deck ----
 {t:'phoebe easy', q:"What is Phoebe's most famous song called?", a:["Smelly Cat","Grumpy Dog","Stinky Mouse","Lonely Fish"]},
@@ -384,6 +389,87 @@ const QB = [
 {t:'pic phoebe easy', pic:'smellycat', q:"Which song is about this guy?", a:["Smelly Cat","Grumpy Dog","Alley Cat Blues","The Stinky Song"]},
 {t:'pic chandler', pic:'box', q:"Who spent a Thanksgiving inside this?", a:["Chandler","Joey","Ross","Gunther"], f:"His penance for kissing Joey's girlfriend, Kathy."},
 {t:'pic joey hard', pic:'rosita', q:"What does Joey call this chair?", a:["Rosita","Big Leather","Sandra","Barcalounger Bob"]},
+// ---- Super Fan deck (very obscure, used by Quiz Night and Super Fan difficulty) ----
+{t:'sf quote chandler', q:"Finish Chandler's line: \"I'm not great at the advice. Can I interest you in a ___ comment?\"", a:["sarcastic", "witty", "snarky", "clever"]},
+{t:'sf quote monica', q:"Finish Monica's welcome to Rachel: \"Welcome to the real world! It ___. You're gonna love it!\"", a:["sucks", "bites", "hurts", "stinks"]},
+{t:'sf quote phoebe', q:"Finish Phoebe's line: \"They don't know that we know they ___!\"", a:["know we know", "know we care", "think we know", "know you know"], f:"Phoebe's master plan while spying on Monica and Chandler."},
+{t:'sf quote rachel', q:"Finish Rachel's line to Ross: \"No uterus, no ___!\"", a:["opinion", "comment", "complaints", "vote"]},
+{t:'sf quote joey', q:"Finish Joey's line: \"It's a moo point. It's like a cow's opinion. It just doesn't ___.\"", a:["matter", "count", "moo", "make sense"]},
+{t:'sf quote joey', q:"Joey, halfway through a Thanksgiving turkey: \"Here come the meat ___!\"", a:["sweats", "pants", "stretchies", "slacks"]},
+{t:'sf quote ross', q:"Ross, about his ruined lunch at work: \"MY ___?!\"", a:["SANDWICH", "LEFTOVERS", "TURKEY", "LUNCH"]},
+{t:'sf quote phoebe', q:"Phoebe, politely declining: \"Oh, I wish I could, but I don't want ___.\"", a:["to", "it", "you", "that"]},
+{t:'sf quote rachel', q:"Rachel, explaining why she left Barry: \"It's like all my life everyone has always told me, 'You're a ___!'\"", a:["shoe", "purse", "princess", "doll"], f:"'Well, what if I don't want to be a shoe? What if I want to be a purse?'"},
+{t:'sf quote chandler', q:"Finish Chandler's line: \"Hi, I'm Chandler. I make jokes when I'm ___.\"", a:["uncomfortable", "nervous", "bored", "awake"]},
+{t:'sf quote joey', q:"Joey, wearing everything Chandler owns: \"Could I BE wearing any more ___?\"", a:["clothes", "sweaters", "layers", "stuff"], f:"Payback for Chandler hiding all his underwear."},
+{t:'sf quote monica', q:"When Chandler says the pink bunny costume isn't right, Monica says it was either a pink bunny or ___", a:["no bunny at all", "a brown bunny", "a giant carrot", "a chicken"], f:"Chandler: 'No bunny at all! Always no bunny at all!'"},
+{t:'sf quote ross', q:"Ross defines unagi as a state of total ___.", a:["awareness", "relaxation", "sushi", "readiness"], f:"Phoebe and Rachel point out unagi is actually eel."},
+{t:'sf props monica', q:"What color are the walls in Monica's apartment?", a:["Purple", "Sage green", "Pale yellow", "Sky blue"]},
+{t:'sf props monica', q:"What color is the frame around the peephole on Monica's door?", a:["Yellow", "Purple", "Gold", "White"]},
+{t:'sf props chandler', q:"At Monica's Halloween party, Chandler wanted to dress as which rabbit?", a:["The Velveteen Rabbit", "Bugs Bunny", "Peter Rabbit", "The White Rabbit"], f:"The Velveteen Rabbit was brown and white. He got a big pink bunny instead."},
+{t:'sf props ross', q:"At the Halloween party, Ross dresses as a potato satellite. What does he call it?", a:["Spud-nik", "Potato-nova", "Tater-tot 1", "Spudlink"]},
+{t:'sf props rachel', q:"Rachel and Phoebe's apartment catches fire in season 6. What started it?", a:["Rachel's hair straightener", "Phoebe's candles", "A toaster", "Monica's lamp"], f:"Rachel left her hair straightener on, though she tries to blame Phoebe's candles first."},
+{t:'sf props chandler', q:"What is the name of the card game Chandler invents so he can give Joey rent money?", a:["Cups", "Saucers", "Bamboozled", "Spoons"], f:"He makes up the rules as he goes so Joey always wins. Joey then loses it all to Ross."},
+{t:'sf props monica', q:"What did Monica get fired for accepting from her restaurant's meat supplier in season 2?", a:["Five steaks", "A case of wine", "A gold watch", "Concert tickets"], f:"The episode is called 'The One with Five Steaks and an Eggplant.'"},
+{t:'sf cast', q:"Which main cast member was the oldest when Friends premiered?", a:["Lisa Kudrow", "Courteney Cox", "David Schwimmer", "Matt LeBlanc"], f:"She was 31."},
+{t:'sf cast', q:"Which main cast member was the youngest when Friends premiered?", a:["Matthew Perry", "Jennifer Aniston", "Matt LeBlanc", "David Schwimmer"], f:"Born August 1969, he was 25 when the pilot aired. Jennifer Aniston was born six months earlier."},
+{t:'sf cast', q:"How old was Jennifer Aniston when the pilot aired in September 1994?", a:["25", "22", "28", "30"]},
+{t:'sf cast', q:"How old was Courteney Cox when the pilot aired in September 1994?", a:["30", "26", "28", "33"], f:"Born June 15, 1964."},
+{t:'sf cast', q:"How old was Lisa Kudrow when the finale aired in May 2004?", a:["40", "36", "38", "43"], f:"Born July 30, 1963."},
+{t:'sf cast', q:"How old was Jennifer Aniston when the finale aired in May 2004?", a:["35", "32", "33", "37"], f:"Born February 11, 1969."},
+{t:'sf cast', q:"How old was Courteney Cox when the finale aired in May 2004?", a:["39", "35", "37", "42"]},
+{t:'sf cast', q:"How many episodes of Friends were made?", a:["236", "200", "220", "250"], f:"236 episodes over ten seasons, from September 1994 to May 2004."},
+{t:'sf cast', q:"What was the title of the very first episode?", a:["The One Where Monica Gets a Roommate", "The One Where It All Began", "The Pilot", "The One with the Wedding Dress"]},
+{t:'sf cast', q:"Which of these was a working title for the show before it became Friends?", a:["Insomnia Cafe", "Latte Nights", "Apartment 20", "Grounds for Friendship"]},
+{t:'sf cast', q:"Which band performed the theme song?", a:["The Rembrandts", "Hootie & the Blowfish", "Gin Blossoms", "Counting Crows"], f:"The song is 'I'll Be There for You.'"},
+{t:'sf cast', q:"What is the title of the series finale?", a:["The Last One", "The One Where They Say Goodbye", "The Final One", "The One with the Keys"]},
+{t:'sf cameo phoebe', q:"Which star played Ryan, Phoebe's Navy boyfriend who catches chicken pox?", a:["Charlie Sheen", "Tom Cruise", "Matthew McConaughey", "Rob Lowe"]},
+{t:'sf cameo phoebe', q:"Phoebe sells toner as a telemarketer and calls a man named Earl. Who played Earl?", a:["Jason Alexander", "Danny DeVito", "Jon Lovitz", "Michael Richards"]},
+{t:'sf cameo phoebe', q:"Which actor played Parker, Phoebe's relentlessly cheerful boyfriend?", a:["Alec Baldwin", "Bill Murray", "Steve Martin", "Michael Keaton"]},
+{t:'sf cameo joey', q:"Which actor played Richard Crosby, Joey's co-star in a World War II movie who spits when he talks?", a:["Gary Oldman", "Anthony Hopkins", "Jeremy Irons", "Alan Rickman"]},
+{t:'sf cameo phoebe', q:"Who played Eric, Ursula's fiancé who meets Phoebe at the Halloween party?", a:["Sean Penn", "Johnny Depp", "Matt Damon", "Ethan Hawke"]},
+{t:'sf cameo rachel', q:"Who played Melissa, Rachel's sorority sister who once kissed her?", a:["Winona Ryder", "Gwyneth Paltrow", "Drew Barrymore", "Cameron Diaz"]},
+{t:'sf cameo phoebe', q:"Who played Roy, the stripper at Phoebe's bachelorette party?", a:["Danny DeVito", "Joe Pesci", "Jack Black", "John Goodman"]},
+{t:'sf cameo joey', q:"Which star played Leonard Hayes, a director at one of Joey's auditions?", a:["Jeff Goldblum", "Christopher Walken", "Robin Williams", "Kevin Spacey"]},
+{t:'sf cameo rachel', q:"Who played Gavin, Rachel's rival at Ralph Lauren while she's on maternity leave?", a:["Dermot Mulroney", "Greg Kinnear", "Dylan McDermott", "Aaron Eckhart"]},
+{t:'sf cameo chandler', q:"Who played Susie Moss, the old classmate who gets revenge on Chandler?", a:["Julia Roberts", "Sandra Bullock", "Meg Ryan", "Michelle Pfeiffer"], f:"She leaves him in a restaurant bathroom wearing her underwear."},
+{t:'sf cameo ross rachel', q:"Which star played Will, co-founder of the 'I Hate Rachel Green Club'?", a:["Brad Pitt", "Johnny Depp", "Keanu Reeves", "Tom Cruise"], f:"Season 8 Thanksgiving, while he was married to Jennifer Aniston."},
+{t:'sf cameo ross', q:"Who played Paul Stevens, the intimidating father of Ross's student girlfriend Elizabeth?", a:["Bruce Willis", "Harrison Ford", "Kevin Costner", "Mel Gibson"]},
+{t:'sf cameo rachel', q:"Who played Jill, Rachel's spoiled sister who moves in with her?", a:["Reese Witherspoon", "Christina Applegate", "Alicia Silverstone", "Sarah Michelle Gellar"], f:"Christina Applegate played her other sister, Amy."},
+{t:'sf cameo rachel', q:"Which actor played Tommy, the boyfriend of Rachel's with a scary temper?", a:["Ben Stiller", "Jim Carrey", "Owen Wilson", "Adam Sandler"]},
+{t:'sf cameo joey', q:"Who played Jessica Lockhart, the Days of Our Lives star whose brain goes to Drake Ramoray?", a:["Susan Sarandon", "Meryl Streep", "Glenn Close", "Sigourney Weaver"]},
+{t:'sf cameo joey', q:"Who played Erika, the soap fan who thinks Joey really is Dr. Drake Ramoray?", a:["Brooke Shields", "Heather Locklear", "Teri Hatcher", "Elizabeth Hurley"]},
+{t:'sf cameo ross rachel', q:"Who played Sandy, the sensitive male nanny Ross and Rachel hire?", a:["Freddie Prinze Jr.", "Paul Walker", "Ryan Phillippe", "James Van Der Beek"]},
+{t:'sf cameo monica rachel', q:"In season 1, Monica and Rachel go on a double date with two doctors. Which two actors played them?", a:["George Clooney & Noah Wyle", "Tom Selleck & Ted Danson", "Hugh Grant & Colin Firth", "Brad Pitt & Matt Damon"], f:"Both were starring on ER at the time."},
+{t:'sf cameo monica rachel', q:"Which action star do Monica and Rachel fight over on a film set?", a:["Jean-Claude Van Damme", "Sylvester Stallone", "Arnold Schwarzenegger", "Steven Seagal"]},
+{t:'sf cameo monica', q:"Which actor played Pete Becker, the millionaire who dates Monica and becomes an Ultimate Fighter?", a:["Jon Favreau", "Vince Vaughn", "Jason Bateman", "Mark Ruffalo"]},
+{t:'sf cameo phoebe', q:"Before Friends, Lisa Kudrow played Ursula on which other NBC sitcom?", a:["Mad About You", "Seinfeld", "Frasier", "Wings"]},
+{t:'sf jobs joey', q:"Which cologne does Joey spray on shoppers at the department store?", a:["Hombre", "Bijan", "Drakkar", "Brut"], f:"He gets into a 'cologne war' with a rival sampler spraying Bijan."},
+{t:'sf jobs joey', q:"In the 'Milk Master 2000' infomercial, what is the name of Joey's character?", a:["Kevin", "Mario", "Drake", "Rick"]},
+{t:'sf jobs joey', q:"What game show does Joey practice hosting with Ross and Chandler?", a:["Bamboozled", "Mayhem!", "Ladder of Chance", "Spin & Win"], f:"You spin the Wheel of Mayhem to go up the Ladder of Chance. Season 8."},
+{t:'sf jobs joey', q:"What job does Joey get at Ross's museum?", a:["Tour guide", "Security guard", "Gift shop clerk", "Fossil cleaner"], f:"The scientists in white coats don't eat lunch with the guides in blue."},
+{t:'sf jobs joey', q:"Which seasonal job does Joey take in season 3?", a:["Selling Christmas trees", "Playing a mall Santa", "Wrapping gifts at Macy's", "Ringing the Salvation Army bell"]},
+{t:'sf jobs joey monica', q:"Why does Monica hire Joey as a waiter at Alessandro's in season 4?", a:["So she can fire him to scare her staff", "Because nobody else applied", "To pay back a bet", "So he can research a role"], f:"A staged firing to win the staff's respect. Joey drags his feet because the holiday tips are great."},
+{t:'sf jobs rachel', q:"How does Rachel lose her job at Ralph Lauren in season 10?", a:["Her boss overhears her job interview with another company", "She's caught sleeping in the office", "She leaks a design", "She hires Tag"]},
+{t:'sf jobs rachel', q:"Who tells Rachel about the opening at Bloomingdale's?", a:["Mark", "Tag", "Joshua", "Paolo"], f:"Ross is jealous of Mark from the moment he shows up."},
+{t:'sf jobs monica', q:"Monica gets the head chef job at Alessandro's right after doing what?", a:["Writing a bad review of it", "Winning a cooking contest", "Catering a wedding there", "Saving the owner from choking"]},
+{t:'sf jobs monica', q:"Where is Monica a chef in the first two seasons, before she's fired?", a:["Iridium", "Alessandro's", "Javu", "The Moondance"]},
+{t:'sf jobs chandler', q:"After quitting his data job, which career does Chandler start as an unpaid intern?", a:["Advertising", "Journalism", "Teaching", "Accounting"]},
+{t:'sf jobs ross', q:"After 'MY SANDWICH!', Ross is sent on what from the museum?", a:["A forced sabbatical", "An archaeological dig", "A lecture tour", "Unpaid leave in Tulsa"]},
+{t:'sf jobs phoebe', q:"When Phoebe takes a telemarketing job, what does she sell?", a:["Toner", "Vacuum cleaners", "Magazines", "Phone plans"]},
+{t:'sf seasons ross rachel', q:"In which season do Ross and Rachel finally share their first kiss at Central Perk?", a:["Season 2", "Season 1", "Season 3", "Season 4"]},
+{t:'sf seasons ross rachel', q:"In which season are Ross and Rachel 'on a break'?", a:["Season 3", "Season 2", "Season 4", "Season 5"]},
+{t:'sf seasons monica chandler', q:"Monica and Chandler first get together at the end of which season?", a:["Season 4", "Season 3", "Season 5", "Season 6"], f:"In London, at Ross's wedding to Emily."},
+{t:'sf seasons ross rachel', q:"Ross and Rachel get married in Las Vegas at the end of which season?", a:["Season 5", "Season 4", "Season 6", "Season 7"]},
+{t:'sf seasons monica chandler', q:"Monica and Chandler get engaged at the end of which season?", a:["Season 6", "Season 5", "Season 7", "Season 4"]},
+{t:'sf seasons monica chandler', q:"Monica and Chandler's wedding is the finale of which season?", a:["Season 7", "Season 6", "Season 8", "Season 5"]},
+{t:'sf seasons rachel', q:"Emma is born at the end of which season?", a:["Season 8", "Season 7", "Season 9", "Season 6"]},
+{t:'sf seasons phoebe', q:"In which season does Phoebe give birth to her brother's triplets?", a:["Season 5", "Season 4", "Season 6", "Season 3"]},
+{t:'sf seasons chandler', q:"In which season does Chandler's job send him to Tulsa?", a:["Season 9", "Season 8", "Season 7", "Season 10"]},
+{t:'sf seasons joey rachel', q:"In which season does Joey first realize he has feelings for Rachel?", a:["Season 8", "Season 7", "Season 9", "Season 10"]},
+{t:'sf seasons', q:"The whole gang goes to Barbados in the finale of which season?", a:["Season 9", "Season 8", "Season 10", "Season 7"]},
+{t:'sf seasons', q:"Friends' only Halloween episode is in which season?", a:["Season 8", "Season 3", "Season 6", "Season 10"]},
+{t:'sf seasons phoebe', q:"Phoebe and Mike get married in which season?", a:["Season 10", "Season 9", "Season 8", "Season 7"]},
+{t:'sf seasons chandler', q:"Chandler and Joey's 'Cups' game happens the night before Chandler moves in with Monica. Which season?", a:["Season 6", "Season 5", "Season 7", "Season 4"]},
 ];
 
 /* ===== A personal touch =====
@@ -435,6 +521,7 @@ const ITEMS = [
  {id:'ashtray',  name:"Estelle's Ashtray",          from:'Estelle · Silvercup Studios', desc:"Never empty. Estelle Leonard Talent Agency.", hint:"Joey's agent is on set in Queens.", bonus:true},
  {id:'nametag',  name:"'Crap Bag' Name Tag",        from:'Mike · Barbados', desc:"'Hello, my name is Crap Bag.' Mike is very committed to the bit.", hint:"Phoebe's favorite piano player is in Barbados.", bonus:true},
  {id:'polaroid', name:'The Photo Wall Polaroid',    from:'The Photo Wall · Upstairs Hallway', desc:"A snapshot of an orange couch. Somehow it says everything.", hint:"There's a wall of photos in the upstairs hallway.", bonus:true},
+ {id:'trophy',   name:'The Super Fan Trophy',       from:'Quiz Night · Central Perk', desc:"Awarded for seven out of ten on the hardest questions in the game. Engraved: 'Could you BE any more of a fan?'", hint:"The Quiz Night host at Central Perk has the hardest questions in the game.", bonus:true},
  // Finale
  {id:'key',      name:"The Key to Apartment 20",    from:'The Last One · Central Perk', desc:"Everyone leaves their keys on the counter one last time. You get to keep this one.", hint:"Collect everything else, then head to the orange couch."},
 ];
@@ -571,6 +658,15 @@ function msgDoor(z,x,y,text){ act(z,x,y,{type:'msg',text}); }
  z.npcs.push({id:'gunther',name:'Gunther',cast:true,x:16,y:3,dir:'down',talk:'gunther',reward:'mug',look:{skin:'#efc9a8',hair:'#4a3426',style:'short',shirt:'#4a4a58',pants:'#2b2b30',apron:true}});
  z.npcs.push({id:'rachel',name:'Rachel',cast:true,x:16,y:10,dir:'down',talk:'rachel',reward:'trifle',couch:true,wander:[10,6,11,7],walkOn:['wood'],look:{skin:'#efc9a8',hair:'#4a3426',style:'long',fem:true,outfit:'skirt',shirt:'#6aa6cf',pants:'#3b3b4a',apron:true}});
  z.npcs.push({id:'phoebe',name:'Phoebe',cast:true,x:2,y:12,dir:'right',talk:'phoebe',reward:'painting',couch:true,guitar:true,look:{skin:'#efc9a8',hair:'#4a3426',style:'long',fem:true,outfit:'dress',shirt:'#b884c9',pants:'#5a4a7a'}});
+ // Super Fan Quiz Night: the hardest deck in the game
+ cast(z,'quizhost','Quiz Night Host',2,5,'right',{skin:'#e0ac7e',hair:'#2a1d17',style:'short',shirt:'#7a2a3a',pants:'#2b2b30'},
+  {reward:'trophy',tags:'sf',n:10,need:7,
+   greet:["Welcome to Super Fan Quiz Night! I write the questions nobody else knows.","Cameos. Quotes. Which season. How old everyone was. The deep cuts."],
+   offer:"Ten Super Fan questions. Get seven right and the trophy is yours. Each correct answer is worth three stars.",
+   yes:"I was born ready",no:"Let me study first",noReply:"Smart. Go rewatch season 3. I'll be here.",
+   win:"Unbelievable. You're a true Super Fan. The trophy is yours, and nobody can take it from you.",
+   lose:"So close! Super Fan questions are tough. Come back any time for another try.",
+   again:"Back for another Quiz Night round? New questions every time."});
  // customers
  const C=(id,x,y,dir,look,lines,quiz)=>z.npcs.push({id,x,y,dir,look,lines,quiz,seated:true});
  C('c1',13,8,'right',{skin:'#c68a5a',hair:'#2a1d17',style:'short',shirt:'#d0a040',pants:'#3a3a44'},["This is my fourth coffee. I can see sounds now."],true);
@@ -1554,6 +1650,7 @@ function itemIcon(id){if(itemCache[id])return itemCache[id];const[c,g]=mk(32,32)
  case'comb':px(g,'#8a5a2a',4,10,24,6);px(g,'#b07a3a',4,10,24,2);for(let x=5;x<28;x+=2)px(g,'#8a5a2a',x,16,1,8);px(g,'#4a3426',8,26,16,3);px(g,'#4a3426',6,27,4,2);px(g,'#4a3426',22,27,4,2);break;
  case'ashtray':ell(g,'#6a8aa8',16,20,13,6);ell(g,'#4a6a88',16,18,10,4);px(g,'#f4f1ea',8,15,9,2);px(g,'#e05a2a',16,15,1,2);px(g,'#c0c0c8',18,4,1,10);px(g,'#d8d8e0',17,2,2,3);px(g,'#f4f1ea',14,17,6,1);break;
  case'nametag':px(g,'#c0262c',2,6,28,20);px(g,'#ffffff',4,13,24,11);px(g,'#ffffff',4,8,24,3);px(g,'#24222a',7,16,4,4);px(g,'#24222a',13,16,4,4);px(g,'#24222a',19,16,4,4);px(g,'#24222a',7,21,16,1);break;
+ case'trophy':px(g,'#e8b923',9,5,14,10);px(g,'#f7d860',11,6,4,7);px(g,'#e8b923',5,7,4,2);px(g,'#e8b923',23,7,4,2);px(g,'#e8b923',5,7,2,6);px(g,'#e8b923',25,7,2,6);px(g,'#c99418',13,15,6,5);px(g,'#e8b923',11,20,10,3);px(g,'#5a3a1e',9,23,14,5);px(g,'#f4f4f8',12,25,8,1);break;
  case'polaroid':px(g,'#f4f4f8',5,3,22,26);px(g,'#9cc8e6',7,5,18,16);px(g,'#d9782f',9,14,14,5);px(g,'#ef9a4e',9,14,14,1);px(g,'#7a4a28',7,19,18,2);px(g,'#c0262c',22,6,2,2);break;
  case'key':px(g,'#e2b82a',4,10,12,12);px(g,'#f2d45a',4,10,12,2);px(g,'#5b3a8c',8,14,4,4);px(g,'#e2b82a',16,14,13,4);px(g,'#e2b82a',22,18,3,5);px(g,'#e2b82a',27,18,2,4);px(g,'#c89a1a',16,17,13,1);break;
  }
@@ -1624,7 +1721,12 @@ setInterval(musicTick,90);
 
 /* ===================== Save ===================== */
 let S=null;
-function freshSave(name,look){return{v:1,name,look,items:{},stars:0,seen:{},zone:'village',x:15,y:10,dir:'up',talked:{}}}
+function freshSave(name,look){return{v:1,name,look,items:{},stars:0,seen:{},zone:'village',x:15,y:10,dir:'up',talked:{},diff:pick.diff||'fan'}}
+const DIFFS=[['casual','Casual','Mostly well-known moments. Great for a warm-up.'],['fan','Fan','The full mix, tough questions included.'],['super','Super Fan','Deep cuts only: cameos, quotes, seasons, ages. Worth more stars.']];
+const qTags=q=>q.t.split(' ');const qStars=q=>{const t=qTags(q);return t.includes('sf')?3:t.includes('hard')?2:1};
+function diffNote(d){return(DIFFS.find(x=>x[0]===d)||DIFFS[1])[2]}
+function diffButtons(id,cur,onPick){const el=$(id);if(!el)return;el.innerHTML=DIFFS.map(([k,l])=>`<button data-k="${k}" title="${esc(diffNote(k))}" class="${k===cur?'on':''}">${l}</button>`).join('');el.querySelectorAll('button').forEach(b=>b.onclick=()=>{SFX.sel();onPick(b.dataset.k)})}
+function setupHelpDiff(){if(!S)return;S.diff=S.diff||'fan';diffButtons('#hDiff',S.diff,k=>{S.diff=k;save();setupHelpDiff()});$('#hDiffNote').textContent=diffNote(S.diff)}
 /* Profiles: every player on this device gets their own save, all kept in one store. */
 const PKEY='friendsTrivia_profiles';
 function loadStore(){let st=null;try{st=JSON.parse(localStorage.getItem(PKEY)||'null')}catch(e){}if(!st||!st.saves)st={cur:null,saves:{},imports:{}};st.imports=st.imports||{};
@@ -1821,9 +1923,14 @@ function standUp(){const s=player.sit;if(!s)return;let tx=s.x,ty=9;if(blocked(tx
 
 /* ===================== Trivia ===================== */
 let TV=null;
-function startTrivia(o){const tags=o.tags==='all'?null:o.tags.split(' ');
- const pool=QB.map((q,i)=>Object.assign({i},q)).filter(q=>!tags||tags.some(t=>q.t.split(' ').includes(t)));
- shuffle(pool);const pk=q=>(o.prefer&&q.t.split(' ').includes(o.prefer)?0:1000)+(S.seen[q.i]||0);pool.sort((a,b)=>pk(a)-pk(b));
+function startTrivia(o){const tags=o.tags==='all'?null:o.tags.split(' '),d=S.diff||'fan',sfDeck=!!tags&&tags.includes('sf');
+ let pool=QB.map((q,i)=>Object.assign({i},q)).filter(q=>!tags||tags.some(t=>qTags(q).includes(t)));
+ // Difficulty: Casual drops tough + Super Fan questions, Fan drops Super Fan ones, Super Fan puts them first.
+ // Only trim when enough questions are left to fill the round.
+ const trim=f=>{const p=pool.filter(f);if(p.length>=o.n)pool=p};
+ if(!sfDeck){if(d==='casual')trim(q=>!qTags(q).includes('sf')&&!qTags(q).includes('hard'));else if(d==='fan')trim(q=>!qTags(q).includes('sf'))}
+ const lvl=q=>d==='super'&&!sfDeck?(qStars(q)>1?0:200):d==='casual'?(qTags(q).includes('easy')?0:60):0;
+ shuffle(pool);const pk=q=>(o.prefer&&qTags(q).includes(o.prefer)?0:1000)+lvl(q)+(S.seen[q.i]||0)*40;pool.sort((a,b)=>pk(a)-pk(b));
  TV=Object.assign({qs:pool.slice(0,o.n),k:0,score:0,answered:false,res:[]},o);state='trivia';
  $('#triv').classList.remove('hidden');$('#triv').classList.toggle('quick',!!o.quick);$('#tvRes').classList.add('hidden');$('#tvBody').classList.remove('hidden');
  $('#tvName').textContent=o.who.name||(o.quick?'Quick Question':'Trivia');
@@ -1839,8 +1946,8 @@ function renderQ(){const q=TV.qs[TV.k];TV.answered=false;TV.opts=shuffle(q.a.sli
 function answer(i){if(!TV||TV.answered)return;const q=TV.qs[TV.k],ok=TV.opts[i]===q.a[0];TV.answered=true;TV.res=TV.res||[];TV.res[TV.k]=ok;
  S.seen[q.i]=(S.seen[q.i]||0)+1;
  $('#tvOpts').querySelectorAll('button').forEach((b,j)=>{b.disabled=true;if(TV.opts[j]===q.a[0])b.classList.add('right');else if(j===i)b.classList.add('wrong')});
- if(ok){TV.score++;S.stars++;SFX.ok()}else SFX.bad();updHud();save();
- const f=$('#tvFact');f.innerHTML=(ok?'<b class="good">Correct!</b> ':'<b class="bad">Not quite.</b> ')+(q.f?esc(q.f):ok?'':'The answer was '+esc(q.a[0])+'.');f.classList.remove('hidden');
+ const gain=qStars(q);if(ok){TV.score++;S.stars+=gain;SFX.ok()}else SFX.bad();updHud();save();
+ const f=$('#tvFact');f.innerHTML=(ok?'<b class="good">Correct!</b> '+(gain>1?`<span class="tvStars">+${'★'.repeat(gain)}</span> `:''):'<b class="bad">Not quite.</b> ')+(q.f?esc(q.f):ok?'':'The answer was '+esc(q.a[0])+'.');f.classList.remove('hidden');
  $('#tvNext').textContent=TV.k+1<TV.qs.length?'Next ▶':'Finish ▶';$('#tvNext').classList.remove('hidden');try{$('#tvNext').scrollIntoView({block:'nearest'})}catch(e){}}
 function nextQ(){if(!TV||!TV.answered)return;TV.k++;if(TV.k<TV.qs.length)renderQ();else endTrivia()}
 function endTrivia(){const won=TV.score>=TV.need;$('#tvBody').classList.add('hidden');const r=$('#tvRes');r.classList.remove('hidden');
@@ -1922,7 +2029,7 @@ function openColl(){state='menu';$('#coll').classList.remove('hidden');const got
  $('#collGrid').querySelectorAll('button[data-wear]').forEach(b=>b.onclick=e=>{e.stopPropagation();toggleWear(b.dataset.wear)});
  $('#collGrid').querySelectorAll('canvas').forEach(c=>{const g=c.getContext('2d');if(c.dataset.egg){const e=EGGS.find(q=>q.id===c.dataset.egg),ic=eggIcon(e);art(g,S.eggs&&S.eggs[e.id]?ic:silhouette(ic),0,0,c.width,c.height);return}const ic=itemArt(c.dataset.id);art(g,S.items[c.dataset.id]?ic:silhouette(ic),0,0,c.width,c.height)})}
 function closePanels(){if(!$('#subway').classList.contains('hidden')){subwayArmed=false;subwayTile=[player.x,player.y]}for(const id of['#coll','#help','#subway','#credits','#board'])$(id).classList.add('hidden');state='world'}
-function openHelp(){state='menu';$('#help').classList.remove('hidden')}
+function openHelp(){state='menu';setupHelpDiff();$('#help').classList.remove('hidden')}
 
 /* ===================== HUD ===================== */
 function updHud(){if(!S)return;$('#cntItems').textContent=`${Object.keys(S.items).length}/${ITEMS.length}`;$('#cntStars').textContent=S.stars}
@@ -2033,12 +2140,12 @@ document.querySelectorAll('.close').forEach(b=>b.onclick=closePanels);
 
 /* ===================== Title & boot ===================== */
 const SHIRTS=['#d9534f','#f0ad4e','#5cb85c','#5b9bd5','#8e6bbf','#e07aa0'],SKINS=['#f1c9a5','#e0ac7e','#c68a5a','#8d5a3b','#5e3a26'],HAIRS=['#2a1d17','#4a3426','#7a4b2a','#c9a253','#b5462a'],STYLES=['long','ponytail','puffy','shaggy','spiky','buzz','bald'],FRECKLES=['no freckles','freckles'],OUTFITS=['pants','skirt','dress'];
-let pick={shirt:3,skin:0,hair:2,style:0,freckles:0,outfit:0};
+let pick={shirt:3,skin:0,hair:2,style:0,freckles:0,outfit:0,diff:'fan'};
 function lookFromPick(){return{player:true,skin:SKINS[pick.skin],hair:HAIRS[pick.hair],style:STYLES[pick.style],shirt:SHIRTS[pick.shirt],pants:'#3b4a6b',freckles:pick.freckles===1,outfit:OUTFITS[pick.outfit]}}
 function drawPreview(){const c=$('#preview'),g=c.getContext('2d');g.imageSmoothingEnabled=false;g.clearRect(0,0,c.width,c.height);const sp=charSprites(lookFromPick());const w=sp.hd?Math.round(72*HD_CW/HD_CH):48;art(g,sp.down[0],0,0,w,72);art(g,sp.right[0],w+8,0,w,72)}
 function setupTitle(){const sw=(id,arr,key,isCol=true)=>{$(id).innerHTML=arr.map((v,i)=>`<button data-i="${i}" class="${i===pick[key]?'on':''}" ${isCol?`style="background:${v}"`:''}>${isCol?'':v}</button>`).join('');
   $(id).querySelectorAll('button').forEach(b=>b.onclick=()=>{pick[key]=+b.dataset.i;SFX.sel();setupTitle()})};
- sw('#pShirt',SHIRTS,'shirt');sw('#pSkin',SKINS,'skin');sw('#pHair',HAIRS,'hair');sw('#pStyle',STYLES,'style',false);sw('#pBuild',FRECKLES,'freckles',false);sw('#pOutfit',OUTFITS,'outfit',false);drawPreview();
+ sw('#pShirt',SHIRTS,'shirt');sw('#pSkin',SKINS,'skin');sw('#pHair',HAIRS,'hair');sw('#pStyle',STYLES,'style',false);sw('#pBuild',FRECKLES,'freckles',false);sw('#pOutfit',OUTFITS,'outfit',false);drawPreview();diffButtons('#pDiff',pick.diff,k=>{pick.diff=k;setupTitle()});
  const st=loadStore(),list=Object.values(st.saves).sort((a,b)=>(b.updated||0)-(a.updated||0));
  $('#profList').innerHTML=list.slice(0,3).map(p=>`<button data-n="${esc(p.name)}">Continue as ${esc(p.name)} <small>· ${Object.keys(p.items||{}).length}/${ITEMS.length} · ${p.stars||0}★</small></button>`).join('');
  $('#profList').querySelectorAll('button').forEach(b=>b.onclick=()=>{const p=loadStore().saves[b.dataset.n];if(p)begin(p,false)})}

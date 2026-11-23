@@ -130,6 +130,15 @@ function msgDoor(z,x,y,text){ act(z,x,y,{type:'msg',text}); }
  z.npcs.push({id:'gunther',name:'Gunther',cast:true,x:16,y:3,dir:'down',talk:'gunther',reward:'mug',look:{skin:'#efc9a8',hair:'#4a3426',style:'short',shirt:'#4a4a58',pants:'#2b2b30',apron:true}});
  z.npcs.push({id:'rachel',name:'Rachel',cast:true,x:16,y:10,dir:'down',talk:'rachel',reward:'trifle',couch:true,wander:[10,6,11,7],walkOn:['wood'],look:{skin:'#efc9a8',hair:'#4a3426',style:'long',fem:true,outfit:'skirt',shirt:'#6aa6cf',pants:'#3b3b4a',apron:true}});
  z.npcs.push({id:'phoebe',name:'Phoebe',cast:true,x:2,y:12,dir:'right',talk:'phoebe',reward:'painting',couch:true,guitar:true,look:{skin:'#efc9a8',hair:'#4a3426',style:'long',fem:true,outfit:'dress',shirt:'#b884c9',pants:'#5a4a7a'}});
+ // Super Fan Quiz Night: the hardest deck in the game
+ cast(z,'quizhost','Quiz Night Host',2,5,'right',{skin:'#e0ac7e',hair:'#2a1d17',style:'short',shirt:'#7a2a3a',pants:'#2b2b30'},
+  {reward:'trophy',tags:'sf',n:10,need:7,
+   greet:["Welcome to Super Fan Quiz Night! I write the questions nobody else knows.","Cameos. Quotes. Which season. How old everyone was. The deep cuts."],
+   offer:"Ten Super Fan questions. Get seven right and the trophy is yours. Each correct answer is worth three stars.",
+   yes:"I was born ready",no:"Let me study first",noReply:"Smart. Go rewatch season 3. I'll be here.",
+   win:"Unbelievable. You're a true Super Fan. The trophy is yours, and nobody can take it from you.",
+   lose:"So close! Super Fan questions are tough. Come back any time for another try.",
+   again:"Back for another Quiz Night round? New questions every time."});
  // customers
  const C=(id,x,y,dir,look,lines,quiz)=>z.npcs.push({id,x,y,dir,look,lines,quiz,seated:true});
  C('c1',13,8,'right',{skin:'#c68a5a',hair:'#2a1d17',style:'short',shirt:'#d0a040',pants:'#3a3a44'},["This is my fourth coffee. I can see sounds now."],true);

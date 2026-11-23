@@ -498,6 +498,7 @@ function itemIcon(id){if(itemCache[id])return itemCache[id];const[c,g]=mk(32,32)
  case'comb':px(g,'#8a5a2a',4,10,24,6);px(g,'#b07a3a',4,10,24,2);for(let x=5;x<28;x+=2)px(g,'#8a5a2a',x,16,1,8);px(g,'#4a3426',8,26,16,3);px(g,'#4a3426',6,27,4,2);px(g,'#4a3426',22,27,4,2);break;
  case'ashtray':ell(g,'#6a8aa8',16,20,13,6);ell(g,'#4a6a88',16,18,10,4);px(g,'#f4f1ea',8,15,9,2);px(g,'#e05a2a',16,15,1,2);px(g,'#c0c0c8',18,4,1,10);px(g,'#d8d8e0',17,2,2,3);px(g,'#f4f1ea',14,17,6,1);break;
  case'nametag':px(g,'#c0262c',2,6,28,20);px(g,'#ffffff',4,13,24,11);px(g,'#ffffff',4,8,24,3);px(g,'#24222a',7,16,4,4);px(g,'#24222a',13,16,4,4);px(g,'#24222a',19,16,4,4);px(g,'#24222a',7,21,16,1);break;
+ case'trophy':px(g,'#e8b923',9,5,14,10);px(g,'#f7d860',11,6,4,7);px(g,'#e8b923',5,7,4,2);px(g,'#e8b923',23,7,4,2);px(g,'#e8b923',5,7,2,6);px(g,'#e8b923',25,7,2,6);px(g,'#c99418',13,15,6,5);px(g,'#e8b923',11,20,10,3);px(g,'#5a3a1e',9,23,14,5);px(g,'#f4f4f8',12,25,8,1);break;
  case'polaroid':px(g,'#f4f4f8',5,3,22,26);px(g,'#9cc8e6',7,5,18,16);px(g,'#d9782f',9,14,14,5);px(g,'#ef9a4e',9,14,14,1);px(g,'#7a4a28',7,19,18,2);px(g,'#c0262c',22,6,2,2);break;
  case'key':px(g,'#e2b82a',4,10,12,12);px(g,'#f2d45a',4,10,12,2);px(g,'#5b3a8c',8,14,4,4);px(g,'#e2b82a',16,14,13,4);px(g,'#e2b82a',22,18,3,5);px(g,'#e2b82a',27,18,2,4);px(g,'#c89a1a',16,17,13,1);break;
  }
@@ -568,7 +569,12 @@ setInterval(musicTick,90);
 
 /* ===================== Save ===================== */
 let S=null;
-function freshSave(name,look){return{v:1,name,look,items:{},stars:0,seen:{},zone:'village',x:15,y:10,dir:'up',talked:{}}}
+function freshSave(name,look){return{v:1,name,look,items:{},stars:0,seen:{},zone:'village',x:15,y:10,dir:'up',talked:{},diff:pick.diff||'fan'}}
+const DIFFS=[['casual','Casual','Mostly well-known moments. Great for a warm-up.'],['fan','Fan','The full mix, tough questions included.'],['super','Super Fan','Deep cuts only: cameos, quotes, seasons, ages. Worth more stars.']];
+const qTags=q=>q.t.split(' ');const qStars=q=>{const t=qTags(q);return t.includes('sf')?3:t.includes('hard')?2:1};
+function diffNote(d){return(DIFFS.find(x=>x[0]===d)||DIFFS[1])[2]}
+function diffButtons(id,cur,onPick){const el=$(id);if(!el)return;el.innerHTML=DIFFS.map(([k,l])=>`<button data-k="${k}" title="${esc(diffNote(k))}" class="${k===cur?'on':''}">${l}</button>`).join('');el.querySelectorAll('button').forEach(b=>b.onclick=()=>{SFX.sel();onPick(b.dataset.k)})}
+function setupHelpDiff(){if(!S)return;S.diff=S.diff||'fan';diffButtons('#hDiff',S.diff,k=>{S.diff=k;save();setupHelpDiff()});$('#hDiffNote').textContent=diffNote(S.diff)}
 /* Profiles: every player on this device gets their own save, all kept in one store. */
 const PKEY='friendsTrivia_profiles';
 function loadStore(){let st=null;try{st=JSON.parse(localStorage.getItem(PKEY)||'null')}catch(e){}if(!st||!st.saves)st={cur:null,saves:{},imports:{}};st.imports=st.imports||{};
@@ -765,9 +771,14 @@ function standUp(){const s=player.sit;if(!s)return;let tx=s.x,ty=9;if(blocked(tx
 
 /* ===================== Trivia ===================== */
 let TV=null;
-function startTrivia(o){const tags=o.tags==='all'?null:o.tags.split(' ');
- const pool=QB.map((q,i)=>Object.assign({i},q)).filter(q=>!tags||tags.some(t=>q.t.split(' ').includes(t)));
- shuffle(pool);const pk=q=>(o.prefer&&q.t.split(' ').includes(o.prefer)?0:1000)+(S.seen[q.i]||0);pool.sort((a,b)=>pk(a)-pk(b));
+function startTrivia(o){const tags=o.tags==='all'?null:o.tags.split(' '),d=S.diff||'fan',sfDeck=!!tags&&tags.includes('sf');
+ let pool=QB.map((q,i)=>Object.assign({i},q)).filter(q=>!tags||tags.some(t=>qTags(q).includes(t)));
+ // Difficulty: Casual drops tough + Super Fan questions, Fan drops Super Fan ones, Super Fan puts them first.
+ // Only trim when enough questions are left to fill the round.
+ const trim=f=>{const p=pool.filter(f);if(p.length>=o.n)pool=p};
+ if(!sfDeck){if(d==='casual')trim(q=>!qTags(q).includes('sf')&&!qTags(q).includes('hard'));else if(d==='fan')trim(q=>!qTags(q).includes('sf'))}
+ const lvl=q=>d==='super'&&!sfDeck?(qStars(q)>1?0:200):d==='casual'?(qTags(q).includes('easy')?0:60):0;
+ shuffle(pool);const pk=q=>(o.prefer&&qTags(q).includes(o.prefer)?0:1000)+lvl(q)+(S.seen[q.i]||0)*40;pool.sort((a,b)=>pk(a)-pk(b));
  TV=Object.assign({qs:pool.slice(0,o.n),k:0,score:0,answered:false,res:[]},o);state='trivia';
  $('#triv').classList.remove('hidden');$('#triv').classList.toggle('quick',!!o.quick);$('#tvRes').classList.add('hidden');$('#tvBody').classList.remove('hidden');
  $('#tvName').textContent=o.who.name||(o.quick?'Quick Question':'Trivia');
@@ -783,8 +794,8 @@ function renderQ(){const q=TV.qs[TV.k];TV.answered=false;TV.opts=shuffle(q.a.sli
 function answer(i){if(!TV||TV.answered)return;const q=TV.qs[TV.k],ok=TV.opts[i]===q.a[0];TV.answered=true;TV.res=TV.res||[];TV.res[TV.k]=ok;
  S.seen[q.i]=(S.seen[q.i]||0)+1;
  $('#tvOpts').querySelectorAll('button').forEach((b,j)=>{b.disabled=true;if(TV.opts[j]===q.a[0])b.classList.add('right');else if(j===i)b.classList.add('wrong')});
- if(ok){TV.score++;S.stars++;SFX.ok()}else SFX.bad();updHud();save();
- const f=$('#tvFact');f.innerHTML=(ok?'<b class="good">Correct!</b> ':'<b class="bad">Not quite.</b> ')+(q.f?esc(q.f):ok?'':'The answer was '+esc(q.a[0])+'.');f.classList.remove('hidden');
+ const gain=qStars(q);if(ok){TV.score++;S.stars+=gain;SFX.ok()}else SFX.bad();updHud();save();
+ const f=$('#tvFact');f.innerHTML=(ok?'<b class="good">Correct!</b> '+(gain>1?`<span class="tvStars">+${'★'.repeat(gain)}</span> `:''):'<b class="bad">Not quite.</b> ')+(q.f?esc(q.f):ok?'':'The answer was '+esc(q.a[0])+'.');f.classList.remove('hidden');
  $('#tvNext').textContent=TV.k+1<TV.qs.length?'Next ▶':'Finish ▶';$('#tvNext').classList.remove('hidden');try{$('#tvNext').scrollIntoView({block:'nearest'})}catch(e){}}
 function nextQ(){if(!TV||!TV.answered)return;TV.k++;if(TV.k<TV.qs.length)renderQ();else endTrivia()}
 function endTrivia(){const won=TV.score>=TV.need;$('#tvBody').classList.add('hidden');const r=$('#tvRes');r.classList.remove('hidden');
@@ -866,7 +877,7 @@ function openColl(){state='menu';$('#coll').classList.remove('hidden');const got
  $('#collGrid').querySelectorAll('button[data-wear]').forEach(b=>b.onclick=e=>{e.stopPropagation();toggleWear(b.dataset.wear)});
  $('#collGrid').querySelectorAll('canvas').forEach(c=>{const g=c.getContext('2d');if(c.dataset.egg){const e=EGGS.find(q=>q.id===c.dataset.egg),ic=eggIcon(e);art(g,S.eggs&&S.eggs[e.id]?ic:silhouette(ic),0,0,c.width,c.height);return}const ic=itemArt(c.dataset.id);art(g,S.items[c.dataset.id]?ic:silhouette(ic),0,0,c.width,c.height)})}
 function closePanels(){if(!$('#subway').classList.contains('hidden')){subwayArmed=false;subwayTile=[player.x,player.y]}for(const id of['#coll','#help','#subway','#credits','#board'])$(id).classList.add('hidden');state='world'}
-function openHelp(){state='menu';$('#help').classList.remove('hidden')}
+function openHelp(){state='menu';setupHelpDiff();$('#help').classList.remove('hidden')}
 
 /* ===================== HUD ===================== */
 function updHud(){if(!S)return;$('#cntItems').textContent=`${Object.keys(S.items).length}/${ITEMS.length}`;$('#cntStars').textContent=S.stars}
@@ -977,12 +988,12 @@ document.querySelectorAll('.close').forEach(b=>b.onclick=closePanels);
 
 /* ===================== Title & boot ===================== */
 const SHIRTS=['#d9534f','#f0ad4e','#5cb85c','#5b9bd5','#8e6bbf','#e07aa0'],SKINS=['#f1c9a5','#e0ac7e','#c68a5a','#8d5a3b','#5e3a26'],HAIRS=['#2a1d17','#4a3426','#7a4b2a','#c9a253','#b5462a'],STYLES=['long','ponytail','puffy','shaggy','spiky','buzz','bald'],FRECKLES=['no freckles','freckles'],OUTFITS=['pants','skirt','dress'];
-let pick={shirt:3,skin:0,hair:2,style:0,freckles:0,outfit:0};
+let pick={shirt:3,skin:0,hair:2,style:0,freckles:0,outfit:0,diff:'fan'};
 function lookFromPick(){return{player:true,skin:SKINS[pick.skin],hair:HAIRS[pick.hair],style:STYLES[pick.style],shirt:SHIRTS[pick.shirt],pants:'#3b4a6b',freckles:pick.freckles===1,outfit:OUTFITS[pick.outfit]}}
 function drawPreview(){const c=$('#preview'),g=c.getContext('2d');g.imageSmoothingEnabled=false;g.clearRect(0,0,c.width,c.height);const sp=charSprites(lookFromPick());const w=sp.hd?Math.round(72*HD_CW/HD_CH):48;art(g,sp.down[0],0,0,w,72);art(g,sp.right[0],w+8,0,w,72)}
 function setupTitle(){const sw=(id,arr,key,isCol=true)=>{$(id).innerHTML=arr.map((v,i)=>`<button data-i="${i}" class="${i===pick[key]?'on':''}" ${isCol?`style="background:${v}"`:''}>${isCol?'':v}</button>`).join('');
   $(id).querySelectorAll('button').forEach(b=>b.onclick=()=>{pick[key]=+b.dataset.i;SFX.sel();setupTitle()})};
- sw('#pShirt',SHIRTS,'shirt');sw('#pSkin',SKINS,'skin');sw('#pHair',HAIRS,'hair');sw('#pStyle',STYLES,'style',false);sw('#pBuild',FRECKLES,'freckles',false);sw('#pOutfit',OUTFITS,'outfit',false);drawPreview();
+ sw('#pShirt',SHIRTS,'shirt');sw('#pSkin',SKINS,'skin');sw('#pHair',HAIRS,'hair');sw('#pStyle',STYLES,'style',false);sw('#pBuild',FRECKLES,'freckles',false);sw('#pOutfit',OUTFITS,'outfit',false);drawPreview();diffButtons('#pDiff',pick.diff,k=>{pick.diff=k;setupTitle()});
  const st=loadStore(),list=Object.values(st.saves).sort((a,b)=>(b.updated||0)-(a.updated||0));
  $('#profList').innerHTML=list.slice(0,3).map(p=>`<button data-n="${esc(p.name)}">Continue as ${esc(p.name)} <small>· ${Object.keys(p.items||{}).length}/${ITEMS.length} · ${p.stars||0}★</small></button>`).join('');
  $('#profList').querySelectorAll('button').forEach(b=>b.onclick=()=>{const p=loadStore().saves[b.dataset.n];if(p)begin(p,false)})}
