@@ -1,12 +1,158 @@
 {
+ "Chandler_InABox.png": {
+  "kind": "sheet",
+  "mirroredLeft": true,
+  "path": "sprites/hd/Chandler_InABox.png"
+ },
+ "Chandler_White_work_shirt.png": {
+  "kind": "sheet",
+  "mirroredLeft": true,
+  "path": "sprites/hd/Chandler_White_work_shirt.png"
+ },
+ "Chick_Apartment.png": {
+  "kind": "sheet",
+  "mirroredLeft": true,
+  "path": "sprites/hd/Chick_Apartment.png"
+ },
+ "Duck_Runaway.png": {
+  "kind": "sheet",
+  "mirroredLeft": true,
+  "path": "sprites/hd/Duck_Runaway.png"
+ },
+ "Estelle_Days_of_Our_Lives_set_Queens.png": {
+  "kind": "sheet",
+  "mirroredLeft": true,
+  "path": "sprites/hd/Estelle_Days_of_Our_Lives_set_Queens.png"
+ },
+ "Frank_Jr_Greenwich_Village_sidewalk.png": {
+  "kind": "sheet",
+  "mirroredLeft": true,
+  "path": "sprites/hd/Frank_Jr_Greenwich_Village_sidewalk.png"
+ },
+ "Gunther_Barista_apron.png": {
+  "kind": "sheet",
+  "mirroredLeft": true,
+  "path": "sprites/hd/Gunther_Barista_apron.png"
+ },
  "Item_LeatherPants.png": {
   "kind": "item",
   "path": "sprites/items/Item_LeatherPants.png"
+ },
+ "Jack_Geller_Monicas_Apartment.png": {
+  "kind": "sheet",
+  "mirroredLeft": true,
+  "path": "sprites/hd/Jack_Geller_Monicas_Apartment.png"
+ },
+ "Janice_Bloomingdales_Midtown.png": {
+  "kind": "sheet",
+  "mirroredLeft": true,
+  "path": "sprites/hd/Janice_Bloomingdales_Midtown.png"
+ },
+ "Joey_BoxPorsche.png": {
+  "kind": "sheet",
+  "mirroredLeft": true,
+  "path": "sprites/hd/Joey_BoxPorsche.png",
+  "prop": "sprites/hd/Joey_BoxPorsche_prop.png"
  },
  "Joey_EverythingChandlerOwns.png": {
   "kind": "sheet",
   "mirroredLeft": true,
   "path": "sprites/hd/Joey_EverythingChandlerOwns.png"
+ },
+ "Joey_London_flag_hat_camera_and_map.png": {
+  "kind": "sheet",
+  "mirroredLeft": true,
+  "path": "sprites/hd/Joey_London_flag_hat_camera_and_map.png"
+ },
+ "Joey_Navy_shirt.png": {
+  "kind": "sheet",
+  "mirroredLeft": true,
+  "path": "sprites/hd/Joey_Navy_shirt.png"
+ },
+ "Joey_White_doctor_style.png": {
+  "kind": "sheet",
+  "mirroredLeft": true,
+  "path": "sprites/hd/Joey_White_doctor_style.png"
+ },
+ "Judy_Geller_Monicas_Apartment.png": {
+  "kind": "sheet",
+  "mirroredLeft": true,
+  "path": "sprites/hd/Judy_Geller_Monicas_Apartment.png"
+ },
+ "Mike_Barbados_by_the_ping_pong_table.png": {
+  "kind": "sheet",
+  "mirroredLeft": true,
+  "path": "sprites/hd/Mike_Barbados_by_the_ping_pong_table.png"
+ },
+ "Monica_Blonde_wig_pink_dress.png": {
+  "kind": "sheet",
+  "mirroredLeft": true,
+  "path": "sprites/hd/Monica_Blonde_wig_pink_dress.png"
+ },
+ "Monica_Bob_haircut_orange_red_top.png": {
+  "kind": "sheet",
+  "mirroredLeft": true,
+  "path": "sprites/hd/Monica_Bob_haircut_orange_red_top.png"
+ },
+ "Monica_Green_top_and_skirt.png": {
+  "kind": "sheet",
+  "mirroredLeft": true,
+  "path": "sprites/hd/Monica_Green_top_and_skirt.png"
+ },
+ "Monica_Turkey_on_her_head_sunglasses_and_fez.png": {
+  "kind": "sheet",
+  "mirroredLeft": true,
+  "path": "sprites/hd/Monica_Turkey_on_her_head_sunglasses_and_fez.png"
+ },
+ "Mr_Heckles_Upstairs_Hallway.png": {
+  "kind": "sheet",
+  "mirroredLeft": false,
+  "path": "sprites/hd/Mr_Heckles_Upstairs_Hallway.png"
+ },
+ "Phoebe_Purple_dress_carrying_a_guitar.png": {
+  "kind": "sheet",
+  "mirroredLeft": true,
+  "path": "sprites/hd/Phoebe_Purple_dress_carrying_a_guitar.png"
+ },
+ "Phoebe_Yellow_sundress.png": {
+  "kind": "sheet",
+  "mirroredLeft": true,
+  "path": "sprites/hd/Phoebe_Yellow_sundress.png"
+ },
+ "Rachel_All_black_work_outfit.png": {
+  "kind": "sheet",
+  "mirroredLeft": true,
+  "path": "sprites/hd/Rachel_All_black_work_outfit.png"
+ },
+ "Rachel_Waitress_apron_blue_top_and_skirt.png": {
+  "kind": "sheet",
+  "mirroredLeft": true,
+  "path": "sprites/hd/Rachel_Waitress_apron_blue_top_and_skirt.png"
+ },
+ "Rachel_White_dress.png": {
+  "kind": "sheet",
+  "mirroredLeft": true,
+  "path": "sprites/hd/Rachel_White_dress.png"
+ },
+ "Richard_Central_Park_Uptown.png": {
+  "kind": "sheet",
+  "mirroredLeft": true,
+  "path": "sprites/hd/Richard_Central_Park_Uptown.png"
+ },
+ "Ross_Green_shirt_Monicas_Apartment.png": {
+  "kind": "sheet",
+  "mirroredLeft": true,
+  "path": "sprites/hd/Ross_Green_shirt_Monicas_Apartment.png"
+ },
+ "Ross_Green_shirt_Rosss_Apartment.png": {
+  "kind": "sheet",
+  "mirroredLeft": true,
+  "path": "sprites/hd/Ross_Green_shirt_Rosss_Apartment.png"
+ },
+ "Ross_Holiday_Armadillo_costume.png": {
+  "kind": "sheet",
+  "mirroredLeft": true,
+  "path": "sprites/hd/Ross_Holiday_Armadillo_costume.png"
  },
  "Ross_LeatherPants.png": {
   "kind": "sheet",

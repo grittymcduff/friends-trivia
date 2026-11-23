@@ -4,6 +4,13 @@ A private, Pokémon-style pixel-art trivia adventure set in Friends' Greenwich V
 
 **Play:** open `index.html` in a browser, or turn on GitHub Pages for this repo (Settings → Pages → deploy from `main`, root folder).
 
+## v1.1: "The One Where Everyone Gets Redrawn"
+
+- **The whole cast is HD:** all six friends in every location look, plus Gunther, Mr. Heckles (with broom), Jack and Judy, Frank Jr., Janice, Richard, Estelle and Mike, the finale cast, and the chick.
+- **Every secret sighting is HD:** the Turkey Head, the Holiday Armadillo, Joey the Tourist, Chandler in a Box, the runaway duck, the PIVOT! crew, and the "Porsche," which now has a hand-drawn covered car.
+- **Stand-ins until their sheets exist:** Museum Ross uses his green-shirt look, London Joey his navy shirt, and Chandler at home his work shirt. The MSG usher, Eddie and the apartment duck keep the old style. (The bundle's `Duck_Apartment.png` has the room painted into every frame, and `Trio_PivotCouch.png` is comic panels, not a walk cycle.)
+- `HD_CAST` in `src/game.js` maps each NPC id to its sheet; `HD_SPRITES` lists the sheets.
+
 ## v1.0: "The One With the Leather Pants"
 
 - **HD character art:** the game now renders at 3× resolution, and characters can use hand-made HD sprite sheets (16-bit chibi style) in place of the generated pixel people. The first three from the new art bundle are in:
@@ -16,10 +23,10 @@ A private, Pokémon-style pixel-art trivia adventure set in Friends' Greenwich V
 ### Adding more HD sprites
 1. Unzip the art bundle somewhere (the folder with `manifest.csv`).
 2. Run `python3 tools/prep_sprites.py <bundle folder>`. It removes the white background (and any grid lines or captions), lines up the 12 frames, fixes side rows that both face the same way, and writes clean sheets to `sprites/hd/` (and items to `sprites/items/`). It lists any manifest entries whose PNG is missing.
-3. Add the sheet to `HD_SPRITES` (or an item to `HD_ITEMS`) at the top of `src/game.js`, then give the character `hd:'<key>'` in its `look` in `src/maps.js`.
+3. Add the sheet to `HD_SPRITES` (or an item to `HD_ITEMS`) at the top of `src/game.js`, then point the NPC at it in `HD_CAST` (or, for a secret sighting, give its `look` an `hd:'<key>'` in `src/maps.js`).
 4. `python3 build.py`, then commit `src/`, `index.html` and `sprites/`.
 
-HD sheets: 3 columns (frames) × 4 rows (Down, Up, Left, Right), 128×192 per cell, transparent background. They load from files, so they show on GitHub Pages; a single-file copy of `index.html` falls back to the old sprites.
+HD sheets: 3 columns (frames) × 4 rows (Down, Up, Left, Right), 176×192 per cell, transparent background. Generated sheets usually draw both side rows facing right; the prep tool mirrors one, and `OVERRIDES` in the script handles the exceptions (sheets facing left, the smaller 4×3 sheets, and sheets it can't use). They load from files, so they show on GitHub Pages; a single-file copy of `index.html` falls back to the old sprites.
 
 ## v0.9: "The One With the Mouse"
 
@@ -125,5 +132,6 @@ Cast members currently use generic placeholder sprites with name tags. To swap i
 ## Ideas for later
 
 - More trips: Atlantic City, Tulsa
-- HD sprites for the rest of the cast (see v1.0 above)
+- HD sprites for the MSG usher, Eddie, the apartment duck, and the missing looks (Ross's brown shirt, Joey's red shirt, Chandler's green shirt)
+- HD townspeople and the player character
 - Redraw the maps to match the HD character art

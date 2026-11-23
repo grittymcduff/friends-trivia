@@ -11,7 +11,8 @@ What it does to each 3x4 character sheet:
   * removes the white background (and any grid lines / caption strip baked into the image),
     keeping white details *inside* a character (baby powder, bottles, collars) intact
   * finds the 12 figures, sorts them into rows (Down, Up, Left, Right) and frames
-  * if both side rows face the same way (common with generated sheets), mirrors the Left row
+  * makes the Left row face left and the Right row face right (generated sheets draw both
+    side rows facing the same way; see OVERRIDES for the few that face left)
   * scales every sheet by the same factor so characters keep their relative heights,
     lines frames up on a shared baseline, and writes a clean sheet:
         3 columns x 4 rows, each cell CELL_W x CELL_H, rows Down, Up, Left, Right
@@ -27,11 +28,26 @@ import numpy as np
 from PIL import Image
 from scipy import ndimage
 
-CELL_W, CELL_H = 128, 192          # 8x the engine's 16x24 world cell
+CELL_W, CELL_H = 176, 192          # 8 px per world px: 22x24 world cell (wide enough for brooms and guitars)
 BASELINE = CELL_H - 3              # feet land here
 SRC_CELL_H = 300                   # source sheets are ~300px per row; maps to CELL_H
 SCALE = CELL_H / SRC_CELL_H
 ITEM = 128
+
+# Sheets that don't follow the standard 3x4, ~300px-per-row layout.
+#   layout '4x3': 4 frames x 3 rows (idle/loop sheets). Rows map to Down, Up, Right; Left = mirrored Right.
+#   scale: overrides SCALE (these sheets are drawn at about a third of the size of the others)
+#   face: which way the side rows face in the source. The generator draws both side rows facing the
+#         same way (almost always right), so one row gets mirrored. Default "right"; checked by eye.
+#   skip: reason the sheet can't be used as a walking sprite
+OVERRIDES = {
+    "Chandler_InABox.png": {"layout": "4x3", "scale": 1.75, "face": "right"},
+    "Duck_Runaway.png": {"layout": "4x3", "scale": 1.05, "face": "right"},
+    "Chick_Apartment.png": {"layout": "4x3", "scale": 1.3, "face": "left"},
+    "Mr_Heckles_Upstairs_Hallway.png": {"face": "left"},
+    "Duck_Apartment.png": {"skip": "every frame has the apartment background painted in, so it can't be cut out"},
+    "Trio_PivotCouch.png": {"skip": "comic-strip panels of a scene, not a walk cycle"},
+}
 
 
 def near_white(a, lo=226):
@@ -57,16 +73,17 @@ def strip_grid(a):
     return a
 
 
-def find_figures(a):
+def find_figures(a, dil=10, min_area=2000, min_h=0.08):
     ink = ~near_white(a, 236)
     ink = ndimage.binary_opening(ink, iterations=1)
-    blob = ndimage.binary_dilation(ink, iterations=10)
+    blob = ndimage.binary_dilation(ink, iterations=dil)
     lab, n = ndimage.label(blob)
     boxes = []
     for i, sl in enumerate(ndimage.find_objects(lab), 1):
         h, w = sl[0].stop - sl[0].start, sl[1].stop - sl[1].start
-        if h > a.shape[0] * 0.08 and (lab[sl] == i).sum() > 2000:
-            boxes.append((sl[0].start + 8, sl[1].start + 8, sl[0].stop - 8, sl[1].stop - 8))  # undo dilation
+        if h > a.shape[0] * min_h and (lab[sl] == i).sum() > min_area:
+            d = max(0, dil - 2)
+            boxes.append((sl[0].start + d, sl[1].start + d, sl[0].stop - d, sl[1].stop - d))  # undo dilation
     return boxes
 
 
@@ -96,36 +113,55 @@ def head_cx(rgba):
     return (xs.min() + xs.max()) / 2 if len(xs) else rgba.shape[1] / 2
 
 
-def small(rgba, size=24):
-    im = Image.fromarray(rgba).resize((size, size), Image.BILINEAR)
-    return np.asarray(im).astype(float)
+def norm(name):
+    return "".join(ch for ch in name.lower() if ch.isalnum())
 
 
-def build_sheet(path):
+def build_sheet(path, opts=None, prop_out=None):
+    opts = opts or {}
     a = np.asarray(Image.open(path).convert("RGB")).astype(np.uint8)
     a = strip_grid(a)
-    boxes = find_figures(a)
+    boxes = find_figures(a, 3, 120, 0.05) if opts.get("layout") == "4x3" else find_figures(a)
     if len(boxes) != 12:
         raise ValueError(f"expected 12 figures, found {len(boxes)}")
     boxes.sort(key=lambda b: (b[0] + b[2]) / 2)
-    rows = [sorted(boxes[i * 3:i * 3 + 3], key=lambda b: b[1]) for i in range(4)]
+    four = opts.get("layout") == "4x3"
+    per, nrows = (4, 3) if four else (3, 4)
+    rows = [sorted(boxes[i * per:i * per + per], key=lambda b: b[1]) for i in range(nrows)]
     figs = [[cut_out(a, b) for b in r] for r in rows]
 
-    # facing: if Right row looks like the Left row *unmirrored*, both face the same way -> mirror Left
-    L0, R0 = figs[2][0][0], figs[3][0][0]
-    same = np.mean((small(L0) - small(R0)) ** 2)
-    flip = np.mean((small(L0[:, ::-1]) - small(R0)) ** 2)
-    mirrored_left = same < flip
+    # a frame much wider than its row-mates is a prop drawn into the sheet (e.g. the box "Porsche"):
+    # save it separately and reuse the row's first frame in its place
+    props = []
+    for r in figs:
+        med = np.median([f.shape[1] for f, _ in r])
+        for i, (f, off) in enumerate(r):
+            if f.shape[1] > med * 1.7 and i > 0:
+                props.append(f)
+                r[i] = r[0]
+
+    if four:
+        side = figs[2][:3]
+        if opts.get("face") == "left":
+            side = [(f[:, ::-1].copy(), o) for f, o in side]
+        figs = [figs[0][:3], figs[1][:3], [(f[:, ::-1].copy(), o) for f, o in side], side]
+        mirrored_left = True
+    else:
+        # rows 2 and 3 of the source both face `face`; make Left face left and Right face right
+        face = opts.get("face", "right")
+        flip_l, flip_r = face == "right", face == "left"
+        for ri, fl_ in ((2, flip_l), (3, flip_r)):
+            if fl_:
+                figs[ri] = [(f[:, ::-1].copy(), o) for f, o in figs[ri]]
+        mirrored_left = flip_l
 
     sheet = Image.new("RGBA", (CELL_W * 3, CELL_H * 4), (0, 0, 0, 0))
     for r, row in enumerate(figs):
         bottoms = [off[0] + f.shape[0] for f, off in row]
         row_bottom = max(bottoms)
         for c, (f, off) in enumerate(row):
-            if r == 2 and mirrored_left:
-                f = f[:, ::-1].copy()
             im = Image.fromarray(f)
-            s = SCALE
+            s = opts.get("scale", SCALE)
             if f.shape[1] * s > CELL_W - 2 or f.shape[0] * s > CELL_H - 4:
                 s = min((CELL_W - 2) / f.shape[1], (CELL_H - 4) / f.shape[0])
             w, h = max(1, round(f.shape[1] * s)), max(1, round(f.shape[0] * s))
@@ -135,6 +171,8 @@ def build_sheet(path):
             x = min(max(x, 0), CELL_W - w)
             y = round(BASELINE - h - lift)
             sheet.alpha_composite(im, (c * CELL_W + x, r * CELL_H + max(0, y)))
+    if prop_out and props:
+        Image.fromarray(props[0]).save(prop_out, optimize=True)
     return sheet, bool(mirrored_left)
 
 
@@ -157,24 +195,39 @@ def main():
     bundle, out = Path(args.bundle), Path(args.out)
     (out / "hd").mkdir(parents=True, exist_ok=True)
     (out / "items").mkdir(parents=True, exist_ok=True)
-    built, missing = {}, []
+    built, missing, skipped = {}, [], {}
+    files = {norm(f.name): f for f in bundle.rglob("*.png")}
     with open(bundle / "manifest.csv", newline="", encoding="utf-8") as fh:
-        for row in csv.DictReader(fh):
-            src = bundle / row["relative_path"]
-            name = row["sprite_filename"]
-            if name in built:
+        rows = list(csv.DictReader(fh))
+    for row in rows:
+        src = files.get(norm(row["sprite_filename"]))
+        if src is None:
+            missing.append(row["sprite_filename"])
+            continue
+        name = src.name
+        if name in built or name in skipped:
+            continue
+        opts = OVERRIDES.get(name, {})
+        if "skip" in opts:
+            skipped[name] = opts["skip"]
+            continue
+        if row["grid_layout"] == "1x1":
+            build_item(src).save(out / "items" / name, optimize=True)
+            built[name] = {"kind": "item", "path": f"sprites/items/{name}"}
+        else:
+            prop = out / "hd" / (src.stem + "_prop.png")
+            try:
+                sheet, flipped = build_sheet(src, opts, prop)
+            except ValueError as e:
+                skipped[name] = str(e)
                 continue
-            if not src.exists():
-                missing.append(name)
-                continue
-            if row["grid_layout"] == "1x1":
-                build_item(src).save(out / "items" / name, optimize=True)
-                built[name] = {"kind": "item", "path": f"sprites/items/{name}"}
-            else:
-                sheet, flipped = build_sheet(src)
-                sheet.save(out / "hd" / name, optimize=True)
-                built[name] = {"kind": "sheet", "path": f"sprites/hd/{name}", "mirroredLeft": flipped}
-            print(f"built  {name}  {built[name]}")
+            sheet.save(out / "hd" / name, optimize=True)
+            built[name] = {"kind": "sheet", "path": f"sprites/hd/{name}", "mirroredLeft": flipped}
+            if prop.exists():
+                built[name]["prop"] = f"sprites/hd/{prop.name}"
+        print(f"built  {name}  {built[name]}")
+    for n, why in skipped.items():
+        print(f"skipped {n}: {why}", file=sys.stderr)
     idx = out / "hd" / "index.json"
     prev = json.loads(idx.read_text()) if idx.exists() else {}
     prev.update(built)

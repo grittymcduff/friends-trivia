@@ -17,9 +17,29 @@ const SPRITE_FILES = {};
  * e.g. when index.html is opened on its own) the character falls back to the procedural sprite.
  * To add more: drop the PNG into the bundle, run tools/prep_sprites.py, then add a line here. */
 const HD_SPRITES = {
- ross_leatherpants:'sprites/hd/Ross_LeatherPants.png',
- joey_layers:'sprites/hd/Joey_EverythingChandlerOwns.png',
+ rachel_waitress:'Rachel_Waitress_apron_blue_top_and_skirt', rachel_work:'Rachel_All_black_work_outfit', rachel_vegas:'Rachel_White_dress',
+ monica_bob:'Monica_Bob_haircut_orange_red_top', monica_diner:'Monica_Blonde_wig_pink_dress', monica_barbados:'Monica_Green_top_and_skirt',
+ phoebe_guitar:'Phoebe_Purple_dress_carrying_a_guitar', phoebe_sundress:'Phoebe_Yellow_sundress',
+ ross_green:'Ross_Green_shirt_Monicas_Apartment', ross_home:'Ross_Green_shirt_Rosss_Apartment',
+ joey_navy:'Joey_Navy_shirt', joey_doctor:'Joey_White_doctor_style', chandler_work:'Chandler_White_work_shirt',
+ gunther:'Gunther_Barista_apron', heckles:'Mr_Heckles_Upstairs_Hallway', jack:'Jack_Geller_Monicas_Apartment', judy:'Judy_Geller_Monicas_Apartment',
+ frankjr:'Frank_Jr_Greenwich_Village_sidewalk', janice:'Janice_Bloomingdales_Midtown', richard:'Richard_Central_Park_Uptown',
+ estelle:'Estelle_Days_of_Our_Lives_set_Queens', mike:'Mike_Barbados_by_the_ping_pong_table',
+ monica_turkey:'Monica_Turkey_on_her_head_sunglasses_and_fez', ross_armadillo:'Ross_Holiday_Armadillo_costume',
+ joey_tourist:'Joey_London_flag_hat_camera_and_map', joey_porsche:'Joey_BoxPorsche', chandler_box:'Chandler_InABox',
+ joey_layers:'Joey_EverythingChandlerOwns', ross_leatherpants:'Ross_LeatherPants', duck_runaway:'Duck_Runaway', chick:'Chick_Apartment',
 };
+// Which sheet each cast NPC (by id in maps.js) wears. Secret sightings set look.hd in EGGS instead.
+// Not in the art bundle yet, so these stand in: Ross brown shirt (ross_m), Joey red shirt (joey_l), Chandler green shirt (chandler).
+// Still procedural: the MSG usher, Eddie, and the apartment duck.
+const HD_CAST = {
+ gunther:'gunther', rachel:'rachel_waitress', phoebe:'phoebe_guitar', monica:'monica_bob', ross:'ross_green', joey:'joey_navy', chandler:'chandler_work', chick:'chick',
+ ross_h:'ross_home', chandler_o:'chandler_work', rachel_b:'rachel_work', monica_d:'monica_diner', ross_m:'ross_green', joey_s:'joey_doctor', joey_l:'joey_navy',
+ rachel_v:'rachel_vegas', monica_b:'monica_barbados', phoebe_m:'phoebe_sundress',
+ heckles:'heckles', jack:'jack', judy:'judy', frankjr:'frankjr', janice:'janice', richard:'richard', estelle:'estelle', mike:'mike',
+ monica_f:'monica_bob', chandler_f:'chandler_work', joey_f:'joey_navy', ross_f:'ross_green',
+};
+const HD_PROPS = { carcover:'sprites/hd/Joey_BoxPorsche_prop.png' };
 const HD_ITEMS = { pants:'sprites/items/Item_LeatherPants.png' };
 
 const TS=16, SAVE_KEY='friendsTrivia_v1';
@@ -268,7 +288,8 @@ function carSprite(col,taxi){const k=col+taxi;if(carCache[k])return carCache[k];
 
 /* ===================== ART: characters ===================== */
 const charCache={};
-function charSprites(look,id){if(look&&look.hd&&hdSprites[look.hd])return hdSprites[look.hd];if(id&&customSprites[id])return customSprites[id];const k=JSON.stringify(look);if(charCache[k])return charCache[k];
+function hdKey(look,id){return(look&&look.hd)||HD_CAST[id]}
+function charSprites(look,id){const hk=hdKey(look,id);if(hk&&hdSprites[hk])return hdSprites[hk];if(id&&customSprites[id])return customSprites[id];const k=JSON.stringify(look);if(charCache[k])return charCache[k];
  const out={down:[],up:[],left:[],right:[]};
  for(const dir of['down','up','left'])for(let f=0;f<3;f++)out[dir].push(drawChar(look,dir,f));
  out.right=out.left.map(mirror);return charCache[k]=out}
@@ -339,12 +360,13 @@ function drawAnimal(k,dir,f){const[c,g]=mk(16,24);const duck=k==='duck',body=duc
  if(dir==='left'){px(g,beak,hx-4+(duck?0:1),hy+fy,2+(duck?1:0),1);px(g,ink,hx-1,hy-1+fy,1,1)}else if(dir==='right'){px(g,beak,hx+2+(duck?0:0),hy+fy,2+(duck?1:0),1);px(g,ink,hx+1,hy-1+fy,1,1)}
  else if(dir==='down'){px(g,beak,hx-1,hy+1+fy,2,1);px(g,ink,hx-2,hy-1+fy,1,1);px(g,ink,hx+1,hy-1+fy,1,1)}
  outline(c);return c}
-const customSprites={},hdSprites={},hdItems={};
-const HD_CW=128,HD_CH=192,HD_DRAW=1.2; // HD characters draw 20% larger than the 16x24 cell, anchored at the feet
+const customSprites={},hdSprites={},hdItems={},hdProps={};
+const HD_CW=176,HD_CH=192,HD_DRAW=1.2; // HD characters draw 20% larger than the 16x24 cell, anchored at the feet
 function loadHD(){
- for(const[key,src]of Object.entries(HD_SPRITES)){const im=new Image();im.onload=()=>{const out={hd:true,down:[],up:[],left:[],right:[]};
+ for(const[key,file]of Object.entries(HD_SPRITES)){const src='sprites/hd/'+file+'.png';const im=new Image();im.onload=()=>{const out={hd:true,down:[],up:[],left:[],right:[]};
    ['down','up','left','right'].forEach((d,row)=>{for(let f=0;f<3;f++){const[c,g]=mk(HD_CW,HD_CH);g.drawImage(im,f*HD_CW,row*HD_CH,HD_CW,HD_CH,0,0,HD_CW,HD_CH);c.hd=true;out[d].push(c)}});
-   hdSprites[key]=out;if(typeof npcs!=='undefined')for(const n of npcs)if(n.look&&n.look.hd===key)n.spr=out};im.src=src}
+   hdSprites[key]=out;if(typeof npcs!=='undefined')for(const n of npcs)if(hdKey(n.look,n.id)===key)n.spr=out};im.src=src}
+ for(const[kind,src]of Object.entries(HD_PROPS)){const im=new Image();im.onload=()=>{const[c,g]=mk(im.width,im.height);g.drawImage(im,0,0);c.hd=true;hdProps[kind]=c};im.src=src}
  for(const[id,src]of Object.entries(HD_ITEMS)){const im=new Image();im.onload=()=>{const[c,g]=mk(im.width,im.height);g.drawImage(im,0,0);c.hd=true;hdItems[id]=c;delete itemCache[id]};im.src=src}}
 // draw any icon/sprite into a box, smoothing only HD art (the procedural art stays crisp)
 function art(g,src,x,y,w,h){g.imageSmoothingEnabled=!!src.hd;if(src.hd)g.imageSmoothingQuality='high';g.drawImage(src,x,y,w,h);g.imageSmoothingEnabled=false}
@@ -661,7 +683,7 @@ function startTrivia(o){const tags=o.tags==='all'?null:o.tags.split(' ');
  $('#triv').classList.remove('hidden');$('#triv').classList.toggle('quick',!!o.quick);$('#tvRes').classList.add('hidden');$('#tvBody').classList.remove('hidden');
  $('#tvName').textContent=o.who.name||(o.quick?'Quick Question':'Trivia');
  const pc=$('#tvPortrait'),g=pc.getContext('2d');g.imageSmoothingEnabled=false;g.clearRect(0,0,pc.width,pc.height);
- if(o.who.icon){g.drawImage(itemIcon(o.who.icon),0,0,48,48)}else if(o.who.couchIcon){const s=makeObj({kind:'couch',w:3,x:0,y:0});g.drawImage(s.c,0,4,48,30*48/48*.95)}else if(o.who.spr){const im=o.who.spr.down[0];if(im.hd)art(g,im,8,0,32,48);else g.drawImage(im,8,0,32,48)}
+ if(o.who.icon){g.drawImage(itemIcon(o.who.icon),0,0,48,48)}else if(o.who.couchIcon){const s=makeObj({kind:'couch',w:3,x:0,y:0});g.drawImage(s.c,0,4,48,30*48/48*.95)}else if(o.who.spr){const im=o.who.spr.down[0];if(im.hd)art(g,im,2,0,44,48);else g.drawImage(im,8,0,32,48)}
  renderQ()}
 function renderQ(){const q=TV.qs[TV.k];TV.answered=false;TV.opts=shuffle(q.a.slice());
  $('#tvProg').innerHTML=TV.qs.map((_,i)=>`<i class="${i<TV.k?(TV.res[i]?'ok':'no'):i===TV.k?'cur':''}"></i>`).join('');
@@ -710,14 +732,15 @@ function spawnEggs(nosave){Zn.objs=Zn.objs.filter(o=>!o.egg);Zn.acts=Zn.acts.fil
 function eggFound(id){if(!S.eggs)S.eggs={};if(S.eggs[id])return;S.eggs[id]=Date.now();save();const n=Object.keys(S.eggs).length;toast(`🥚 Secret sighting! (${n}/${EGGS.length})`);[784,988,1175].forEach((f,i)=>beep(f,.1,'triangle',.05,i*.08))}
 function eggTalk(id){const e=EGGS.find(q=>q.id===id);eggFound(id);say(e.lines.map(l=>Object.assign({},l)))}
 function eggIcon(e){const L=e.look||(e.npcs&&e.npcs[0].look),sp=L&&charSprites(L);
- if(sp&&sp.hd){const[c,g]=mk(128,128);art(g,sp.down[0],128/2-42,2,84,126);c.hd=true;return c}
+ if(e.id==='porsche'&&hdProps.carcover){const p=hdProps.carcover,[c,g]=mk(128,128),h=120*p.height/p.width;art(g,p,4,64-h/2,120,h);c.hd=true;return c}
+ if(sp&&sp.hd){const[c,g]=mk(128,128),w=126*HD_CW/HD_CH;art(g,sp.down[0],64-w/2,2,w,126);c.hd=true;return c}
  const[c,g]=mk(32,32);g.imageSmoothingEnabled=false;if(e.id==='porsche'){const s=makeObj({kind:'carcover',x:0,y:0}).c;g.drawImage(s,0,6,32,s.height*32/s.width)}else{g.drawImage(sp.down[0],4,2,24,36)}return c}
 
 /* ===================== Finale ===================== */
 function finaleReady(){return ITEMS.every(i=>i.id==='key'||i.bonus||S.items[i.id])}
 const FINALE_CAST=[['monica_f','Monica',3,8,'down',{skin:'#efc9a8',hair:'#2a1d17',style:'bob',fem:true,shirt:'#c0573a',pants:'#2b2b30'}],['chandler_f','Chandler',3,10,'right',{skin:'#efc9a8',hair:'#4a3426',style:'short',shirt:'#5a7a5a',pants:'#3b3b4a'}],
  ['joey_f','Joey',8,10,'left',{skin:'#e8bf9a',hair:'#2a1d17',style:'short',shirt:'#4a5a8a',pants:'#2b2b30'}],['ross_f','Ross',9,8,'down',{skin:'#efc9a8',hair:'#4a3426',style:'short',shirt:'#7a8a6a',pants:'#3b3b4a'}]];
-function addFinaleCast(){if(Zn.id!=='perk'||!finaleReady())return;for(const[id,name,x,y,dir,look]of FINALE_CAST)if(!npcs.some(n=>n.id===id))npcs.push({id,name,cast:true,x,y,dir,look,seated:x===3&&y===10||x===8&&y===10,px:x*16,py:y*16,home:{x,y,dir},moving:false,t:0,wait:9,spr:charSprites(look),lines:["Go sit on the couch. Everybody's waiting!"]})}
+function addFinaleCast(){if(Zn.id!=='perk'||!finaleReady())return;for(const[id,name,x,y,dir,look]of FINALE_CAST)if(!npcs.some(n=>n.id===id))npcs.push({id,name,cast:true,x,y,dir,look,seated:x===3&&y===10||x===8&&y===10,px:x*16,py:y*16,home:{x,y,dir},moving:false,t:0,wait:9,spr:charSprites(look,id),lines:["Go sit on the couch. Everybody's waiting!"]})}
 function showCredits(){state='menu';const c=$('#credits');c.classList.remove('hidden');
  const main=ITEMS.filter(i=>!i.bonus),bon=ITEMS.filter(i=>i.bonus);$('#crStats').innerHTML=`<b>${main.filter(i=>S.items[i.id]).length}</b> of ${main.length} story collectibles · <b>${bon.filter(i=>S.items[i.id]).length}</b> of ${bon.length} superfan extras · <b>${Object.keys(S.eggs||{}).length}</b> of ${EGGS.length} secret sightings · <b>${S.stars}</b> correct answers`;
  $('#crNote').classList.toggle('hidden',!PERSONAL_NOTE);$('#crNote').textContent=PERSONAL_NOTE;$('#crBy').textContent=MADE_BY;
@@ -773,7 +796,8 @@ function draw(){ctx.setTransform(1,0,0,1,0,0);ctx.fillStyle=Zn.bg;ctx.fillRect(0
  const L=[];
  for(const o of Zn.objs){const s=o.spr,dx=o.x*16+s.ox,dy=o.y*16+s.oy;if(!vis(dx,dy,s.c.width,s.c.height))continue;
   if(o.low||o.kind==='wallsign'||o.kind==='menu'||o.kind==='window'||o.kind==='frame'||o.kind==='walldoor'||o.kind==='bigwindow'||o.kind==='board'||o.kind==='towel'||o.kind==='poster'||o.kind==='banner'){ctx.drawImage(s.c,dx,dy);continue}
-  const fh=o.kind==='building'?o.h:(['subway','dino','fountain'].includes(o.kind)?2:1);L.push({y:(o.y+fh)*16,d:()=>ctx.drawImage(s.c,dx,dy)})}
+  const fh=o.kind==='building'?o.h:(['subway','dino','fountain'].includes(o.kind)?2:1);const hp=hdProps[o.kind];
+  L.push({y:(o.y+fh)*16,d:hp?()=>{const w=s.c.width,h=w*hp.height/hp.width;ctx.imageSmoothingEnabled=true;ctx.drawImage(hp,dx,dy+s.c.height-h,w,h);ctx.imageSmoothingEnabled=false}:()=>ctx.drawImage(s.c,dx,dy)})}
  for(const t of taxis){if(!vis(t.x,t.row*16-10,34,22))continue;L.push({y:(t.row+1)*16-.5,d:()=>{const sp=carSprite(t.col,t.taxi);ctx.drawImage(t.dir>0?sp.r:sp.l,Math.round(t.x),t.row*16+16-21)}})}
  for(const n of npcs)L.push({y:n.py+16+.3,d:()=>drawChar2(n,n.spr,n.dir,n.moving?(n.t<.5?1+((n.x+n.y)&1):0):0,n.px,n.py,n.sit||n.seated)});
  L.push({y:player.py+16+.6,d:()=>drawChar2(null,player.spr,player.dir,player.moving?(player.t<.55?1+player.step:0):0,player.px,player.py,player.sit)});
@@ -801,10 +825,10 @@ function curb(x,y){const R2=(xx,yy)=>xx>=0&&yy>=0&&xx<Zn.w&&yy<Zn.h&&ROADT.has(g
 function drawChar2(n,spr,dir,f,x,y,sitting){x=Math.round(x);y=Math.round(y);
  if(!sitting){ctx.fillStyle='rgba(0,0,0,.22)';ctx.beginPath();ctx.ellipse(x+8,y+15,5,2,0,0,7);ctx.fill()}
  const dy=sitting?-4:0;const img=spr[dir][f]||spr[dir][0];
- if(spr.hd){ctx.imageSmoothingEnabled=true;ctx.imageSmoothingQuality='high';const w=16*HD_DRAW,h=24*HD_DRAW,lx=x+8-w/2;if(sitting)ctx.drawImage(img,0,0,HD_CW,HD_CH*19/24,lx,y+11+dy-h*19/24,w,h*19/24);else ctx.drawImage(img,lx,y+16-h,w,h);ctx.imageSmoothingEnabled=false}
+ if(spr.hd){ctx.imageSmoothingEnabled=true;ctx.imageSmoothingQuality='high';const w=HD_CW/8*HD_DRAW,h=24*HD_DRAW,lx=x+8-w/2;if(sitting)ctx.drawImage(img,0,0,HD_CW,HD_CH*19/24,lx,y+11+dy-h*19/24,w,h*19/24);else ctx.drawImage(img,lx,y+16-h,w,h);ctx.imageSmoothingEnabled=false}
  else if(sitting){ctx.drawImage(img,0,0,16,19,x,y-8+dy,16,19)}else ctx.drawImage(img,x,y-8);
- if(n&&n.guitar&&!sitting){const gx=x+(n.dir==='left'?1:n.dir==='right'?5:3),gy=y+4;px(ctx,'#a0602a',gx,gy+2,7,5);px(ctx,'#c07a3a',gx,gy+2,7,1);px(ctx,'#3a2414',gx+3,gy+3,2,2);px(ctx,'#6a4428',gx+6,gy-1,6,1)}
- if(n&&n.guitar&&sitting){const gx=x+3,gy=y+2;px(ctx,'#a0602a',gx,gy,7,5);px(ctx,'#3a2414',gx+3,gy+1,2,2);px(ctx,'#6a4428',gx+6,gy-3,6,1)}}
+ if(n&&n.guitar&&!sitting&&!spr.hd){const gx=x+(n.dir==='left'?1:n.dir==='right'?5:3),gy=y+4;px(ctx,'#a0602a',gx,gy+2,7,5);px(ctx,'#c07a3a',gx,gy+2,7,1);px(ctx,'#3a2414',gx+3,gy+3,2,2);px(ctx,'#6a4428',gx+6,gy-1,6,1)}
+ if(n&&n.guitar&&sitting&&!spr.hd){const gx=x+3,gy=y+2;px(ctx,'#a0602a',gx,gy,7,5);px(ctx,'#3a2414',gx+3,gy+1,2,2);px(ctx,'#6a4428',gx+6,gy-3,6,1)}}
 
 /* ===================== Input ===================== */
 const keys={};let dirStack=[];
