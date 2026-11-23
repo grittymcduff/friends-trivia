@@ -1,0 +1,16 @@
+{
+ "Item_LeatherPants.png": {
+  "kind": "item",
+  "path": "sprites/items/Item_LeatherPants.png"
+ },
+ "Joey_EverythingChandlerOwns.png": {
+  "kind": "sheet",
+  "mirroredLeft": true,
+  "path": "sprites/hd/Joey_EverythingChandlerOwns.png"
+ },
+ "Ross_LeatherPants.png": {
+  "kind": "sheet",
+  "mirroredLeft": true,
+  "path": "sprites/hd/Ross_LeatherPants.png"
+ }
+}

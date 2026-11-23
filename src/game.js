@@ -11,6 +11,16 @@
  * Example:  const SPRITE_FILES = { gunther:'sprites/gunther.png', rachel:'sprites/rachel.png' };
  */
 const SPRITE_FILES = {};
+/* v1.0: HD sprite sheets from the art bundle (built by tools/prep_sprites.py).
+ * Each sheet: 3 columns x 4 rows (Down, Up, Left, Right), cells 128x192 (8x the 16x24 world cell).
+ * A character uses one by setting look.hd to a key below; until the file loads (or if it is missing,
+ * e.g. when index.html is opened on its own) the character falls back to the procedural sprite.
+ * To add more: drop the PNG into the bundle, run tools/prep_sprites.py, then add a line here. */
+const HD_SPRITES = {
+ ross_leatherpants:'sprites/hd/Ross_LeatherPants.png',
+ joey_layers:'sprites/hd/Joey_EverythingChandlerOwns.png',
+};
+const HD_ITEMS = { pants:'sprites/items/Item_LeatherPants.png' };
 
 const TS=16, SAVE_KEY='friendsTrivia_v1';
 let SC=2,VW=20,VH=13;
@@ -18,7 +28,9 @@ const ZOOMS=[{s:1,n:'Far'},{s:2,n:'Normal'},{s:3,n:'Close'}];
 function setZoom(z,quiet){SC=z;VW=40/z;VH=26/z;try{localStorage.setItem('friendsTrivia_zoom',z)}catch(e){}const b=document.getElementById('btnZoom');if(b)b.textContent='🔍 '+ZOOMS.find(q=>q.s===z).n;if(!quiet&&typeof toast==='function')toast('Zoom: '+ZOOMS.find(q=>q.s===z).n)}
 function cycleZoom(d){const i=ZOOMS.findIndex(q=>q.s===SC);const j=d===undefined?(i+1)%ZOOMS.length:clamp(i+d,0,ZOOMS.length-1);setZoom(ZOOMS[j].s)}
 const cv=document.getElementById('cv'), ctx=cv.getContext('2d');
-cv.width=640; cv.height=416;
+// v1.0: the canvas renders at RS x the 640x416 layout so HD character art stays sharp
+const RS=3;
+cv.width=640*RS; cv.height=416*RS;
 const $=s=>document.querySelector(s);
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
@@ -256,7 +268,7 @@ function carSprite(col,taxi){const k=col+taxi;if(carCache[k])return carCache[k];
 
 /* ===================== ART: characters ===================== */
 const charCache={};
-function charSprites(look,id){if(id&&customSprites[id])return customSprites[id];const k=JSON.stringify(look);if(charCache[k])return charCache[k];
+function charSprites(look,id){if(look&&look.hd&&hdSprites[look.hd])return hdSprites[look.hd];if(id&&customSprites[id])return customSprites[id];const k=JSON.stringify(look);if(charCache[k])return charCache[k];
  const out={down:[],up:[],left:[],right:[]};
  for(const dir of['down','up','left'])for(let f=0;f<3;f++)out[dir].push(drawChar(look,dir,f));
  out.right=out.left.map(mirror);return charCache[k]=out}
@@ -298,6 +310,7 @@ function drawChar(L,dir,f){if(L.animal)return drawAnimal(L.animal,dir,f);const[c
  outline(c);return c}
 // Easter-egg outfits and hats, drawn over the base character
 function dressUp(g,L,dir,f,sk){const ink='#1a1a2a',side=dir==='left',back=dir==='up';
+ if(L.leather){const hi='#7a7888',mid='#45434f';px(g,mid,5,17,6,1);if(side){px(g,hi,6,18,1,3);px(g,mid,7,17,1,1)}else{px(g,hi,6,18,1,2+(f===1?0:1));px(g,hi,10,18,1,2+(f===2?0:1));px(g,'#c9c4d2',7,17,1,1)}}
  if(L.costume==='armadillo'){const a='#8a8a8a',ad='#6a6a6a',al='#a8a8a8';px(g,a,3,4,10,17);for(let y=7;y<20;y+=3)px(g,ad,3,y,10,1);px(g,al,4,4,3,16);
   if(!back){px(g,sk,side?4:5,6,side?4:6,4);px(g,ink,side?5:6,7,1,1);if(!side)px(g,ink,9,7,1,1);px(g,al,side?1:6,9,side?4:4,3);px(g,'#4a4a4a',side?1:7,10,1,1)}
   px(g,al,4,1,2,4);px(g,al,10,1,2,4);px(g,'#e0a0a0',4,2,1,2);px(g,'#e0a0a0',11,2,1,2);if(back)for(let i=0;i<6;i++)px(g,a,7,21+i%3,2,1)}
@@ -326,12 +339,22 @@ function drawAnimal(k,dir,f){const[c,g]=mk(16,24);const duck=k==='duck',body=duc
  if(dir==='left'){px(g,beak,hx-4+(duck?0:1),hy+fy,2+(duck?1:0),1);px(g,ink,hx-1,hy-1+fy,1,1)}else if(dir==='right'){px(g,beak,hx+2+(duck?0:0),hy+fy,2+(duck?1:0),1);px(g,ink,hx+1,hy-1+fy,1,1)}
  else if(dir==='down'){px(g,beak,hx-1,hy+1+fy,2,1);px(g,ink,hx-2,hy-1+fy,1,1);px(g,ink,hx+1,hy-1+fy,1,1)}
  outline(c);return c}
-const customSprites={};
+const customSprites={},hdSprites={},hdItems={};
+const HD_CW=128,HD_CH=192,HD_DRAW=1.2; // HD characters draw 20% larger than the 16x24 cell, anchored at the feet
+function loadHD(){
+ for(const[key,src]of Object.entries(HD_SPRITES)){const im=new Image();im.onload=()=>{const out={hd:true,down:[],up:[],left:[],right:[]};
+   ['down','up','left','right'].forEach((d,row)=>{for(let f=0;f<3;f++){const[c,g]=mk(HD_CW,HD_CH);g.drawImage(im,f*HD_CW,row*HD_CH,HD_CW,HD_CH,0,0,HD_CW,HD_CH);c.hd=true;out[d].push(c)}});
+   hdSprites[key]=out;if(typeof npcs!=='undefined')for(const n of npcs)if(n.look&&n.look.hd===key)n.spr=out};im.src=src}
+ for(const[id,src]of Object.entries(HD_ITEMS)){const im=new Image();im.onload=()=>{const[c,g]=mk(im.width,im.height);g.drawImage(im,0,0);c.hd=true;hdItems[id]=c;delete itemCache[id]};im.src=src}}
+// draw any icon/sprite into a box, smoothing only HD art (the procedural art stays crisp)
+function art(g,src,x,y,w,h){g.imageSmoothingEnabled=!!src.hd;if(src.hd)g.imageSmoothingQuality='high';g.drawImage(src,x,y,w,h);g.imageSmoothingEnabled=false}
+function itemArt(id){return hdItems[id]||itemIcon(id)}
 function loadCustomSprites(){for(const[id,src]of Object.entries(SPRITE_FILES)){const im=new Image();im.onload=()=>{const out={down:[],left:[],right:[],up:[]};['down','left','right','up'].forEach((d,row)=>{for(let f=0;f<3;f++){const[c,g]=mk(16,24);g.drawImage(im,f*16,row*24,16,24,0,0,16,24);out[d].push(c)}});customSprites[id]=out;for(const n of npcs)if(n.id===id)n.spr=out};im.src=src}}
 
 /* ===================== ART: collectibles (32x32) ===================== */
 const itemCache={};
 function itemIcon(id){if(itemCache[id])return itemCache[id];const[c,g]=mk(32,32);
+ if(hdItems[id]){art(g,hdItems[id],0,0,32,32);return itemCache[id]=c}
  switch(id){
  case'mug':px(g,'#f4f1ea',6,9,17,18);px(g,'#ffffff',6,9,17,2);px(g,'#5a3420',7,10,15,2);px(g,'#d9d4c8',19,11,4,16);px(g,'#d9d4c8',7,26,15,1);px(g,'#f4f1ea',23,13,5,2);px(g,'#f4f1ea',26,13,2,10);px(g,'#f4f1ea',23,21,5,2);px(g,'#cf3a2a',6,16,17,2);for(let i=0;i<3;i++){px(g,'#ffffff',10+i*4,4-(i%2),1,3);px(g,'#ffffff',11+i*4,2+(i%2),1,2)}break;
  case'trifle':px(g,'#cfe6ef',6,8,20,18);px(g,'#fffaf0',7,8,18,3);px(g,'#7a4a2a',7,11,18,4);for(const x of[9,14,20])px(g,'#5cb85c',x,12,2,2);px(g,'#e8c98a',7,15,18,3);px(g,'#c0392b',7,18,18,3);px(g,'#f3e3b0',7,21,18,4);px(g,'#e04a5a',12,6,3,3);px(g,'#e04a5a',18,6,3,3);px(g,'#cfe6ef',12,26,8,2);px(g,'#cfe6ef',9,28,14,2);px(g,'#ffffff',7,9,1,15);break;
@@ -342,7 +365,7 @@ function itemIcon(id){if(itemCache[id])return itemCache[id];const[c,g]=mk(32,32)
  case'hugsy':ell(g,'#24222a',16,17,9,11);ell(g,'#f4f1ea',16,19,6,8);px(g,'#f4f1ea',12,9,3,3);px(g,'#f4f1ea',17,9,3,3);px(g,'#24222a',13,10,1,1);px(g,'#24222a',18,10,1,1);px(g,'#f0a030',14,12,4,2);px(g,'#f0a030',10,27,5,2);px(g,'#f0a030',17,27,5,2);px(g,'#24222a',5,15,3,8);px(g,'#24222a',24,15,3,8);break;
  case'frame':px(g,'#e2b82a',5,5,22,22);px(g,'#f2d45a',5,5,22,2);for(const[x,y]of[[3,3],[25,3],[3,25],[25,25],[14,2],[14,27],[2,14],[27,14]])px(g,'#e2b82a',x,y,4,3);px(g,'#c89a1a',8,8,16,16);px(g,'#5b3a8c',11,11,10,10);px(g,'#24222a',14,14,4,4);break;
  case'cup':px(g,'#9a6a38',2,22,28,7);px(g,'#b8844a',2,22,28,2);px(g,'#7a4a28',2,28,28,1);px(g,'#8a8a92',15,21,2,2);px(g,'#e8b88a',12,13,8,9);px(g,'#3e8f45',12,16,8,6);px(g,'#e8b88a',10,16,2,4);px(g,'#e8b88a',20,16,2,4);ell(g,'#e8b88a',16,10,4,3);px(g,'#1a1a2a',14,9,1,1);px(g,'#1a1a2a',17,9,1,1);for(let i=0;i<7;i++)px(g,'#ff6fb0',12+i,1+(i%3),1,7);ell(g,'#ff6fb0',16,4,4,3);break;
- case'pants':px(g,'#6b3a1e',9,4,14,6);px(g,'#6b3a1e',9,10,6,19);px(g,'#6b3a1e',17,10,6,19);px(g,'#8a5230',10,5,3,22);px(g,'#8a5230',18,11,2,16);px(g,'#3a1e0e',9,4,14,1);px(g,'#c9a24a',15,5,2,2);break;
+ case'pants':px(g,'#1d1b22',9,4,14,6);px(g,'#1d1b22',9,10,6,19);px(g,'#1d1b22',17,10,6,19);px(g,'#5a5866',10,5,2,22);px(g,'#5a5866',18,11,2,16);px(g,'#9a98a8',10,8,1,6);px(g,'#0c0b10',9,4,14,1);px(g,'#8a8a96',15,5,2,2);break;
  case'armadillo':ell(g,'#8a8a8a',15,18,11,8);for(let x=8;x<24;x+=4)px(g,'#6a6a6a',x,11,1,14);ell(g,'#a8a8a8',27,20,3,3);px(g,'#24222a',28,19,1,1);px(g,'#a8a8a8',4,16,3,10);px(g,'#7a7a7a',8,25,4,4);px(g,'#7a7a7a',19,25,4,4);break;
  case'headshot':px(g,'#f4f1ea',5,3,22,26);px(g,'#cfd6dc',7,5,18,18);ell(g,'#8a6a5a',16,12,5,5);px(g,'#4a3426',11,6,10,4);px(g,'#3a4a6a',9,18,14,5);px(g,'#24222a',9,25,14,1);px(g,'#24222a',11,27,10,1);break;
  case'bone':ell(g,'#e8dcc0',8,9,4,4);ell(g,'#e8dcc0',11,7,3,3);ell(g,'#e8dcc0',24,23,4,4);ell(g,'#e8dcc0',21,25,3,3);for(let i=0;i<14;i++)px(g,'#e8dcc0',9+i,9+i,4,4);for(let i=0;i<14;i++)px(g,'#c9bc9e',10+i,12+i,2,1);break;
@@ -368,7 +391,7 @@ function itemIcon(id){if(itemCache[id])return itemCache[id];const[c,g]=mk(32,32)
  case'key':px(g,'#e2b82a',4,10,12,12);px(g,'#f2d45a',4,10,12,2);px(g,'#5b3a8c',8,14,4,4);px(g,'#e2b82a',16,14,13,4);px(g,'#e2b82a',22,18,3,5);px(g,'#e2b82a',27,18,2,4);px(g,'#c89a1a',16,17,13,1);break;
  }
  outline(c);return itemCache[id]=c}
-function silhouette(src){const[c,g]=mk(32,32);g.drawImage(src,0,0);g.globalCompositeOperation='source-atop';px(g,'#3d3352',0,0,32,32);return c}
+function silhouette(src){const[c,g]=mk(src.width,src.height);g.drawImage(src,0,0);g.globalCompositeOperation='source-atop';px(g,'#3d3352',0,0,src.width,src.height);c.hd=src.hd;return c}
 
 /* ===================== Picture questions (128x80 scenes, shown at 2x) ===================== */
 const picCache={};
@@ -461,6 +484,7 @@ function loadZone(id,x,y,dir,nosave){Zn=ZONES[id];const eggNpcs=spawnEggs(nosave
  for(const o of Zn.objs)if(o.kind==='subway')for(const[tx,ty]of fp(o))if(!Zn.acts.some(a=>a.x===tx&&a.y===ty))Zn.acts.push({x:tx,y:ty,type:'subway'});
  npcs=Zn.npcs.map(n=>Object.assign({},n,{px:n.x*16,py:n.y*16,home:{x:n.x,y:n.y,dir:n.dir},moving:false,t:0,wait:.5+R()*3,spr:charSprites(n.look,n.id)}));
  for(const e of eggNpcs)if(!npcs.some(n=>n.x===e.x&&n.y===e.y))npcs.push(Object.assign(e,{px:e.x*16,py:e.y*16,home:{x:e.x,y:e.y,dir:e.dir},moving:false,t:0,wait:1+R()*3,spr:charSprites(e.look)}));
+ for(const e of EGGS)if(e.swap&&eggsHere.includes(e.id)){const n=npcs.find(q=>q.id===e.swap.npc);if(n){n.look=Object.assign({},n.look,e.look);n.spr=charSprites(n.look);n.egg=e.id}}
  if(S&&S.items)addFinaleCast();setTune(Zn.tune||'city');
  taxis=[];let k=0;for(const tr of Zn.taxiRows)for(let i=0;i<tr.n;i++){const taxi=(k++%3)!==2;taxis.push({row:tr.row,dir:tr.dir,x:(i+.3+R()*.4)*Zn.w*16/tr.n,sp:44+R()*16,honk:0,taxi,col:taxi?'#f2c230':['#3b6fb6','#8f2f2f','#6a8f4a'][k%3]})}
  player.x=player.fx=x;player.y=player.fy=y;player.px=x*16;player.py=y*16;player.dir=dir;player.moving=false;player.sit=null;clickPath=null;clickMark=null;
@@ -566,9 +590,10 @@ const TALK={
  duck(n){say([{who:'Duck',text:"Quack."},{text:"(The duck looks at you like it knows something you don't.)"}])},
  chick(n){say([{who:'Chick',text:"Peep!"},{text:"(The chick runs a lap around your feet, then sits on your shoe.)"}])},
  cast(n){const sc=n.script,won=sc.reward&&S.items[sc.reward],who=sc.narrate?null:n.name;
+  const eg=n.egg&&EGGS.find(q=>q.id===n.egg);if(eg)eggFound(eg.id);const pre=eg?eg.lines.map(l=>({who:l.who,text:l.text})):[];
   const go=rew=>startTrivia({who:n,tags:sc.tags,prefer:sc.prefer,n:sc.n||5,need:sc.need||4,reward:rew,win:sc.win,lose:sc.lose});
-  if(!won){const L=sc.greet.map(t=>({who,text:t}));L.push({who,text:sc.offer,choices:[{label:sc.yes||"Let's do it",fn:()=>go(sc.reward)},{label:sc.no||'Not right now',fn:()=>say([{who,text:sc.noReply||'Okay, maybe later!'}])}]});say(L)}
-  else say([{who,text:sc.again||(sc.narrate?"Try the challenge again, just for fun?":"Want to go again? Just for fun."),choices:[{label:'Sure',fn:()=>go(null)},{label:'Later',fn:()=>{}}]}])},
+  if(!won){const L=pre.length?pre:sc.greet.map(t=>({who,text:t}));L.push({who,text:sc.offer,choices:[{label:sc.yes||"Let's do it",fn:()=>go(sc.reward)},{label:sc.no||'Not right now',fn:()=>say([{who,text:sc.noReply||'Okay, maybe later!'}])}]});say(L)}
+  else say([...pre,{who,text:sc.again||(sc.narrate?"Try the challenge again, just for fun?":"Want to go again? Just for fun."),choices:[{label:'Sure',fn:()=>go(null)},{label:'Later',fn:()=>{}}]}])},
  egg(n){eggTalk(n.egg)},
  townie(n){const lines=n.lines.map(t=>({text:t}));
   if(n.quiz&&!n.asked){lines.push({text:"Hey, quick question, settle a bet for me?",choices:[{label:'Sure',fn:()=>{n.asked=true;startTrivia({who:n,tags:'easy',n:1,need:1,quick:true,win:"Ha! Knew it. Thanks!",lose:"Huh. Guess we both learned something."})}},{label:'No time',fn:()=>{}}]})}
@@ -636,7 +661,7 @@ function startTrivia(o){const tags=o.tags==='all'?null:o.tags.split(' ');
  $('#triv').classList.remove('hidden');$('#triv').classList.toggle('quick',!!o.quick);$('#tvRes').classList.add('hidden');$('#tvBody').classList.remove('hidden');
  $('#tvName').textContent=o.who.name||(o.quick?'Quick Question':'Trivia');
  const pc=$('#tvPortrait'),g=pc.getContext('2d');g.imageSmoothingEnabled=false;g.clearRect(0,0,pc.width,pc.height);
- if(o.who.icon){g.drawImage(itemIcon(o.who.icon),0,0,48,48)}else if(o.who.couchIcon){const s=makeObj({kind:'couch',w:3,x:0,y:0});g.drawImage(s.c,0,4,48,30*48/48*.95)}else if(o.who.spr)g.drawImage(o.who.spr.down[0],8,0,32,48);
+ if(o.who.icon){g.drawImage(itemIcon(o.who.icon),0,0,48,48)}else if(o.who.couchIcon){const s=makeObj({kind:'couch',w:3,x:0,y:0});g.drawImage(s.c,0,4,48,30*48/48*.95)}else if(o.who.spr){const im=o.who.spr.down[0];if(im.hd)art(g,im,8,0,32,48);else g.drawImage(im,8,0,32,48)}
  renderQ()}
 function renderQ(){const q=TV.qs[TV.k];TV.answered=false;TV.opts=shuffle(q.a.slice());
  $('#tvProg').innerHTML=TV.qs.map((_,i)=>`<i class="${i<TV.k?(TV.res[i]?'ok':'no'):i===TV.k?'cur':''}"></i>`).join('');
@@ -657,7 +682,7 @@ function endTrivia(){const won=TV.score>=TV.need;$('#tvBody').classList.add('hid
  h+=`<p>${esc(fill(won?(TV.win||'Nice work!'):(TV.lose||'Better luck next time!')))}</p>`;
  if(won&&TV.reward&&!S.items[TV.reward]){S.items[TV.reward]=Date.now();const it=ITEM(TV.reward);h+=`<div class="award"><canvas id="awardCv" width="64" height="64"></canvas><div><small>NEW COLLECTIBLE</small><b>${esc(it.name)}</b><span>${esc(it.desc)}</span><small>Added to your shelf. Press C to view it.</small></div></div>`;setTimeout(SFX.item,150)}
  h+=`<button id="tvDone">Continue ▶</button>`;r.innerHTML=h;
- const ac=$('#awardCv');if(ac){const g=ac.getContext('2d');g.imageSmoothingEnabled=false;g.drawImage(itemIcon(TV.reward),0,0,64,64)}
+ const ac=$('#awardCv');if(ac){const g=ac.getContext('2d');art(g,itemArt(TV.reward),0,0,64,64)}
  $('#tvDone').onclick=closeTrivia;TV.finished=true;updHud();save()}
 function closeTrivia(){$('#triv').classList.add('hidden');state='world';const a=TV&&TV.after;TV=null;if(a)a();else{const n=itemCount();if(finaleReady()&&!S.items.key&&!S.talked.finaleHint){S.talked.finaleHint=1;save();say(["You've found everything! Your phone buzzes: a text from Monica.","'Central Perk. The orange couch. Everybody's waiting. Don't be late!'"]);addFinaleCast()}else if(n>=10&&!S.talked.airportHint){S.talked.airportHint=1;save();say(["10 collectibles! The AirTrain to JFK Airport is now open on the subway map. Flights to London, Las Vegas, Barbados and Montauk await."])}else if(n===8&&!S.talked.subwayHint){S.talked.subwayHint=1;save();say(["The Village is all yours! Take the subway at Bleecker St to explore the rest of the city."])}}}
 
@@ -673,17 +698,20 @@ function travel(text,to,x,y,dir){state='fade';const t=$('#travel');$('#travelTex
  setTimeout(()=>{loadZone(to,x,y,dir);},700);setTimeout(()=>{t.classList.remove('on');state='world';const intro=INTROS[to];if(intro&&!S.talked[to+'Intro']){S.talked[to+'Intro']=1;save();say(intro)}},1600)}
 
 /* ===================== Easter eggs ===================== */
-let forceEggs=false;
+let forceEggs=false,eggsHere=[];
 function spawnEggs(nosave){Zn.objs=Zn.objs.filter(o=>!o.egg);Zn.acts=Zn.acts.filter(a=>!a.egg);const out=[];if(nosave&&!forceEggs)return out;
- for(const e of EGGS){if(e.zone!==Zn.id||!(forceEggs||R()<EGG_CHANCE))continue;
+ eggsHere=[];
+ for(const e of EGGS){if(e.zone!==Zn.id||!(forceEggs||R()<EGG_CHANCE))continue;eggsHere.push(e.id);
   for(const o of e.objs||[]){const ob=Object.assign({egg:e.id},o);ob.spr=makeObj(ob);Zn.objs.push(ob)}
   for(const[x,y]of e.acts||[])Zn.acts.push({x,y,type:'egg',egg:e.id});
-  for(const n of e.npcs){const[x,y]=n.spots[(R()*n.spots.length)|0];out.push({id:'egg_'+e.id+'_'+n.name,name:n.name,cast:!n.animal,x,y,dir:n.dir||'down',look:n.look,egg:e.id,talk:'egg',
+  for(const n of e.npcs||[]){const[x,y]=n.spots[(R()*n.spots.length)|0];out.push({id:'egg_'+e.id+'_'+n.name,name:n.name,cast:!n.animal,x,y,dir:n.dir||'down',look:n.look,egg:e.id,talk:'egg',
    wander:n.wander?[Math.max(0,x-4),Math.max(0,y-3),9,7]:null,walkOn:n.animal?['grass','path']:['walk','path','grass']})}}
  return out}
 function eggFound(id){if(!S.eggs)S.eggs={};if(S.eggs[id])return;S.eggs[id]=Date.now();save();const n=Object.keys(S.eggs).length;toast(`🥚 Secret sighting! (${n}/${EGGS.length})`);[784,988,1175].forEach((f,i)=>beep(f,.1,'triangle',.05,i*.08))}
 function eggTalk(id){const e=EGGS.find(q=>q.id===id);eggFound(id);say(e.lines.map(l=>Object.assign({},l)))}
-function eggIcon(e){const[c,g]=mk(32,32);g.imageSmoothingEnabled=false;if(e.id==='porsche'){const s=makeObj({kind:'carcover',x:0,y:0}).c;g.drawImage(s,0,6,32,s.height*32/s.width)}else{const L=e.npcs[0].look;g.drawImage(charSprites(L).down[0],4,2,24,36)}return c}
+function eggIcon(e){const L=e.look||(e.npcs&&e.npcs[0].look),sp=L&&charSprites(L);
+ if(sp&&sp.hd){const[c,g]=mk(128,128);art(g,sp.down[0],128/2-42,2,84,126);c.hd=true;return c}
+ const[c,g]=mk(32,32);g.imageSmoothingEnabled=false;if(e.id==='porsche'){const s=makeObj({kind:'carcover',x:0,y:0}).c;g.drawImage(s,0,6,32,s.height*32/s.width)}else{g.drawImage(sp.down[0],4,2,24,36)}return c}
 
 /* ===================== Finale ===================== */
 function finaleReady(){return ITEMS.every(i=>i.id==='key'||i.bonus||S.items[i.id])}
@@ -698,7 +726,7 @@ function showCredits(){state='menu';const c=$('#credits');c.classList.remove('hi
 
 /* ===================== Wearables ===================== */
 const WEAR={turkey:{slot:'head',hat:'turkey'},hat:{slot:'head',hat:'unionjack'},veil:{slot:'head',hat:'veil'},wig:{slot:'head',hat:'wig'},
- armadillo:{slot:'body',costume:'armadillo'},pants:{slot:'body',pants:'#6b3a1e',outfit:'pants'},
+ armadillo:{slot:'body',costume:'armadillo'},pants:{slot:'body',pants:'#1d1b22',outfit:'pants',leather:true},
  umbrella:{slot:'hand',held:'umbrella'},hugsy:{slot:'hand',held:'hugsy'},bag:{slot:'hand',held:'bag'},purse:{slot:'hand',held:'purse'},paddle:{slot:'hand',held:'paddle'},mug:{slot:'hand',held:'mug'},puck:{slot:'hand',held:'puck'}};
 function playerLook(){const L=Object.assign({},S.look);for(const id of Object.values(S.equip||{})){const w=WEAR[id];if(!w||!S.items[id])continue;const{slot,...rest}=w;Object.assign(L,rest)}return L}
 function refreshPlayer(){player.spr=charSprites(playerLook())}
@@ -721,10 +749,10 @@ function closeBoard(){$('#board').classList.add('hidden');if(state==='menu')stat
 /* ===================== Collection & help ===================== */
 function openColl(){state='menu';$('#coll').classList.remove('hidden');const got=ITEMS.filter(i=>S.items[i.id]).length;
  $('#collCount').textContent=`${got} / ${ITEMS.length}`;drawDoll();
- const card=it=>{const has=S.items[it.id],w=WEAR[it.id],on=w&&S.equip&&S.equip[w.slot]===it.id;return`<div class="card ${has?'got':''} ${it.bonus?'bonus':''}"><canvas data-id="${it.id}" width="64" height="64"></canvas><b>${has?esc(it.name):'???'}</b><small>${has?esc(it.desc):esc(it.hint)}</small><em>${esc(it.from)}</em>${has&&w?`<button class="wear ${on?'on':''}" data-wear="${it.id}">${on?'✓ Wearing · take off':(w.slot==='hand'?'Carry it':'Wear it')}</button>`:''}</div>`};
- $('#collGrid').innerHTML='<h3>The Story</h3>'+ITEMS.filter(i=>!i.bonus).map(card).join('')+'<h3>Superfan Extras <small>(optional, very hard)</small></h3>'+ITEMS.filter(i=>i.bonus).map(card).join('')+`<h3>Secret Sightings <small>(${Object.keys(S.eggs||{}).length} of ${EGGS.length} spotted, keep exploring!)</small></h3>`+EGGS.map(e=>{const f=S.eggs&&S.eggs[e.id];return`<div class="card egg ${f?'got':''}"><canvas data-egg="${e.id}" width="64" height="64"></canvas><b>${f?esc(e.title):'???'}</b><small>${esc(e.hint)}</small></div>`}).join('');
+ const card=it=>{const has=S.items[it.id],w=WEAR[it.id],on=w&&S.equip&&S.equip[w.slot]===it.id;return`<div class="card ${has?'got':''} ${it.bonus?'bonus':''}"><canvas data-id="${it.id}" width="128" height="128"></canvas><b>${has?esc(it.name):'???'}</b><small>${has?esc(it.desc):esc(it.hint)}</small><em>${esc(it.from)}</em>${has&&w?`<button class="wear ${on?'on':''}" data-wear="${it.id}">${on?'✓ Wearing · take off':(w.slot==='hand'?'Carry it':'Wear it')}</button>`:''}</div>`};
+ $('#collGrid').innerHTML='<h3>The Story</h3>'+ITEMS.filter(i=>!i.bonus).map(card).join('')+'<h3>Superfan Extras <small>(optional, very hard)</small></h3>'+ITEMS.filter(i=>i.bonus).map(card).join('')+`<h3>Secret Sightings <small>(${Object.keys(S.eggs||{}).length} of ${EGGS.length} spotted, keep exploring!)</small></h3>`+EGGS.map(e=>{const f=S.eggs&&S.eggs[e.id];return`<div class="card egg ${f?'got':''}"><canvas data-egg="${e.id}" width="128" height="128"></canvas><b>${f?esc(e.title):'???'}</b><small>${esc(e.hint)}</small></div>`}).join('');
  $('#collGrid').querySelectorAll('button[data-wear]').forEach(b=>b.onclick=e=>{e.stopPropagation();toggleWear(b.dataset.wear)});
- $('#collGrid').querySelectorAll('canvas').forEach(c=>{const g=c.getContext('2d');g.imageSmoothingEnabled=false;if(c.dataset.egg){const e=EGGS.find(q=>q.id===c.dataset.egg),ic=eggIcon(e);g.drawImage(S.eggs&&S.eggs[e.id]?ic:silhouette(ic),0,0,64,64);return}const ic=itemIcon(c.dataset.id);g.drawImage(S.items[c.dataset.id]?ic:silhouette(ic),0,0,64,64)})}
+ $('#collGrid').querySelectorAll('canvas').forEach(c=>{const g=c.getContext('2d');if(c.dataset.egg){const e=EGGS.find(q=>q.id===c.dataset.egg),ic=eggIcon(e);art(g,S.eggs&&S.eggs[e.id]?ic:silhouette(ic),0,0,c.width,c.height);return}const ic=itemArt(c.dataset.id);art(g,S.items[c.dataset.id]?ic:silhouette(ic),0,0,c.width,c.height)})}
 function closePanels(){if(!$('#subway').classList.contains('hidden')){subwayArmed=false;subwayTile=[player.x,player.y]}for(const id of['#coll','#help','#subway','#credits','#board'])$(id).classList.add('hidden');state='world'}
 function openHelp(){state='menu';$('#help').classList.remove('hidden')}
 
@@ -737,7 +765,7 @@ let cam={x:0,y:0};
 function draw(){ctx.setTransform(1,0,0,1,0,0);ctx.fillStyle=Zn.bg;ctx.fillRect(0,0,cv.width,cv.height);
  const vw=VW*16,vh=VH*16;let cx=player.px+8-vw/2,cy=player.py+8-vh/2;
  cx=Zn.w*16<=vw?(Zn.w*16-vw)/2:clamp(cx,0,Zn.w*16-vw);cy=Zn.h*16<=vh?(Zn.h*16-vh)/2:clamp(cy,0,Zn.h*16-vh);cx=Math.round(cx);cy=Math.round(cy);cam={x:cx,y:cy};
- ctx.setTransform(SC,0,0,SC,-cx*SC,-cy*SC);ctx.imageSmoothingEnabled=false;
+ ctx.setTransform(SC*RS,0,0,SC*RS,-cx*SC*RS,-cy*SC*RS);ctx.imageSmoothingEnabled=false;
  const x0=Math.max(0,Math.floor(cx/16)),x1=Math.min(Zn.w-1,Math.floor((cx+vw)/16)),y0=Math.max(0,Math.floor(cy/16)),y1=Math.min(Zn.h-1,Math.floor((cy+vh)/16));
  for(let y=y0;y<=y1;y++)for(let x=x0;x<=x1;x++){const t=Zn.g[y*Zn.w+x];ctx.drawImage(tile(t,x,y),x*16,y*16);if(t==='walk')curb(x,y)}
  if(clickMark){clickMark.t+=.05;const a=.5+.4*Math.sin(clickMark.t*4),mx=clickMark.x*16+8,my=clickMark.y*16+12;ctx.fillStyle=`rgba(255,216,74,${a})`;ctx.beginPath();ctx.moveTo(mx,my-4);ctx.lineTo(mx+6,my);ctx.lineTo(mx,my+4);ctx.lineTo(mx-6,my);ctx.closePath();ctx.fill()}
@@ -751,16 +779,16 @@ function draw(){ctx.setTransform(1,0,0,1,0,0);ctx.fillStyle=Zn.bg;ctx.fillRect(0
  L.push({y:player.py+16+.6,d:()=>drawChar2(null,player.spr,player.dir,player.moving?(player.t<.55?1+player.step:0):0,player.px,player.py,player.sit)});
  L.sort((a,b)=>a.y-b.y);for(const e of L)e.d();
  // screen-space text
- const k2=SC/2;ctx.setTransform(k2,0,0,k2,0,0);
+ const k2=SC/2;ctx.setTransform(k2*RS,0,0,k2*RS,0,0);
  const W2=(wx,wy)=>[(wx-cx)*2,(wy-cy)*2];
  ctx.textAlign='center';ctx.textBaseline='middle';
- for(const o of Zn.objs){if(o.kind==='building'&&o.sign){const[sx,sy]=W2((o.x+(o.shopW||o.w)/2)*16,(o.y+o.h)*16-32+6.5);if(sx<-200||sx>cv.width/k2+200)continue;ctx.font='bold 11px ui-monospace,Menlo,Consolas,monospace';ctx.fillStyle=o.signFg||'#f4e9c8';ctx.fillText(o.sign,sx,sy,((o.shopW||o.w)*16-6)*2)}
+ for(const o of Zn.objs){if(o.kind==='building'&&o.sign){const[sx,sy]=W2((o.x+(o.shopW||o.w)/2)*16,(o.y+o.h)*16-32+6.5);if(sx<-200||sx>640/k2+200)continue;ctx.font='bold 11px ui-monospace,Menlo,Consolas,monospace';ctx.fillStyle=o.signFg||'#f4e9c8';ctx.fillText(o.sign,sx,sy,((o.shopW||o.w)*16-6)*2)}
   else if(o.kind==='wallsign'){const[sx,sy]=W2((o.x+o.w/2)*16,13);ctx.font='italic bold 22px Georgia,serif';ctx.fillStyle='#f3e1b0';ctx.fillText(o.text,sx,sy)}
   else if(o.kind==='sign'){const[sx,sy]=W2(o.x*16+8,o.y*16-22);ctx.font='bold 9px ui-monospace,Menlo,monospace';const w=ctx.measureText(o.text).width+8;ctx.fillStyle='#2f7a4a';ctx.fillRect(sx-w/2,sy-7,w,14);ctx.strokeStyle='#fff';ctx.lineWidth=1;ctx.strokeRect(sx-w/2+1.5,sy-5.5,w-3,11);ctx.fillStyle='#fff';ctx.fillText(o.text,sx,sy+.5)}
   else if(o.kind==='gatedesk'){const[sx,sy]=W2(o.x*16+16,o.y*16-10);ctx.font='bold 9px ui-monospace,Menlo,monospace';const w=ctx.measureText(o.text).width+10;ctx.fillStyle='#1a2a4a';ctx.fillRect(sx-w/2,sy-7,w,14);ctx.fillStyle='#ffd84a';ctx.fillText(o.text,sx,sy+.5)}
   else if(o.kind==='subway'){const[sx,sy]=W2(o.x*16+16,o.y*16-6);ctx.font='bold 9px ui-monospace,Menlo,monospace';const w=ctx.measureText(o.text).width+10;ctx.fillStyle='#1c1c22';ctx.fillRect(sx-w/2,sy-7,w,14);ctx.fillStyle='#fff';ctx.fillText(o.text,sx,sy+.5)}}
- ctx.setTransform(1,0,0,1,0,0);const W3=(wx,wy)=>[(wx-cx)*SC,(wy-cy)*SC];
- for(const n of npcs){if(!n.cast)continue;let[sx,sy]=W3(n.px+8,n.py-(n.sit||n.seated?4:0)-12);sy=Math.max(sy,26);ctx.font='bold 10px ui-monospace,Menlo,monospace';const w=ctx.measureText(n.name).width+10;
+ ctx.setTransform(RS,0,0,RS,0,0);const W3=(wx,wy)=>[(wx-cx)*SC,(wy-cy)*SC];
+ for(const n of npcs){if(!n.cast)continue;let[sx,sy]=W3(n.px+8,n.py-(n.sit||n.seated?4:0)-12-(n.spr&&n.spr.hd?24*(HD_DRAW-1)+2:0));sy=Math.max(sy,26);ctx.font='bold 10px ui-monospace,Menlo,monospace';const w=ctx.measureText(n.name).width+10;
   ctx.fillStyle='rgba(28,20,40,.82)';rr(sx-w/2,sy-8,w,15,6);ctx.fill();ctx.fillStyle='#fff3c4';ctx.fillText(n.name,sx,sy);
   if(n.reward&&!S.items[n.reward]){const b=Math.sin(clock*4)*2;ctx.fillStyle='#ffd84a';rr(sx+w/2-2,sy-20+b,14,14,7);ctx.fill();ctx.fillStyle='#3a2a10';ctx.font='bold 11px ui-monospace,monospace';ctx.fillText('?',sx+w/2+5,sy-13+b)}}
  for(const n of npcs){if(n.cast||!n.quiz||n.asked)continue;const[sx,sy]=W3(n.px+8,n.py-16);const b=Math.sin(clock*4+n.x)*2;ctx.fillStyle='#ffffff';rr(sx-6,sy-7+b,12,12,6);ctx.fill();ctx.fillStyle='#5b3a8c';ctx.font='bold 10px ui-monospace,monospace';ctx.fillText('?',sx,sy-1+b)}
@@ -773,7 +801,8 @@ function curb(x,y){const R2=(xx,yy)=>xx>=0&&yy>=0&&xx<Zn.w&&yy<Zn.h&&ROADT.has(g
 function drawChar2(n,spr,dir,f,x,y,sitting){x=Math.round(x);y=Math.round(y);
  if(!sitting){ctx.fillStyle='rgba(0,0,0,.22)';ctx.beginPath();ctx.ellipse(x+8,y+15,5,2,0,0,7);ctx.fill()}
  const dy=sitting?-4:0;const img=spr[dir][f]||spr[dir][0];
- if(sitting){ctx.drawImage(img,0,0,16,19,x,y-8+dy,16,19)}else ctx.drawImage(img,x,y-8);
+ if(spr.hd){ctx.imageSmoothingEnabled=true;ctx.imageSmoothingQuality='high';const w=16*HD_DRAW,h=24*HD_DRAW,lx=x+8-w/2;if(sitting)ctx.drawImage(img,0,0,HD_CW,HD_CH*19/24,lx,y+11+dy-h*19/24,w,h*19/24);else ctx.drawImage(img,lx,y+16-h,w,h);ctx.imageSmoothingEnabled=false}
+ else if(sitting){ctx.drawImage(img,0,0,16,19,x,y-8+dy,16,19)}else ctx.drawImage(img,x,y-8);
  if(n&&n.guitar&&!sitting){const gx=x+(n.dir==='left'?1:n.dir==='right'?5:3),gy=y+4;px(ctx,'#a0602a',gx,gy+2,7,5);px(ctx,'#c07a3a',gx,gy+2,7,1);px(ctx,'#3a2414',gx+3,gy+3,2,2);px(ctx,'#6a4428',gx+6,gy-1,6,1)}
  if(n&&n.guitar&&sitting){const gx=x+3,gy=y+2;px(ctx,'#a0602a',gx,gy,7,5);px(ctx,'#3a2414',gx+3,gy+1,2,2);px(ctx,'#6a4428',gx+6,gy-3,6,1)}}
 
@@ -849,7 +878,7 @@ function loop(now){const dt=Math.min(.05,(now-last)/1000);last=now;clock+=dt;
  if(Zn&&state!=='title'){updPlayer(dt);updNpcs(dt);updTaxis(dt);updDialog(dt);saveT+=dt;if(saveT>5){saveT=0;save()}draw()}
  syncTouch();requestAnimationFrame(loop)}
 try{const z=+localStorage.getItem('friendsTrivia_zoom');if([1,2,3].includes(z))setZoom(z,true);else setZoom(2,true)}catch(e){setZoom(2,true)}
-fit();setupTitle();setupTouch();loadCustomSprites();
+fit();setupTitle();setupTouch();loadCustomSprites();loadHD();
 // title-screen backdrop: render the village behind the menu
 player.spr=charSprites(lookFromPick());loadZone('village',15,10,'up',true);state='title';
 (function titleBg(){if(state!=='title')return;clock+=.016;updNpcs(.016);updTaxis(.016);drawTitleBg();requestAnimationFrame(titleBg)})();

@@ -4,6 +4,23 @@ A private, Pokémon-style pixel-art trivia adventure set in Friends' Greenwich V
 
 **Play:** open `index.html` in a browser, or turn on GitHub Pages for this repo (Settings → Pages → deploy from `main`, root folder).
 
+## v1.0: "The One With the Leather Pants"
+
+- **HD character art:** the game now renders at 3× resolution, and characters can use hand-made HD sprite sheets (16-bit chibi style) in place of the generated pixel people. The first three from the new art bundle are in:
+  - **Joey in Everything Chandler Owns** (secret sighting in the Village) now uses his HD sprite.
+  - **New secret sighting: Ross After the Leather Pants.** Sometimes when you visit Ross's apartment, he's in a long coat, no pants, legs covered in baby powder. He still runs his quiz for the leather pants, and spotting him counts as a sighting (9 in all).
+  - **Ross's Leather Pants** have new HD item art on the shelf, and wearing them now gives your character shiny black leather pants.
+- HD characters draw 20% larger than the old 16×24 people, anchored at their feet.
+- Anyone without an HD sheet yet keeps the old look, so the game works the whole time art is being swapped in.
+
+### Adding more HD sprites
+1. Unzip the art bundle somewhere (the folder with `manifest.csv`).
+2. Run `python3 tools/prep_sprites.py <bundle folder>`. It removes the white background (and any grid lines or captions), lines up the 12 frames, fixes side rows that both face the same way, and writes clean sheets to `sprites/hd/` (and items to `sprites/items/`). It lists any manifest entries whose PNG is missing.
+3. Add the sheet to `HD_SPRITES` (or an item to `HD_ITEMS`) at the top of `src/game.js`, then give the character `hd:'<key>'` in its `look` in `src/maps.js`.
+4. `python3 build.py`, then commit `src/`, `index.html` and `sprites/`.
+
+HD sheets: 3 columns (frames) × 4 rows (Down, Up, Left, Right), 128×192 per cell, transparent background. They load from files, so they show on GitHub Pages; a single-file copy of `index.html` falls back to the old sprites.
+
 ## v0.9: "The One With the Mouse"
 
 - **Click or tap to move:** click any spot and your character walks there, finding a way around buildings, furniture and people. Click a person, sign, counter, couch or locked door to walk over and interact with it. Click a door to go through it. A yellow marker shows where you're headed, and pressing any arrow key takes back control. This works with taps on phones too.
@@ -108,4 +125,5 @@ Cast members currently use generic placeholder sprites with name tags. To swap i
 ## Ideas for later
 
 - More trips: Atlantic City, Tulsa
-- Hand-drawn sprites for the cast (see above)
+- HD sprites for the rest of the cast (see v1.0 above)
+- Redraw the maps to match the HD character art
