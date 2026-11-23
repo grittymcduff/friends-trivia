@@ -4,6 +4,13 @@ A private, Pokémon-style pixel-art trivia adventure set in Friends' Greenwich V
 
 **Play:** open `index.html` in a browser, or turn on GitHub Pages for this repo (Settings → Pages → deploy from `main`, root folder).
 
+## v1.7: "The One Where Everything Faces the Right Way"
+
+- **The Moondance Diner, from the 3D render:** navy and cream checkered walls, the blue patterned floor, the long navy counter with chrome stripes and red, black, navy and yellow stools, the back counter with the espresso machines, the pastry case, the rotary phone, the menu boards, the gingham clock, and white tables with blue chairs.
+- **Cars drive the right way:** the wagons, minivans, compacts and '90s cabs were drawn facing the opposite way from the sedan, so they drove backwards. They now face where they're going.
+- **Furniture faces the room:** new back and side views. Café chairs face their tables, side armchairs face the couches, Ross's TV sits across from his couch, and Phoebe's pink armchair faces hers. In Joey & Chandler's, the TV sits sideways against the bedroom wall and both recliners face it in profile.
+- **Furniture stands against the walls:** beds, desks, dressers, bookshelves, counters, fridges and mirrors sit against a wall, and pieces beside a side wall sit flush against it instead of overlapping it.
+
 ## v1.6: "The One With All the Rooms"
 
 - **Every interior and trip destination is HD now:** new hand-drawn floors and walls (wood, marble, tile, carpet, plaster over wainscot, brick), plus furniture and props for every room, beach, and London. Couches, counters, rugs, racks, towels, umbrellas and luggage are painted in each piece's own colour.

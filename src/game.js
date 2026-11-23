@@ -83,14 +83,16 @@ const HD_IN={chair:{},table:{},coffee:{},bookshelf:{},coatrack:{},floorlamp:{},s
  stool:{f:'stool_t',t:'#c0262c'},rack:{f:'rack_t',t:'#8e6bbf'},luggage:{f:'luggage_t',t:'#3a5a8a'},umbrella:{f:'umbrella_t',t:'#d9534f'},surfboard:{f:'surfboard_t',t:'#e8b830'},
  rug:{f:'rug_ornate_t',t:'#b4532e',box:true},towel:{f:'towel_t',t:'#e05a7a',box:true,rot:true},
  window:{wall:true,rep:true},bigwindow:{wall:true,rep:true},drapewindow:{wall:true,rep:true},frame:{wall:true},mural:{wall:true},flag:{wall:true},wreath:{wall:true},
- menu:{wall:true,box:true},walldoor:{wall:true,box:true}};
+ menu:{wall:true,box:true},walldoor:{wall:true,box:true},
+ dinercounter:{sl:true,e:.4},backcounter:{sl:true},dinerstool:{f:'dinerstool_t',t:'#2a3a8a'},dinertable4:{},pastrycase:{},phone:{},menuboard:{wall:true},wallclock:{wall:true}};
 const HD_FLOOR={wood:'floor_wood',marble:'floor_marble',sand:'floor_sand',water:'floor_water',carpet:'floor_carpet',carpetR:'floor_carpet_rose',conc:'floor_conc',
  hallf:'floor_hall',tileK:'floor_tileK',tileD:'floor_tileD',bath:'floor_bath',rotunda:'floor_rotunda',stairs:'floor_stairs',
+ wallT:'wall_tile_blue',wainsT:'wall_tile_navy',tileM:'floor_moroccan',
  brick:'wall_brick',wallC:'wall_plaster',wallH:'wall_plaster_peach',wallP:'wall_plaster_lavender',wallG:'wall_plaster_sage',wains:'wall_wains'};
 const CAR_MODELS=['','wagon','van','compact'];
 const hdIn={},hdFloor={},hdInCache={};
 function loadInteriorArt(){
- const files=new Set([...Object.entries(HD_IN).map(([k,v])=>v.f||k),'armchair','armchair_t','rug_geo_t','dinertable','car_wagon_t','car_van_t','car_compact_t','car_taxi90']);
+ const files=new Set([...Object.entries(HD_IN).map(([k,v])=>v.f||k),'armchair','armchair_t','rug_geo_t','dinertable','car_wagon_t','car_van_t','car_compact_t','car_taxi90','couch_back_t','armchair_back_t','tv_back','recliner_back','armchair_side_t','chair_side','recliner_side','entside']);
  for(const f of files){const im=new Image();im.onload=()=>{hdIn[f]=im;for(const k in hdInCache)delete hdInCache[k];carHDCache={}};im.src=IN+f+'.png'}
  for(const[t,f]of Object.entries(HD_FLOOR)){const im=new Image();im.onload=()=>{hdFloor[t]=im};im.src=IN+f+'.png'}}
 // repaint a template: 'mag' swaps the magenta body colour, 'cream' swaps a cream quilt; shading is kept
@@ -100,19 +102,26 @@ function recolor(im,col,mode){const[c,g]=mk(im.width,im.height);g.drawImage(im,0
   else{const sat=mx?(mx-mn)/mx:0;if(sat>.16&&mx>40&&gg===mn){let h=(r===mx?(gg-b)/(mx-mn):4+(r-gg)/(mx-mn))*60;if(h<0)h+=360;hit=h>275&&h<350}f=L/.5}
   if(hit)for(let k=0;k<3;k++)a[i+k]=f<=1?T[k]*f:T[k]+(255-T[k])*Math.min(1,(f-1)*.9)}
  g.putImageData(d,0,0);return c}
-function inSpec(o){if(o.kind==='armchair')return o.face?{f:'armchair',flip:o.face==='left'}:{f:'armchair_t',t:'#8a5a3a'};
+// facing: o.back draws the piece from behind; o.face ('left'|'right') draws a side view facing that way
+function inSpec(o){const fl=o.face==='left';
+ if(o.kind==='armchair'){if(o.back)return{f:'armchair_back_t',t:'#8a5a3a'};if(o.face)return o.color?{f:'armchair_side_t',t:'#8a5a3a',flip:fl}:{f:'armchair',flip:fl};return{f:'armchair_t',t:'#8a5a3a'}}
+ if(o.kind==='couch'&&o.back)return{f:'couch_back_t',t:'#d9782f',sl:true};
+ if(o.kind==='chair'&&o.face)return{f:'chair_side',flip:fl};
+ if(o.kind==='recliner'&&(o.face||o.back))return o.back?{f:'recliner_back'}:{f:'recliner_side',flip:fl};
+ if(o.kind==='tv'&&o.back)return{f:'tv_back'};
+ if(o.kind==='entertain'&&o.face)return{f:'entside',flip:fl};
  if(o.kind==='rug'&&o.geo)return Object.assign({},HD_IN.rug,{f:'rug_geo_t'});
  if(o.kind==='table'&&o.diner)return{f:'dinertable'};
  if(o.kind==='cab'&&o.yellow)return{f:'car_taxi90'};
  const s=HD_IN[o.kind];return s&&Object.assign({f:o.kind},s)}
-function inImg(o,sp){const base=hdIn[sp.f];if(!base)return null;const col=sp.t?(o.color||o.tone||sp.t):(sp.cream&&o.color)||null,dk=!!o.dark;
+function inImg(o,sp){const base=hdIn[sp.f];if(!base)return null;const col=sp.t?(o.color||o.tone||sp.t):(sp.cream&&o.color)||null,dk=!!o.dark&&sp.f==='recliner';
  if(!col&&!dk)return base;const k=sp.f+'|'+col+'|'+dk;if(hdInCache[k])return hdInCache[k];
  let c=col?recolor(base,col,sp.cream?'cream':'mag'):base;
  if(dk){const[d,g]=mk(c.width,c.height);g.filter='brightness(.38) saturate(.5)';g.drawImage(c,0,0);c=d}
  return hdInCache[k]=c}
 function smooth(on){ctx.imageSmoothingEnabled=on;if(on)ctx.imageSmoothingQuality='high'}
 // wide furniture: keep both ends at their natural size and repeat the middle to fill W world px
-function drawSliced(im,x0,by,W){const s=1/8,H=im.height*s,e=Math.round(im.width*.24),ew=e*s,mw=im.width-2*e,tw=mw*s;
+function drawSliced(im,x0,by,W,ef){const s=1/8,H=im.height*s,e=Math.round(im.width*(ef||.24)),ew=e*s,mw=im.width-2*e,tw=mw*s;
  ctx.fillStyle='rgba(0,0,0,.18)';ctx.beginPath();ctx.ellipse(x0+W/2,by-1,W*.47,3,0,0,7);ctx.fill();smooth(true);
  ctx.drawImage(im,0,0,e,im.height,x0,by-H,ew,H);ctx.drawImage(im,im.width-e,0,e,im.height,x0+W-ew,by-H,ew,H);
  for(let x=x0+ew;x<x0+W-ew-.01;){const w=Math.min(tw,x0+W-ew-x);ctx.drawImage(im,e,0,w/s,im.height,x,by-H,w+.05,H);x+=w}smooth(false)}
@@ -187,13 +196,13 @@ function makeTile(t,v){const[c,g]=mk(16,16);const r=mulberry(v*101+t.charCodeAt(
  case'tileD':for(let y=0;y<16;y+=8)for(let x=0;x<16;x+=8)px(g,((x+y)>>3)&1?'#2a2a30':'#ece8e0',x,y,8,8);break;
  case'conc':px(g,'#8a8a8e',0,0,16,16);noise(g,r,['#7e7e84','#96969a'],30);if(v===1)px(g,'#6e6e74',3,9,8,1);break;
  case'bath':return makeTile('tileK',v);case'hallf':px(g,'#968c8c',0,0,16,16);noise(g,r,['#8e8484','#a29898'],24);break;case'carpetR':px(g,'#98786a',0,0,16,16);noise(g,r,['#8c6e60','#a68474'],36);break;
- case'rotunda':return makeTile('marble',v);case'wallG':px(g,'#bec8a8',0,0,16,16);px(g,'#ccd6b8',0,0,16,2);break;
+ case'rotunda':return makeTile('marble',v);case'tileM':return makeTile('tileK',v);case'wallT':case'wainsT':px(g,'#22348a',0,0,16,16);px(g,'#e2e0d4',0,0,8,8);px(g,'#e2e0d4',8,8,8,8);break;case'wallG':px(g,'#bec8a8',0,0,16,16);px(g,'#ccd6b8',0,0,16,2);break;
  case'nroad':px(g,'#1e1626',0,0,16,16);noise(g,r,['#2a1e36','#160f1e'],24);if(v===2)px(g,'#ff6fb0',2,7,4,1);if(v===3)px(g,'#7ad0ff',10,3,3,1);break;
  default:px(g,'#16121e',0,0,16,16);
  }
  return c}
 const ROADT=new Set(['road','laneH','laneV','inter','crossH','crossV']);
-const SOLID_T=new Set(['brick','wains','wallS','front','roofs','void','wallP','wallH','wallC','wallG','frontA','water']);
+const SOLID_T=new Set(['brick','wains','wallS','front','roofs','void','wallP','wallH','wallC','wallG','wallT','wainsT','frontA','water']);
 
 /* ===================== ART: buildings ===================== */
 const BSTY={brick:{wall:'#a24a32',d:'#83381f',trim:'#d8cbb0',roof:'#4a4148'},brown:{wall:'#7b4f3a',d:'#68412f',trim:'#c9b28f',roof:'#3f3638'},
@@ -646,9 +655,9 @@ const player={x:0,y:0,px:0,py:0,fx:0,fy:0,dir:'down',moving:false,t:0,step:0,sit
 const DIRS={up:[0,-1],down:[0,1],left:[-1,0],right:[1,0]},OPP={up:'down',down:'up',left:'right',right:'left'};
 function rectT(x,y,w,h){const a=[];for(let j=y;j<y+h;j++)for(let i=x;i<x+w;i++)a.push([i,j]);return a}
 function fp(o){switch(o.kind){case'building':return rectT(o.x,o.y,o.w,o.h);
- case'couch':case'counter':case'kcounter':case'dtable':return rectT(o.x,o.y,o.w,1);case'tv':case'foosball':case'carcover':case'flat':case'cubicle':case'rack':case'booth':case'hospbed':case'gatedesk':case'pingpong':case'cab':case'clocktower':return rectT(o.x,o.y,2,1);case'bus':case'seats':case'canoe':return rectT(o.x,o.y,3,1);case'dino':return rectT(o.x,o.y,6,2);case'fountain':return rectT(o.x,o.y,3,2);case'car':case'bench':case'coffee':return rectT(o.x,o.y,2,1);case'barricade':return rectT(o.x,o.y,o.w||4,1);
- case'subway':return rectT(o.x,o.y,2,2);case'bed':return rectT(o.x,o.y,2,2);case'dining':return rectT(o.x,o.y,3,2);case'rockmound':return rectT(o.x,o.y,6,2);case'bathtub':case'entertain':case'desk':case'grantaxi':return rectT(o.x,o.y,2,1);
- case'splat':case'mural':case'flag':case'wreath':case'drapewindow':case'rug':case'wallsign':case'menu':case'window':case'frame':case'walldoor':case'bigwindow':case'board':case'towel':case'poster':case'banner':return[];default:return[[o.x,o.y]]}}
+ case'couch':case'counter':case'kcounter':case'dtable':case'dinercounter':case'backcounter':return rectT(o.x,o.y,o.w,1);case'dinertable4':return rectT(o.x,o.y,3,2);case'tv':case'foosball':case'carcover':case'flat':case'cubicle':case'rack':case'booth':case'hospbed':case'gatedesk':case'pingpong':case'cab':case'clocktower':return rectT(o.x,o.y,2,1);case'bus':case'seats':case'canoe':return rectT(o.x,o.y,3,1);case'dino':return rectT(o.x,o.y,6,2);case'fountain':return rectT(o.x,o.y,3,2);case'car':case'bench':case'coffee':return rectT(o.x,o.y,2,1);case'barricade':return rectT(o.x,o.y,o.w||4,1);
+ case'subway':return rectT(o.x,o.y,2,2);case'bed':return rectT(o.x,o.y,2,2);case'dining':return rectT(o.x,o.y,3,2);case'rockmound':return rectT(o.x,o.y,6,2);case'entertain':return o.face?rectT(o.x,o.y,1,o.h||3):rectT(o.x,o.y,2,1);case'bathtub':case'desk':case'grantaxi':return rectT(o.x,o.y,2,1);
+ case'menuboard':case'wallclock':case'splat':case'mural':case'flag':case'wreath':case'drapewindow':case'rug':case'wallsign':case'menu':case'window':case'frame':case'walldoor':case'bigwindow':case'board':case'towel':case'poster':case'banner':return[];default:return[[o.x,o.y]]}}
 function setSolid(x,y,v){if(x>=0&&y>=0&&x<Zn.w&&y<Zn.h)solid[y*Zn.w+x]=v}
 function gAt(x,y){return Zn.g[y*Zn.w+x]}
 function isDoor(x,y){return Zn.doors.some(d=>d.x===x&&d.y===y)}
@@ -957,7 +966,7 @@ function draw(){ctx.setTransform(1,0,0,1,0,0);ctx.fillStyle=Zn.bg;ctx.fillRect(0
  const x0=Math.max(0,Math.floor(cx/16)),x1=Math.min(Zn.w-1,Math.floor((cx+vw)/16)),y0=Math.max(0,Math.floor(cy/16)),y1=Math.min(Zn.h-1,Math.floor((cy+vh)/16));
  const indoor=!Zn.taxiRows.length&&!Zn.g.includes('road');
  for(let y=y0;y<=y1;y++)for(let x=x0;x<=x1;x++){const t=Zn.g[y*Zn.w+x],G=(!indoor&&hdGround[t])||hdFloor[t];
-  if(G){const n=t==='walk'?2:4,S=128;let sx,sy;if(t==='laneH'||t==='crossH'){sx=(x%4)*S;sy=0}else if(t==='laneV'||t==='crossV'){sx=0;sy=(y%4)*S}else if(t==='wains'){sx=(x%4)*S;sy=0}else if(t==='stairs'){sx=0;sy=0}else{sx=(x%n)*S;sy=(y%n)*S}
+  if(G){const n=t==='walk'?2:4,S=128;let sx,sy;if(t==='laneH'||t==='crossH'){sx=(x%4)*S;sy=0}else if(t==='laneV'||t==='crossV'){sx=0;sy=(y%4)*S}else if(t==='wains'||t==='wainsT'){sx=(x%4)*S;sy=0}else if(t==='stairs'){sx=0;sy=0}else{sx=(x%n)*S;sy=(y%n)*S}
    ctx.imageSmoothingEnabled=true;ctx.drawImage(G,sx,sy,S,S,x*16,y*16,16.05,16.05);ctx.imageSmoothingEnabled=false}
   else ctx.drawImage(tile(t,x,y),x*16,y*16);if(t==='walk')curb(x,y)}
  if(clickMark){clickMark.t+=.05;const a=.5+.4*Math.sin(clickMark.t*4),mx=clickMark.x*16+8,my=clickMark.y*16+12;ctx.fillStyle=`rgba(255,216,74,${a})`;ctx.beginPath();ctx.moveTo(mx,my-4);ctx.lineTo(mx+6,my);ctx.lineTo(mx,my+4);ctx.lineTo(mx-6,my);ctx.closePath();ctx.fill()}
@@ -968,8 +977,12 @@ function draw(){ctx.setTransform(1,0,0,1,0,0);ctx.fillStyle=Zn.bg;ctx.fillRect(0
   if(hi&&(isp.box||isp.wall||isp.flat)){if(isp.flat){const w=hi.width/8,h=hi.height/8;smooth(true);ctx.drawImage(hi,dx+s.c.width/2-w/2,dy+s.c.height/2-h/2,w,h);smooth(false)}else drawFlat(hi,isp,dx,dy,s.c.width,s.c.height);
    if(o.kind==='walldoor'&&o.frame){px(ctx,'#e2b82a',dx+5,dy+12,6,6);px(ctx,'#f2d45a',dx+5,dy+12,6,1);px(ctx,'#3a2a10',dx+7,dy+14,2,2)}continue}
   if(hi){const fh=o.h||(['dino'].includes(o.kind)?2:1),by=isp.sl?(o.y+1)*16+2:dy+s.c.height-(o.lift||0);
-   if(isp.sl){const W=(o.w||1)*16;L.push({y:(o.y+1)*16,d:()=>drawSliced(hi,o.x*16,by,W)});continue}
-   const cx=dx+s.c.width/2;L.push({y:(o.y+fh)*16,d:()=>drawHDProp(hi,cx,by,!['stanchion','mic','coatrack','floorlamp','palm','clocktower','column'].includes(o.kind),isp.flip||(o.flip&&!isp.flip))});continue}
+   if(isp.sl){const W=(o.w||1)*16;L.push({y:(o.y+1)*16,d:()=>drawSliced(hi,o.x*16,by,W,isp.e)});continue}
+   // keep furniture out of the walls beside it: slide it flush against a side wall instead of overlapping it
+   let cx=dx+s.c.width/2;{const t=fp(o),hw=hi.width/16,ys=t.length?t.map(q=>q[1]):[o.y],xs=t.length?t.map(q=>q[0]):[o.x],x0=Math.min(...xs),x1=Math.max(...xs)+1,
+    wallAt=x=>ys.some(y=>{const g=gAt(x,y);return x<0||x>=Zn.w||(SOLID_T.has(g)&&g!=='water')});
+    if(wallAt(x0-1)&&cx-hw<x0*16)cx=x0*16+hw;else if(wallAt(x1)&&cx+hw>x1*16)cx=x1*16-hw}
+   L.push({y:(o.y+fh)*16,d:()=>drawHDProp(hi,cx,by,!['stanchion','mic','coatrack','floorlamp','palm','clocktower','column'].includes(o.kind),isp.flip||(o.flip&&!isp.flip))});continue}
   if(o.low||o.kind==='wallsign'||o.kind==='menu'||o.kind==='window'||o.kind==='frame'||o.kind==='walldoor'||o.kind==='bigwindow'||o.kind==='board'||o.kind==='towel'||o.kind==='poster'||o.kind==='banner'){ctx.drawImage(s.c,dx,dy);continue}
   const fh=o.kind==='building'?o.h:(['subway','dino','fountain'].includes(o.kind)?2:1);const hp=hdProps[o.kind];
   if(o.kind==='building'&&o.hd&&hdFacades[o.hd]){const im=hdFacades[o.hd],w=o.w*16,h=im.height/8,by=(o.y+o.h)*16;
@@ -978,9 +991,9 @@ function draw(){ctx.setTransform(1,0,0,1,0,0);ctx.fillStyle=Zn.bg;ctx.fillRect(0
   if(vp&&o.kind!=='car'){const cx=dx+s.c.width/2,by=dy+s.c.height,shadow=!['fence','sign','subway','barricade'].includes(o.kind);
    if(o.kind==='barricade'){L.push({y:(o.y+fh)*16,d:()=>drawHDProp(vp,cx,by,true)});continue}
    L.push({y:(o.y+fh)*16,d:()=>drawHDProp(vp,cx,by,shadow)});continue}
-  if(o.kind==='car'&&hdVProps.car){const sp=carHD(o.color,false,CAR_MODELS[o.model!==undefined?o.model:(o.x*7+o.y*3)%4])||carHD(o.color,false);L.push({y:(o.y+fh)*16,d:()=>drawHDProp(sp.l,dx+s.c.width/2,o.y*16+17,true,o.dir>0)});continue}
+  if(o.kind==='car'&&hdVProps.car){const md=CAR_MODELS[o.model!==undefined?o.model:(o.x*7+o.y*3)%4],sp=carHD(o.color,false,md)||carHD(o.color,false),fr=!!(md&&hdIn['car_'+md+'_t']);L.push({y:(o.y+fh)*16,d:()=>drawHDProp(sp.l,dx+s.c.width/2,o.y*16+17,true,fr?o.dir<0:o.dir>0)});continue}
   L.push({y:(o.y+fh)*16,d:hp?()=>{const w=s.c.width,h=w*hp.height/hp.width;ctx.imageSmoothingEnabled=true;ctx.drawImage(hp,dx,dy+s.c.height-h,w,h);ctx.imageSmoothingEnabled=false}:()=>ctx.drawImage(s.c,dx,dy)})}
- for(const t of taxis){if(!vis(t.x,t.row*16-10,34,22))continue;L.push({y:(t.row+1)*16-.5,d:()=>{const hs=carHD(t.col,t.taxi,t.model)||carHD(t.col,t.taxi);if(hs){drawHDProp(hs.l,t.x+17,t.row*16+17,true,t.dir>0);return}const sp=carSprite(t.col,t.taxi);ctx.drawImage(t.dir>0?sp.r:sp.l,Math.round(t.x),t.row*16+16-21)}})}
+ for(const t of taxis){if(!vis(t.x,t.row*16-10,34,22))continue;L.push({y:(t.row+1)*16-.5,d:()=>{const hm=carHD(t.col,t.taxi,t.model),hs=hm||carHD(t.col,t.taxi),fr=!!(hm&&t.model);if(hs){drawHDProp(hs.l,t.x+17,t.row*16+17,true,fr?t.dir<0:t.dir>0);return}const sp=carSprite(t.col,t.taxi);ctx.drawImage(t.dir>0?sp.r:sp.l,Math.round(t.x),t.row*16+16-21)}})}
  for(const n of npcs)L.push({y:n.py+16+.3,d:()=>drawChar2(n,n.spr,n.dir,n.moving?(n.t<.5?1+((n.x+n.y)&1):0):0,n.px,n.py,n.sit||n.seated)});
  L.push({y:player.py+16+.6,d:()=>drawChar2(null,player.spr,player.dir,player.moving?(player.t<.55?1+player.step:0):0,player.px,player.py,player.sit)});
  L.sort((a,b)=>a.y-b.y);for(const e of L)e.d();

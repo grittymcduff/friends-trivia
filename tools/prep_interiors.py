@@ -25,7 +25,7 @@ OUT = Path(__file__).resolve().parent.parent / "sprites" / "interior"
 S = lambda n, m, v, p=False: (n, (m, v), p)
 SHEETS = {
     "sheet_cafe": [S("chair", "h", 22, True), S("table", "w", 18, True), S("armchair", "w", 22), S("coffee", "w", 32)],
-    "sheet_living": [S("bookshelf", "h", 34), S("coatrack", "h", 32, True), S("floorlamp", "h", 32), S("sidetable", "h", 18)],
+    "sheet_living": [S("bookshelf", "w", 18), S("coatrack", "h", 32, True), S("floorlamp", "h", 32), S("sidetable", "h", 18)],
     "sheet_kitchen": [S("fridge", "h", 32), S("stove", "h", 24), S("plant", "h", 24), S("trash", "h", 14)],
     "sheet_den": [S("tv", "w", 28), S("foosball", "w", 32, True), S("dogstatue", "h", 28), S("recliner", "w", 22)],
     "sheet_bedbath": [S("bed", "w", 32), S("bathtub", "w", 32, True), S("toilet", "h", 20), S("sink", "h", 28, True)],
@@ -45,11 +45,19 @@ SHEETS = {
     "sheet_office2": [],
     "sheet_ralph": [S("desk", "w", 32), S("officechair", "h", 24, True), S("drapewindow", "w", 48), S("moodboard", "h", 30, True)],
     "sheet_rotunda": [S("column", "h", 56), S("rockmound", "w", 96), S("mural", "w", 64), S("flag", "h", 30, True)],
+    "sheet_moondance": [S("dinercounter", "w", 64), S("dinerstool_t", "h", 15, True), S("dinertable4", "w", 40), S("pastrycase", "w", 24)],
+    "sheet_moondance2": [S("backcounter", "w", 56), S("menuboard", "w", 48), S("wallclock", "w", 12, True), S("phone", "w", 12)],
+    # facing variants: backs (seen from behind) and side views (all side views face right; the game mirrors them)
+    "sheet_backs": [S("couch_back_t", "w", 48), S("armchair_back_t", "w", 22), S("tv_back", "w", 28), S("recliner_back", "w", 22)],
+    "sheet_sides": [S("entertain_front2", "w", 26), S("armchair_side_t", "w", 22), S("chair_side", "h", 22, True), S("recliner_side_3q", "w", 28)],
+    # strict side profiles (only the side is visible): the TV cabinet against a side wall, and recliners facing it
+    "sheet_profile": [S("entside", "h", 44), S("entside_alt", "h", 44), S("recliner_side", "w", 28), S("recliner_side_alt", "w", 28)],
     "sheet_cars": [S("car_wagon_t", "w", 36), S("car_van_t", "w", 36), S("car_compact_t", "w", 30), S("car_taxi90", "w", 36)],
     "sheet_collect": [S("grantaxi", "w", 36), S("cheesecake", "w", 18), S("trifle", "w", 16), S("cheeseslice", "w", 14)],
     "sheet_moist": [S("sandwich", "w", 16), S("sandwich_wrapped", "w", 16), S("officefridge", "h", 30), S("bowtie", "w", 16)],
 }
-HALVES = {"sheet_landmarks": [S("dino", "w", 96, True), S("clocktower", "h", 104)]}
+HALVES = {"sheet_landmarks": [S("dino", "w", 96, True), S("clocktower", "h", 104)],
+          "sheet_wallside": [S("entside_3q", "h", 44), S("bookshelf_side_unused", "h", 34)]}
 
 
 def load(src, stem):
@@ -202,6 +210,23 @@ def textures(src):
         st[y + 28:y + 32] = [92, 68, 46]
     st[:, :12] = [59, 42, 34]; st[:, -12:] = [59, 42, 34]
     Image.fromarray(st).save(OUT / "floor_stairs.png")
+    # Moondance Diner: navy and cream checkered wall tiles, a solid navy tile band, blue patterned floor
+    Image.fromarray(shade_tiles(checker(T4, (34, 52, 128), (226, 224, 212), 16, (150, 150, 160), 2), 8)).save(OUT / "wall_tile_blue.png")
+    nv = checker(T4, (30, 46, 116), (38, 58, 140), 16, (16, 24, 60), 2)
+    Image.fromarray(shade_tiles(nv, 9)[:TILE]).save(OUT / "wall_tile_navy.png")
+    t = 64
+    yy, xx = np.mgrid[0:t, 0:t]
+    cell = np.zeros((t, t, 3), float) + (224, 226, 238)
+    for cy, cx in ((0, 0), (0, t), (t, 0), (t, t)):
+        d = np.hypot(yy - cy, xx - cx)
+        cell[(d > 19) & (d < 23)] = (138, 150, 214)
+        cell[d < 6] = (104, 116, 198)
+    dm = np.abs(xx - t / 2) + np.abs(yy - t / 2)
+    cell[(dm > 10) & (dm < 13)] = (164, 172, 224)
+    cell[dm < 4] = (104, 116, 198)
+    cell[:2] = cell[:, :2] = (170, 172, 186)
+    floor = np.tile(cell, (T4 // t, T4 // t, 1)).astype(np.uint8)
+    Image.fromarray(shade_tiles(floor, 10)).save(OUT / "floor_moroccan.png")
     print("textures done")
 
 
@@ -277,6 +302,12 @@ def main():
         cells = split(load(src, stem), 2, 1)
         for (name, spec, pockets), cell in zip(specs, cells):
             size(cell, spec, pockets).save(OUT / f"{name}.png", optimize=True)
+    # the TV cabinet profile comes with a tall side panel next to it; keep only the TV on its low stand
+    e = Image.open(OUT / "entside.png"); a = np.asarray(e)[..., 3] > 0
+    cols = a.sum(0); w = e.width; lo, hi = int(w * .3), int(w * .7)
+    cut = lo + int(np.argmin(cols[lo:hi]))
+    e = e.crop((cut, 0, w, e.height)); e = e.crop(e.getbbox())
+    e = e.resize((round(e.width * 34 * PX / e.height), 34 * PX), Image.LANCZOS); e.save(OUT / "entside.png", optimize=True)
     print("props done")
     textures(src)
     chars(src)
