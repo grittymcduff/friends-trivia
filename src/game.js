@@ -40,6 +40,34 @@ const HD_CAST = {
  monica_f:'monica_bob', chandler_f:'chandler_work', joey_f:'joey_navy', ross_f:'ross_green',
 };
 const HD_PROPS = { carcover:'sprites/hd/Joey_BoxPorsche_prop.png' };
+/* v1.3: HD Greenwich Village art (tools/prep_village.py), 8 px per world pixel.
+ * Facades: buildings with hd:'<key>' in maps.js. Ground: by tile type, everywhere outdoors.
+ * Props: by object kind. Anything not loaded yet (or missing) keeps the generated art. */
+const VG='sprites/village/';
+const HD_FACADES=['n1_brownstone','n2_brick','n3_central_perk','n4_brick_ross','n5_brownstone','n6_rays_pizza','s1_lucille_lortel','s2_brownstone','s3_village_cigars','s4_brick_phoebe','s5_brownstone_wide'];
+const HD_GROUND={walk:'ground_sidewalk',road:'ground_road',inter:'ground_road',laneH:'ground_road_centerline',laneV:'ground_road_centerline',crossH:'ground_crosswalk',crossV:'ground_crosswalk',grass:'ground_grass',path:'ground_path',roofs:'ground_rooftop'};
+const HD_PROP_FILES={lamp:'prop_lamp',tree:'prop_tree_street',tree_park:'prop_tree_park',hydrant:'prop_hydrant',news:'prop_newsbox',planter:'prop_planter',sign:'prop_street_sign',barricade:'prop_barricade',subway:'prop_subway',fence:'prop_fence',bench:'prop_bench',car:'prop_car_template',taxi:'prop_taxi'};
+const hdFacades={},hdGround={},hdVProps={};
+function loadVillageArt(){
+ const get=(file,cb)=>{const im=new Image();im.onload=()=>cb(im);im.src=VG+file+'.png'};
+ for(const k of HD_FACADES)get('bldg_'+k,im=>{hdFacades[k]=im});
+ const rot=im=>{const[c,g]=mk(im.height,im.width);g.translate(im.height,0);g.rotate(Math.PI/2);g.drawImage(im,0,0);return c};
+ for(const[t,f]of Object.entries(HD_GROUND))get(f,im=>{hdGround[t]=(t==='laneV'||t==='crossV')?rot(im):im});
+ for(const[k,f]of Object.entries(HD_PROP_FILES))get(f,im=>{hdVProps[k]=im;carHDCache={}})}
+// the parked/driving car template has a magenta body: repaint it per colour, keeping its shading
+let carHDCache={};
+function carHD(col,taxi){const k=(taxi?'taxi':col);if(carHDCache[k])return carHDCache[k];const src=hdVProps[taxi?'taxi':'car'];if(!src)return null;
+ const[c,g]=mk(src.width,src.height);g.drawImage(src,0,0);
+ if(!taxi){const d=g.getImageData(0,0,c.width,c.height),a=d.data,[R,G,B]=hexRGB(col);
+  for(let i=0;i<a.length;i+=4){const r=a[i],gg=a[i+1],b=a[i+2];if(r>110&&b>110&&gg<r*.62&&gg<b*.62){const l=(r+b)/2/255*1.15;a[i]=Math.min(255,R*l);a[i+1]=Math.min(255,G*l);a[i+2]=Math.min(255,B*l)}}
+  g.putImageData(d,0,0)}
+ return carHDCache[k]={l:c,r:mirror(c)}}
+// draw an HD image (in 8x pixels) with its bottom centre at world (cx, by); soft shadow underneath
+function drawHDProp(im,cx,by,shadow,flip){const w=im.width/8,h=im.height/8;
+ if(shadow){ctx.fillStyle='rgba(0,0,0,.2)';ctx.beginPath();ctx.ellipse(cx,by-1,w*.42,Math.max(1.5,w*.08),0,0,7);ctx.fill()}
+ ctx.imageSmoothingEnabled=true;ctx.imageSmoothingQuality='high';
+ if(flip){ctx.save();ctx.translate(cx,0);ctx.scale(-1,1);ctx.drawImage(im,-w/2,by-h,w,h);ctx.restore()}else ctx.drawImage(im,cx-w/2,by-h,w,h);
+ ctx.imageSmoothingEnabled=false}
 const HD_ITEMS = { pants:'sprites/items/Item_LeatherPants.png' };
 
 const TS=16, SAVE_KEY='friendsTrivia_v1';
@@ -844,15 +872,26 @@ function draw(){ctx.setTransform(1,0,0,1,0,0);ctx.fillStyle=Zn.bg;ctx.fillRect(0
  cx=Zn.w*16<=vw?(Zn.w*16-vw)/2:clamp(cx,0,Zn.w*16-vw);cy=Zn.h*16<=vh?(Zn.h*16-vh)/2:clamp(cy,0,Zn.h*16-vh);cx=Math.round(cx);cy=Math.round(cy);cam={x:cx,y:cy};
  ctx.setTransform(SC*RS,0,0,SC*RS,-cx*SC*RS,-cy*SC*RS);ctx.imageSmoothingEnabled=false;
  const x0=Math.max(0,Math.floor(cx/16)),x1=Math.min(Zn.w-1,Math.floor((cx+vw)/16)),y0=Math.max(0,Math.floor(cy/16)),y1=Math.min(Zn.h-1,Math.floor((cy+vh)/16));
- for(let y=y0;y<=y1;y++)for(let x=x0;x<=x1;x++){const t=Zn.g[y*Zn.w+x];ctx.drawImage(tile(t,x,y),x*16,y*16);if(t==='walk')curb(x,y)}
+ const indoor=!Zn.taxiRows.length&&!Zn.g.includes('road');
+ for(let y=y0;y<=y1;y++)for(let x=x0;x<=x1;x++){const t=Zn.g[y*Zn.w+x],G=!indoor&&hdGround[t];
+  if(G){const n=t==='walk'?2:4,S=128;let sx,sy;if(t==='laneH'||t==='crossH'){sx=(x%4)*S;sy=0}else if(t==='laneV'||t==='crossV'){sx=0;sy=(y%4)*S}else{sx=(x%n)*S;sy=(y%n)*S}
+   ctx.imageSmoothingEnabled=true;ctx.drawImage(G,sx,sy,S,S,x*16,y*16,16.05,16.05);ctx.imageSmoothingEnabled=false}
+  else ctx.drawImage(tile(t,x,y),x*16,y*16);if(t==='walk')curb(x,y)}
  if(clickMark){clickMark.t+=.05;const a=.5+.4*Math.sin(clickMark.t*4),mx=clickMark.x*16+8,my=clickMark.y*16+12;ctx.fillStyle=`rgba(255,216,74,${a})`;ctx.beginPath();ctx.moveTo(mx,my-4);ctx.lineTo(mx+6,my);ctx.lineTo(mx,my+4);ctx.lineTo(mx-6,my);ctx.closePath();ctx.fill()}
  const vis=(x,y,w,h)=>x+w>=cx-40&&x<=cx+vw+40&&y+h>=cy-60&&y<=cy+vh+60;
  const L=[];
  for(const o of Zn.objs){const s=o.spr,dx=o.x*16+s.ox,dy=o.y*16+s.oy;if(!vis(dx,dy,s.c.width,s.c.height))continue;
   if(o.low||o.kind==='wallsign'||o.kind==='menu'||o.kind==='window'||o.kind==='frame'||o.kind==='walldoor'||o.kind==='bigwindow'||o.kind==='board'||o.kind==='towel'||o.kind==='poster'||o.kind==='banner'){ctx.drawImage(s.c,dx,dy);continue}
   const fh=o.kind==='building'?o.h:(['subway','dino','fountain'].includes(o.kind)?2:1);const hp=hdProps[o.kind];
+  if(o.kind==='building'&&o.hd&&hdFacades[o.hd]){const im=hdFacades[o.hd],w=o.w*16,h=im.height/8,by=(o.y+o.h)*16;
+   L.push({y:(o.y+fh)*16,d:()=>{ctx.imageSmoothingEnabled=true;ctx.imageSmoothingQuality='high';ctx.drawImage(im,o.x*16,by-h,w,h);ctx.imageSmoothingEnabled=false}});continue}
+  const vk=o.kind==='tree'&&o.park?'tree_park':o.kind,vp=hdVProps[vk];
+  if(vp&&o.kind!=='car'){const cx=dx+s.c.width/2,by=dy+s.c.height,shadow=!['fence','sign','subway','barricade'].includes(o.kind);
+   if(o.kind==='barricade'){L.push({y:(o.y+fh)*16,d:()=>drawHDProp(vp,cx,by,true)});continue}
+   L.push({y:(o.y+fh)*16,d:()=>drawHDProp(vp,cx,by,shadow)});continue}
+  if(o.kind==='car'&&hdVProps.car){const sp=carHD(o.color,false);L.push({y:(o.y+fh)*16,d:()=>drawHDProp(sp.l,dx+s.c.width/2,o.y*16+17,true,o.dir>0)});continue}
   L.push({y:(o.y+fh)*16,d:hp?()=>{const w=s.c.width,h=w*hp.height/hp.width;ctx.imageSmoothingEnabled=true;ctx.drawImage(hp,dx,dy+s.c.height-h,w,h);ctx.imageSmoothingEnabled=false}:()=>ctx.drawImage(s.c,dx,dy)})}
- for(const t of taxis){if(!vis(t.x,t.row*16-10,34,22))continue;L.push({y:(t.row+1)*16-.5,d:()=>{const sp=carSprite(t.col,t.taxi);ctx.drawImage(t.dir>0?sp.r:sp.l,Math.round(t.x),t.row*16+16-21)}})}
+ for(const t of taxis){if(!vis(t.x,t.row*16-10,34,22))continue;L.push({y:(t.row+1)*16-.5,d:()=>{const hs=carHD(t.col,t.taxi);if(hs){drawHDProp(hs.l,t.x+17,t.row*16+17,true,t.dir>0);return}const sp=carSprite(t.col,t.taxi);ctx.drawImage(t.dir>0?sp.r:sp.l,Math.round(t.x),t.row*16+16-21)}})}
  for(const n of npcs)L.push({y:n.py+16+.3,d:()=>drawChar2(n,n.spr,n.dir,n.moving?(n.t<.5?1+((n.x+n.y)&1):0):0,n.px,n.py,n.sit||n.seated)});
  L.push({y:player.py+16+.6,d:()=>drawChar2(null,player.spr,player.dir,player.moving?(player.t<.55?1+player.step:0):0,player.px,player.py,player.sit)});
  L.sort((a,b)=>a.y-b.y);for(const e of L)e.d();
@@ -860,7 +899,7 @@ function draw(){ctx.setTransform(1,0,0,1,0,0);ctx.fillStyle=Zn.bg;ctx.fillRect(0
  const k2=SC/2;ctx.setTransform(k2*RS,0,0,k2*RS,0,0);
  const W2=(wx,wy)=>[(wx-cx)*2,(wy-cy)*2];
  ctx.textAlign='center';ctx.textBaseline='middle';
- for(const o of Zn.objs){if(o.kind==='building'&&o.sign){const[sx,sy]=W2((o.x+(o.shopW||o.w)/2)*16,(o.y+o.h)*16-32+6.5);if(sx<-200||sx>640/k2+200)continue;ctx.font='bold 11px ui-monospace,Menlo,Consolas,monospace';ctx.fillStyle=o.signFg||'#f4e9c8';ctx.fillText(o.sign,sx,sy,((o.shopW||o.w)*16-6)*2)}
+ for(const o of Zn.objs){if(o.kind==='building'&&o.sign){const hdS=o.hd&&hdFacades[o.hd]&&o.signLift;const[sx,sy]=hdS?W2(o.x*16+o.signCx,(o.y+o.h)*16-o.signLift):W2((o.x+(o.shopW||o.w)/2)*16,(o.y+o.h)*16-32+6.5);if(sx<-200||sx>640/k2+200)continue;ctx.font='bold 11px ui-monospace,Menlo,Consolas,monospace';ctx.fillStyle=o.signFg||'#f4e9c8';ctx.fillText(o.sign,sx,sy,hdS?o.signW*2:((o.shopW||o.w)*16-6)*2)}
   else if(o.kind==='wallsign'){const[sx,sy]=W2((o.x+o.w/2)*16,13);ctx.font='italic bold 22px Georgia,serif';ctx.fillStyle='#f3e1b0';ctx.fillText(o.text,sx,sy)}
   else if(o.kind==='sign'){const[sx,sy]=W2(o.x*16+8,o.y*16-22);ctx.font='bold 9px ui-monospace,Menlo,monospace';const w=ctx.measureText(o.text).width+8;ctx.fillStyle='#2f7a4a';ctx.fillRect(sx-w/2,sy-7,w,14);ctx.strokeStyle='#fff';ctx.lineWidth=1;ctx.strokeRect(sx-w/2+1.5,sy-5.5,w-3,11);ctx.fillStyle='#fff';ctx.fillText(o.text,sx,sy+.5)}
   else if(o.kind==='gatedesk'){const[sx,sy]=W2(o.x*16+16,o.y*16-10);ctx.font='bold 9px ui-monospace,Menlo,monospace';const w=ctx.measureText(o.text).width+10;ctx.fillStyle='#1a2a4a';ctx.fillRect(sx-w/2,sy-7,w,14);ctx.fillStyle='#ffd84a';ctx.fillText(o.text,sx,sy+.5)}
@@ -956,7 +995,7 @@ function loop(now){const dt=Math.min(.05,(now-last)/1000);last=now;clock+=dt;
  if(Zn&&state!=='title'){updPlayer(dt);updNpcs(dt);updTaxis(dt);updDialog(dt);saveT+=dt;if(saveT>5){saveT=0;save()}draw()}
  syncTouch();requestAnimationFrame(loop)}
 try{const z=+localStorage.getItem('friendsTrivia_zoom');if([1,2,3].includes(z))setZoom(z,true);else setZoom(2,true)}catch(e){setZoom(2,true)}
-fit();setupTitle();setupTouch();loadCustomSprites();loadHD();loadPlayerArt();
+fit();setupTitle();setupTouch();loadCustomSprites();loadHD();loadPlayerArt();loadVillageArt();
 // title-screen backdrop: render the village behind the menu
 player.spr=charSprites(lookFromPick());loadZone('village',15,10,'up',true);state='title';
 (function titleBg(){if(state!=='title')return;clock+=.016;updNpcs(.016);updTaxis(.016);drawTitleBg();requestAnimationFrame(titleBg)})();

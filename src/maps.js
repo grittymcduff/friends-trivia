@@ -29,31 +29,31 @@ function msgDoor(z,x,y,text){ act(z,x,y,{type:'msg',text}); }
  z.taxiRows=[{row:12,dir:-1,n:2},{row:13,dir:1,n:2}];
 
  // --- North side of Grove St (buildings rows 1–8, doors on row 8) ---
- obj(z,'building',0,1,{w:6,h:8,style:'brown',tower:true,doors:[{x:3,kind:'stoop'}]});
- obj(z,'building',6,1,{w:6,h:8,style:'brick',fire:true,doors:[{x:2,kind:'plain'}]});
- obj(z,'building',12,1,{w:8,h:8,style:'yellow',fire:true,tower:true,shop:true,shopW:6,awning:'#2f6b3a',signBg:'#24301f',sign:'CENTRAL PERK',signFg:'#f3e3b0',doors:[{x:3,kind:'shop'},{x:6,kind:'stoop',color:'#5b3a8c'}]});
- obj(z,'building',28,1,{w:8,h:8,style:'brick',fire:true,doors:[{x:4,kind:'stoop'}]});
- obj(z,'building',36,1,{w:6,h:8,style:'brown',tower:true,doors:[{x:2,kind:'stoop'}]});
- obj(z,'building',42,1,{w:6,h:8,style:'slate',shop:true,awning:'#b8322a',signBg:'#2a1a1a',sign:"RAY'S PIZZA",doors:[{x:2,kind:'shop'}]});
- door(z,15,8,'perk',10,13,'up');
- msgDoor(z,3,8,"Nobody answers. Somewhere inside, a dog is barking at a vacuum.");
- msgDoor(z,8,8,"The buzzer is broken. Someone taped a note to it: 'KNOCK LOUDER.'");
+ obj(z,'building',0,1,{hd:'n1_brownstone',w:6,h:8,style:'brown',tower:true,doors:[{x:3,kind:'stoop'}]});
+ obj(z,'building',6,1,{hd:'n2_brick',w:6,h:8,style:'brick',fire:true,doors:[{x:2,kind:'plain'}]});
+ obj(z,'building',12,1,{hd:'n3_central_perk',signLift:46,signCx:47,signW:84,w:8,h:8,style:'yellow',fire:true,tower:true,shop:true,shopW:6,awning:'#2f6b3a',signBg:'#24301f',sign:'CENTRAL PERK',signFg:'#f3e3b0',doors:[{x:3,kind:'shop'},{x:6,kind:'stoop',color:'#5b3a8c'}]});
+ obj(z,'building',28,1,{hd:'n4_brick_ross',w:8,h:8,style:'brick',fire:true,doors:[{x:4,kind:'stoop'}]});
+ obj(z,'building',36,1,{hd:'n5_brownstone',w:6,h:8,style:'brown',tower:true,doors:[{x:2,kind:'stoop'}]});
+ obj(z,'building',42,1,{hd:'n6_rays_pizza',signLift:44,signCx:48,signW:56,w:6,h:8,style:'slate',shop:true,awning:'#b8322a',signBg:'#2a1a1a',sign:"RAY'S PIZZA",doors:[{x:2,kind:'shop'}]});
+ door(z,13,8,'perk',10,13,'up');
+ msgDoor(z,1,8,"Nobody answers. Somewhere inside, a dog is barking at a vacuum.");
+ msgDoor(z,7,8,"The buzzer is broken. Someone taped a note to it: 'KNOCK LOUDER.'");
  door(z,18,8,'hall',6,7,'up');
  door(z,32,8,'rossapt',8,10,'up');
- msgDoor(z,38,8,"A sign on the door: 'Super is on vacation. Do not ask about the heat.'");
- msgDoor(z,44,8,"Closed for a private party. It smells amazing.");
+ msgDoor(z,37,8,"A sign on the door: 'Super is on vacation. Do not ask about the heat.'");
+ msgDoor(z,43,8,"Closed for a private party. It smells amazing.");
 
  // --- South side of Grove St (buildings rows 17–24, doors on row 24) ---
- obj(z,'building',0,17,{w:8,h:8,style:'slate',shop:true,awning:'#7d1d2c',signBg:'#1b1b2a',sign:'LUCILLE LORTEL',signFg:'#ffd86b',doors:[{x:4,kind:'shop'}]});
- obj(z,'building',8,17,{w:6,h:8,style:'brown',doors:[{x:3,kind:'stoop'}]});
- obj(z,'building',14,17,{w:6,h:8,style:'cream',shop:true,awning:'#b02a2a',signBg:'#e8c547',sign:'VILLAGE CIGARS',signFg:'#7a1a1a',doors:[{x:3,kind:'shop'}]});
- obj(z,'building',28,17,{w:8,h:8,style:'brick',fire:true,doors:[{x:3,kind:'stoop',color:'#2f5c7a'}]});
- obj(z,'building',36,17,{w:12,h:8,style:'brown',fire:true,doors:[{x:5,kind:'stoop'}]});
+ obj(z,'building',0,17,{hd:'s1_lucille_lortel',signLift:54,signCx:63,signW:80,w:8,h:8,style:'slate',shop:true,awning:'#7d1d2c',signBg:'#1b1b2a',sign:'LUCILLE LORTEL',signFg:'#ffd86b',doors:[{x:4,kind:'shop'}]});
+ obj(z,'building',8,17,{hd:'s2_brownstone',w:6,h:8,style:'brown',doors:[{x:3,kind:'stoop'}]});
+ obj(z,'building',14,17,{hd:'s3_village_cigars',signLift:40,signCx:60,signW:52,w:6,h:8,style:'cream',shop:true,awning:'#b02a2a',signBg:'#e8c547',sign:'VILLAGE CIGARS',signFg:'#7a1a1a',doors:[{x:3,kind:'shop'}]});
+ obj(z,'building',28,17,{hd:'s4_brick_phoebe',w:8,h:8,style:'brick',fire:true,doors:[{x:3,kind:'stoop',color:'#2f5c7a'}]});
+ obj(z,'building',36,17,{hd:'s5_brownstone_wide',w:12,h:8,style:'brown',fire:true,doors:[{x:5,kind:'stoop'}]});
  msgDoor(z,4,24,"Tonight: an experimental play starring an actor named Joey Tribbiani.\nThe theatre opens in a later update. (Bring earplugs.)");
- msgDoor(z,11,24,"Nobody's home.");
- msgDoor(z,17,24,"VILLAGE CIGARS. Lottery tickets, newspapers, and gum. The shop opens in a later update.");
- msgDoor(z,31,24,"'5 Morton St' says the mailbox… close enough. This is Phoebe's building.\n(Her apartment opens in a later update!)");
- msgDoor(z,41,24,"You hear someone practicing the tuba. You back away slowly.");
+ msgDoor(z,9,24,"Nobody's home.");
+ msgDoor(z,15,24,"VILLAGE CIGARS. Lottery tickets, newspapers, and gum. The shop opens in a later update.");
+ msgDoor(z,29,24,"'5 Morton St' says the mailbox… close enough. This is Phoebe's building.\n(Her apartment opens in a later update!)");
+ msgDoor(z,37,24,"You hear someone practicing the tuba. You back away slowly.");
 
  // --- Street furniture ---
  for(const x of [2,13,30,44]) obj(z,'lamp',x,10);
@@ -99,7 +99,7 @@ function msgDoor(z,x,y,text){ act(z,x,y,{type:'msg',text}); }
  paint(z,'brick',0,0,22,2); paint(z,'wains',0,2,22,1);
  paint(z,'wallS',0,0,1,15); paint(z,'wallS',21,0,1,15);
  paint(z,'front',0,14,22,1); paint(z,'mat',10,14,2,1);
- door(z,10,14,'village',15,9,'down'); door(z,11,14,'village',15,9,'down');
+ door(z,10,14,'village',13,9,'down'); door(z,11,14,'village',13,9,'down');
 
  // wall decor
  obj(z,'wallsign',2,0,{w:8,text:'Central Perk'});

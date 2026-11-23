@@ -4,6 +4,15 @@ A private, Pokémon-style pixel-art trivia adventure set in Friends' Greenwich V
 
 **Play:** open `index.html` in a browser, or turn on GitHub Pages for this repo (Settings → Pages → deploy from `main`, root folder).
 
+## v1.3: "The One With the New Neighborhood"
+
+- **Greenwich Village redrawn in HD:** all 11 buildings on Grove St are new hand-drawn facades (Central Perk, Ross's building, Phoebe's, the Lucille Lortel, Village Cigars, Ray's Pizza and the brownstones), with shop signs written on their boards.
+- **New streets and park:** concrete sidewalk slabs, asphalt with crosswalks and a double yellow line, hex-paved park paths, lawn, and rooftops. The new street surfaces also appear in every other outdoor neighborhood.
+- **New street props:** lamps, street trees in iron pits, park trees, hydrants, newspaper boxes, planters, street-sign poles, benches, the park fence, the road barricade and the Bleecker St subway entrance. All have soft shadows.
+- **Traffic:** parked cars and traffic use a hand-drawn sedan repainted in each car's colour, plus a hand-drawn taxi.
+- Doors now line up with the doors in the art; Central Perk's entrance moved one step left.
+- Built with `tools/prep_village.py <folder>`. It cuts out backgrounds, fits each facade to its lot (widening slightly and removing a repeated middle floor when the art runs tall), makes the ground textures tile, and generates the asphalt and road markings.
+
 ## v1.2: "The One Where You Get Redrawn Too"
 
 - **HD player character** built from colour-keyed template art: the template marks each part (skin, shirt, pants, shoes, hair), and the game paints those parts in the colours you pick, so any combination looks hand-drawn.
@@ -143,4 +152,4 @@ Cast members currently use generic placeholder sprites with name tags. To swap i
 - HD sprites for the MSG usher, Eddie, the apartment duck, and the missing looks (Ross's brown shirt, Joey's red shirt, Chandler's green shirt)
 - HD townspeople (the player template could be reused for them)
 - HD hats and carried items for the player
-- Redraw the maps to match the HD character art
+- HD buildings for the other neighborhoods and the interiors (same brief and tools as the Village)
