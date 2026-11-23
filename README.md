@@ -4,6 +4,11 @@ A private, Pokémon-style pixel-art trivia adventure set in Friends' Greenwich V
 
 **Play:** open `index.html` in a browser, or turn on GitHub Pages for this repo (Settings → Pages → deploy from `main`, root folder).
 
+## v1.7.1: HD street fronts everywhere (stopgap)
+
+- Midtown, SoHo, Uptown, Queens and Las Vegas now use HD building fronts made from the Village art: the same facades, recoloured, stretched to each building's width, or set side by side. Doors line up with the art, and shop names sit on the sign boards (or on a small plate where the front has none).
+- `tools/prep_streets.py` builds them. Dedicated fronts for Bloomingdale's, MSG, the museum and the rest can be generated later with the same brief as the Village.
+
 ## v1.7: "The One Where Everything Faces the Right Way"
 
 - **The Moondance Diner, from the 3D render:** navy and cream checkered walls, the blue patterned floor, the long navy counter with chrome stripes and red, black, navy and yellow stools, the back counter with the espresso machines, the pastry case, the rotary phone, the menu boards, the gingham clock, and white tables with blue chairs.
@@ -184,5 +189,5 @@ Cast members currently use generic placeholder sprites with name tags. To swap i
 - More trips: Atlantic City, Tulsa
 - HD sprites for the missing looks (Ross's brown shirt, Joey's red shirt, Chandler's green shirt) and for Tag
 - HD hats and carried items for the player
-- HD buildings for the other neighborhoods (same brief and tools as the Village)
+- Dedicated HD fronts for the other neighborhoods (they currently reuse recoloured Village facades), and Montauk's beach house
 - Floor plans for the diner, Chandler's office, the studio and the airport

@@ -425,17 +425,17 @@ room('phoebe',"Phoebe's Apartment",24,15,{wall:'wallG',to:['village',29,25],exit
 /* ---------------- Midtown ---------------- */
 street('midtown','Midtown',48,{cross:[20,38],subway:{x:4,y:26,label:'5 AV / 59 ST',spawn:[6,25,'right']},
  north:[
-  {x:0,w:8,style:'slate',tower:true,shop:true,awning:'#3a3a46',signBg:'#1f1f26',sign:'9 WEST 57TH',doors:[{x:4,to:['office',8,10]}]},
-  {x:8,w:6,style:'brick',shop:true,awning:'#8a2a2a',signBg:'#2a1a1a',sign:"RIFF'S",doors:[{x:3,msg:"Riff's. The gang's lunch spot next to Chandler's office. Today's special is a club sandwich the size of your head."}]},
-  {x:14,w:12,style:'cream',shop:true,awning:'#2a2a2a',signBg:'#f4f1ea',signFg:'#1a1a1a',sign:"BLOOMINGDALE'S",doors:[{x:6,to:['bloomies',10,11]}]},
-  {x:26,w:8,style:'slate',shop:true,awning:'#2a3a5a',signBg:'#1b2340',sign:'RALPH LAUREN',doors:[{x:4,to:['ralph',8,10]}]},
-  {x:34,w:8,style:'cream',shop:true,awning:'#1a1a1a',signBg:'#1a1a1a',sign:'SAKS FIFTH AVE',doors:[{x:4,msg:"Saks Fifth Avenue. Rachel could spend an entire paycheck in the shoe department. She has."}]},
-  {x:42,w:6,style:'brick',fire:true,tower:true,doors:[{x:3,kind:'stoop',msg:"An apartment building. Somebody upstairs is practicing the bagpipes."}]}],
+  {x:0,w:8,style:'slate',tower:true,shop:true,awning:'#3a3a46',signBg:'#1f1f26',sign:'9 WEST 57TH',hd:'x_mid_57th',signLift:44,signCx:64,signW:104,plate:true,doors:[{x:4,to:['office',8,10]}]},
+  {x:8,w:6,style:'brick',shop:true,awning:'#8a2a2a',signBg:'#2a1a1a',sign:"RIFF'S",hd:'x_mid_riffs',signLift:40,signCx:60,signW:52,doors:[{x:3,msg:"Riff's. The gang's lunch spot next to Chandler's office. Today's special is a club sandwich the size of your head."}]},
+  {x:14,w:12,style:'cream',shop:true,awning:'#2a2a2a',signBg:'#f4f1ea',signFg:'#1a1a1a',sign:"BLOOMINGDALE'S",hd:'x_mid_bloomies',signLift:46,signCx:70,signW:126,doors:[{x:4,to:['bloomies',10,11]}]},
+  {x:26,w:8,style:'slate',shop:true,awning:'#2a3a5a',signBg:'#1b2340',sign:'RALPH LAUREN',hd:'x_mid_ralph',signLift:46,signCx:47,signW:84,doors:[{x:3,to:['ralph',8,10]}]},
+  {x:34,w:8,style:'cream',shop:true,awning:'#1a1a1a',signBg:'#1a1a1a',sign:'SAKS FIFTH AVE',hd:'x_mid_saks',signLift:46,signCx:47,signW:84,doors:[{x:3,msg:"Saks Fifth Avenue. Rachel could spend an entire paycheck in the shoe department. She has."}]},
+  {x:42,w:6,style:'brick',fire:true,tower:true,hd:'x_mid_apt',doors:[{x:3,kind:'stoop',msg:"An apartment building. Somebody upstairs is practicing the bagpipes."}]}],
  south:[
-  {x:0,w:12,style:'cream',shop:true,awning:'#c9a24a',signBg:'#5a4a2a',signFg:'#f3e3b0',sign:'THE PLAZA',doors:[{x:7,msg:"The Plaza Hotel. Monica and Chandler celebrated their engagement here, until Ross and Rachel stole the spotlight."}]},
-  {x:12,w:8,style:'slate',shop:true,awning:'#3a2a4a',signBg:'#2a1a3a',sign:'THE PIERRE',doors:[{x:4,msg:"The Pierre. A very fancy Fifth Avenue hotel. The kind of place where weddings get planned for years."}]},
-  {x:22,w:14,style:'slate',shop:true,awning:'#c0262c',signBg:'#1a2a5a',sign:'MADISON SQUARE GARDEN',doors:[{x:7,msg:"Madison Square Garden. Tonight: Rangers hockey. Someone near the glass is about to get hit with a puck."}]},
-  {x:36,w:12,style:'neon',shop:true,awning:'#e8642a',signBg:'#1a1a1a',signFg:'#ffd84a',sign:'TIMES SQUARE',doors:[{x:6,msg:"Times Square. Bright lights, enormous billboards, and a guy in a giant hot dog costume who wants a photo with you."}]}],
+  {x:0,w:12,style:'cream',shop:true,awning:'#c9a24a',signBg:'#5a4a2a',signFg:'#f3e3b0',sign:'THE PLAZA',hd:'x_mid_plaza',signLift:44,signCx:96,signW:120,plate:true,doors:[{x:5,msg:"The Plaza Hotel. Monica and Chandler celebrated their engagement here, until Ross and Rachel stole the spotlight."}]},
+  {x:12,w:8,style:'slate',shop:true,awning:'#3a2a4a',signBg:'#2a1a3a',sign:'THE PIERRE',hd:'x_mid_pierre',signLift:44,signCx:64,signW:104,plate:true,doors:[{x:4,msg:"The Pierre. A very fancy Fifth Avenue hotel. The kind of place where weddings get planned for years."}]},
+  {x:22,w:14,style:'slate',shop:true,awning:'#c0262c',signBg:'#1a2a5a',sign:'MADISON SQUARE GARDEN',hd:'x_mid_msg',signLift:54,signCx:110,signW:140,doors:[{x:7,msg:"Madison Square Garden. Tonight: Rangers hockey. Someone near the glass is about to get hit with a puck."}]},
+  {x:36,w:12,style:'neon',shop:true,awning:'#e8642a',signBg:'#1a1a1a',signFg:'#ffd84a',sign:'TIMES SQUARE',hd:'x_mid_times',signLift:54,signCx:94,signW:120,doors:[{x:6,msg:"Times Square. Bright lights, enormous billboards, and a guy in a giant hot dog costume who wants a photo with you."}]}],
  extra(z){
   cast(z,'usher','Usher',30,25,'down',F('#8d5a3b','#1c1410','short','#c0262c',{pants:'#1a2a5a'}),{reward:'puck',tags:'ross places',n:5,need:4,
    greet:["Tickets? …No? Okay. I've worked the Garden for twenty years. I've seen it all.","Once, a guy got hit right in the face with a puck. Then his friends kept the puck. Classy."],
@@ -458,7 +458,7 @@ room('office',"Chandler's Office",18,12,{wall:'wallC',floor:'carpet',to:['midtow
  townie(z,'o1',14,6,F('#e0ac7e','#2a1d17','short','#5a7aa8'),["Chandler's the boss? Huh. He told me he's 'in transponstering.'"],true,[9,3,8,7],['carpet']);
  townie(z,'o2',5,6,F('#f1c9a5','#b5462a','bob','#b884c9',{fem:true,outfit:'skirt'}),["I've worked here for six years and I still don't know what we make."],true,[1,3,10,7],['carpet']);
 }});
-room('ralph',"Ralph Lauren: Rachel's Office",16,11,{wall:'wallC',floor:'carpetR',to:['midtown',30,9],exitX:7,tune:'city',extra(z){
+room('ralph',"Ralph Lauren: Rachel's Office",16,11,{wall:'wallC',floor:'carpetR',to:['midtown',29,9],exitX:7,tune:'city',extra(z){
  // v1.5, from the set photos: the desk, the cream chair, the window with blinds and brown drapes, the mood board
  obj(z,'drapewindow',5,0,{w:6,h:2}); obj(z,'frame',1,1,{tone:'#c9a24a'}); obj(z,'frame',13,1,{tone:'#8a3a3a'}); obj(z,'frame',3,1,{tone:'#3a5a8a'});
  for(let x=5;x<11;x++) act(z,x,3,{type:'msg',text:"The view: Midtown skyscrapers through the blinds. Rachel says she can see Bloomingdale's from here. She can't."});
@@ -473,7 +473,7 @@ room('ralph',"Ralph Lauren: Rachel's Office",16,11,{wall:'wallC',floor:'carpetR'
   lines:["Hi! I'm Tag, Rachel's assistant. I organize her schedule, her files, and her… other files.","She hired me for my 'organizational skills.' I'm pretty sure it was the organizational skills."]});
 }});
 
-room('bloomies',"Bloomingdale's",22,13,{wall:'wallC',floor:'marble',to:['midtown',20,9],exitX:10,tune:'city',extra(z){
+room('bloomies',"Bloomingdale's",22,13,{wall:'wallC',floor:'marble',to:['midtown',18,9],exitX:10,tune:'city',extra(z){
  obj(z,'window',3,0,{w:2}); obj(z,'window',17,0,{w:2}); obj(z,'wallsign',7,0,{w:8,text:"Bloomingdale's"});
  for(const [x,y] of [[2,4],[5,4],[15,4],[18,4],[2,9],[18,9]]){ obj(z,'rack',x,y,{tone:['#d9534f','#5b9bd5','#f0ad4e','#8e6bbf','#5cb85c','#e07aa0'][(x+y)%6]}); act(z,x,y,{type:'msg',text:'A rack of very expensive clothes. You check one price tag and immediately put it back.'}); act(z,x+1,y,{type:'msg',text:'A rack of very expensive clothes. You check one price tag and immediately put it back.'}); }
  obj(z,'mannequin',9,4); obj(z,'mannequin',12,4); act(z,9,4,{type:'msg',text:'A mannequin in this season\'s look. It looks better on the mannequin. It always does.'}); act(z,12,4,{type:'msg',text:'A mannequin. It has excellent posture.'});
@@ -490,22 +490,22 @@ room('bloomies',"Bloomingdale's",22,13,{wall:'wallC',floor:'marble',to:['midtown
 /* ---------------- SoHo ---------------- */
 street('soho','SoHo',40,{cross:[24],subway:{x:14,y:26,label:'SPRING ST',spawn:[16,25,'right']},
  north:[
-  {x:0,w:8,style:'cream',shop:true,awning:'#c0262c',signBg:'#2a2a2a',signFg:'#ff7a9a',sign:'MOONDANCE DINER',doors:[{x:4,to:['diner',9,10]}]},
-  {x:8,w:8,style:'slate',shop:true,awning:'#5a4a7a',signBg:'#f4f1ea',signFg:'#3a2a4a',sign:'FORTUNA FASHIONS',doors:[{x:4,msg:"Fortuna Fashions. Rachel's first fashion job, which was mostly getting coffee for people."}]},
-  {x:16,w:7,style:'brown',shop:true,awning:'#2f6b3a',signBg:'#1f2a1a',sign:"ALESSANDRO'S",doors:[{x:3,msg:"Alessandro's. Monica wrote a scathing review of this place, and then they hired her as head chef."}]},
-  {x:23,w:7,style:'brick',fire:true,tower:true,doors:[{x:3,kind:'stoop',msg:"A loft building. The buzzer says 'ARTISTS ONLY. NO EXCEPTIONS.'"}]},
-  {x:30,w:10,style:'slate',shop:true,awning:'#1a1a2a',signBg:'#1a1a2a',signFg:'#7ad0ff',sign:'IRIDIUM',doors:[{x:5,msg:"Iridium. Monica was head chef here for about five minutes, until she accepted a gift of steaks."}]}],
+  {x:0,w:8,style:'cream',shop:true,awning:'#c0262c',signBg:'#2a2a2a',signFg:'#ff7a9a',sign:'MOONDANCE DINER',hd:'x_soho_moondance',signLift:46,signCx:47,signW:84,doors:[{x:3,to:['diner',9,10]}]},
+  {x:8,w:8,style:'slate',shop:true,awning:'#5a4a7a',signBg:'#f4f1ea',signFg:'#3a2a4a',sign:'FORTUNA FASHIONS',hd:'x_soho_fortuna',signLift:44,signCx:64,signW:75,doors:[{x:3,msg:"Fortuna Fashions. Rachel's first fashion job, which was mostly getting coffee for people."}]},
+  {x:16,w:7,style:'brown',shop:true,awning:'#2f6b3a',signBg:'#1f2a1a',sign:"ALESSANDRO'S",hd:'x_soho_alessandro',signLift:40,signCx:70,signW:61,doors:[{x:4,msg:"Alessandro's. Monica wrote a scathing review of this place, and then they hired her as head chef."}]},
+  {x:23,w:7,style:'brick',fire:true,tower:true,hd:'x_soho_loft',doors:[{x:2,kind:'stoop',msg:"A loft building. The buzzer says 'ARTISTS ONLY. NO EXCEPTIONS.'"}]},
+  {x:30,w:10,style:'slate',shop:true,awning:'#1a1a2a',signBg:'#1a1a2a',signFg:'#7ad0ff',sign:'IRIDIUM',hd:'x_soho_iridium',signLift:54,signCx:79,signW:100,doors:[{x:5,msg:"Iridium. Monica was head chef here for about five minutes, until she accepted a gift of steaks."}]}],
  south:[
-  {x:0,w:10,style:'cream',fire:true,doors:[{x:5,kind:'stoop',msg:"A cast-iron loft building. Very SoHo. Very expensive. Very locked."}]},
-  {x:10,w:8,style:'brick',shop:true,awning:'#d48a2a',signBg:'#2a1a0a',sign:'GALLERY',doors:[{x:4,msg:"An art gallery. Tonight's show: 'Paintings That Stare Back.' Phoebe would love this."}]},
-  {x:20,w:10,style:'cream',fire:true,doors:[{x:5,kind:'stoop',msg:"Nobody's home."}]},
-  {x:30,w:10,style:'brown',tower:true,doors:[{x:5,kind:'stoop',msg:"A doorbell plays a little tune when you press it. Nobody answers."}]}],
+  {x:0,w:10,style:'cream',fire:true,hd:'x_soho_castiron',doors:[{x:4,kind:'stoop',msg:"A cast-iron loft building. Very SoHo. Very expensive. Very locked."}]},
+  {x:10,w:8,style:'brick',shop:true,awning:'#d48a2a',signBg:'#2a1a0a',sign:'GALLERY',hd:'x_soho_gallery',signLift:44,signCx:64,signW:104,plate:true,doors:[{x:3,msg:"An art gallery. Tonight's show: 'Paintings That Stare Back.' Phoebe would love this."}]},
+  {x:20,w:10,style:'cream',fire:true,hd:'x_soho_house1',doors:[{x:5,kind:'stoop',msg:"Nobody's home."}]},
+  {x:30,w:10,style:'brown',tower:true,hd:'x_soho_house2',doors:[{x:4,kind:'stoop',msg:"A doorbell plays a little tune when you press it. Nobody answers."}]}],
  extra(z){
   townie(z,'s1',6,10,F('#c68a5a','#2a1d17','long','#d0a040',{fem:true,outfit:'skirt'}),["The diner across the street has waitresses in wigs. One of them is an incredible chef. Long story."],true);
   townie(z,'s2',32,16,F('#f1c9a5','#2a1d17','short','#2a2a2a'),["I'm an artist. My medium is… disappointment. It's very SoHo."],true);
   townie(z,'s3',20,25,F('#5e3a26','#1c1410','bun','#5b9bd5',{fem:true}),["Iridium had a new head chef for, like, a day. She got fired over steaks. STEAKS."],false);
  }});
-room('diner','Moondance Diner',20,12,{wall:'wallT',floor:'tileM',to:['soho',4,9],exitX:9,tune:'city',extra(z){
+room('diner','Moondance Diner',20,12,{wall:'wallT',floor:'tileM',to:['soho',3,9],exitX:9,tune:'city',extra(z){
  // v1.7, from the 3D render: navy and cream checkered tiles, the blue patterned floor, the long navy counter
  // with chrome stripes and coloured stools, the back counter with the espresso machines, white tables with blue chairs
  paint(z,'wainsT',0,2,20,1);
@@ -531,9 +531,9 @@ room('diner','Moondance Diner',20,12,{wall:'wallT',floor:'tileM',to:['soho',4,9]
 /* ---------------- Uptown ---------------- */
 street('uptown','Uptown',40,{cross:[28],south:'park',gaps:[18,34],subway:{x:4,y:17,label:'81 ST – MUSEUM',spawn:[6,16,'right']},
  north:[
-  {x:0,w:20,style:'cream',columns:true,sign:'MUSEUM OF PREHISTORIC HISTORY',signBg:'#5a4a2a',signFg:'#f3e3b0',doors:[{x:10,kind:'shop',to:['museum',11,12]}]},
-  {x:20,w:8,style:'brown',tower:true,doors:[{x:4,kind:'stoop',msg:"An Upper West Side brownstone. A very small dog barks at you through the mail slot."}]},
-  {x:28,w:12,style:'cream',fire:true,shop:true,shopW:6,awning:'#2f5c7a',signBg:'#1f2a3a',sign:'DELI',doors:[{x:3,msg:"The deli is out of everything except pickles. So many pickles."},{x:9,kind:'stoop',msg:"A doorman eyes you suspiciously. You decide not to ask."}]}],
+  {x:0,w:20,style:'cream',columns:true,sign:'MUSEUM OF PREHISTORIC HISTORY',signBg:'#5a4a2a',signFg:'#f3e3b0',hd:'x_up_museum',signLift:54,signCx:159,signW:80,doors:[{x:10,kind:'shop',to:['museum',11,12]}]},
+  {x:20,w:8,style:'brown',tower:true,hd:'x_up_brownstone',doors:[{x:3,kind:'stoop',msg:"An Upper West Side brownstone. A very small dog barks at you through the mail slot."}]},
+  {x:28,w:12,style:'cream',fire:true,shop:true,shopW:6,awning:'#2f5c7a',signBg:'#1f2a3a',sign:'DELI',hd:'x_up_deli',signLift:44,signCx:48,signW:56,doors:[{x:2,msg:"The deli is out of everything except pickles. So many pickles."},{x:9,kind:'stoop',msg:"A doorman eyes you suspiciously. You decide not to ask."}]}],
  extra(z){
   obj(z,'fountain',18,24); for(const [x,y] of [[18,24],[19,24],[20,24],[18,25],[19,25],[20,25]]) act(z,x,y,{type:'quiz',name:'The Fountain',icon:'umbrella',script:{narrate:true,
    greet:["A big fountain in Central Park. It looks like the perfect place to dance around with five friends and some umbrellas.","Someone left a note on the edge: 'Five questions. Four right. Umbrella's under the bench.'"],
@@ -571,14 +571,14 @@ room('museum','Museum of Prehistoric History',24,14,{wall:'wallH',floor:'rotunda
 /* ---------------- Queens ---------------- */
 street('queens','Long Island City, Queens',36,{cross:[25],south:'water',subway:{x:30,y:16,label:'QUEENSBORO PLAZA',spawn:[29,15,'left']},
  north:[
-  {x:0,w:22,style:'brick',shop:true,awning:'#c0262c',signBg:'#c0262c',signFg:'#ffffff',sign:'SILVERCUP STUDIOS',doors:[{x:11,to:['studio',10,11]}]},
-  {x:22,w:14,style:'slate',doors:[{x:7,kind:'plain',msg:"A warehouse. A sign on the door: 'PROPS — DO NOT TOUCH. THIS MEANS YOU, TRIBBIANI.'"}]}],
+  {x:0,w:22,style:'brick',shop:true,awning:'#c0262c',signBg:'#c0262c',signFg:'#ffffff',sign:'SILVERCUP STUDIOS',hd:'x_q_silvercup',signLift:44,signCx:176,signW:120,plate:true,doors:[{x:12,to:['studio',10,11]}]},
+  {x:22,w:14,style:'slate',hd:'x_q_warehouse',doors:[{x:6,kind:'plain',msg:"A warehouse. A sign on the door: 'PROPS — DO NOT TOUCH. THIS MEANS YOU, TRIBBIANI.'"}]}],
  extra(z){
   townie(z,'q1',8,16,F('#c68a5a','#2a1d17','short','#5a6a8a'),["I'm an extra on Days of Our Lives. I play 'Doctor Walking Past.' I've walked past Dr. Drake Ramoray eleven times."],true);
   townie(z,'q2',20,16,F('#f1c9a5','#b5462a','long','#5cb85c',{fem:true,outfit:'dress'}),["The skyline from over here is the best view in the city. Don't tell Manhattan."],true);
   act(z,10,18,{type:'msg',text:"The Manhattan skyline across the East River. Somewhere over there, six friends are drinking coffee."});
  }});
-room('studio','Days of Our Lives (Set 4)',22,13,{wall:'wallC',floor:'conc',to:['queens',11,9],exitX:10,tune:'city',extra(z){
+room('studio','Days of Our Lives (Set 4)',22,13,{wall:'wallC',floor:'conc',to:['queens',12,9],exitX:10,tune:'city',extra(z){
  obj(z,'wallsign',6,0,{w:10,text:'Days of Our Lives'});
  obj(z,'hospbed',4,5); act(z,4,5,{type:'msg',text:"The hospital-room set. The heart monitor is just a TV playing a looping video of a heart monitor."}); act(z,5,5,{type:'msg',text:"The hospital-room set. The heart monitor is just a TV playing a looping video of a heart monitor."});
  obj(z,'camera',9,8); obj(z,'camera',14,8); for(const x of [9,14]) act(z,x,8,{type:'msg',text:"A big studio camera. A sticky note on it says: 'Joey, please stop waving at this.'"});
@@ -619,10 +619,10 @@ scene('london','London, England',24,14,'walk',{extra(z){
 }});
 scene('vegas','Las Vegas, Nevada',24,14,'nroad',{bg:'#0c0814',extra(z){
  paint(z,'walk',0,9,24,2); paint(z,'walk',0,13,24,1);
- obj(z,'building',1,1,{w:9,h:8,style:'neon',shop:true,awning:'#ff6fb0',signBg:'#1a0a1a',signFg:'#ff9ad0',sign:'WEDDING CHAPEL',doors:[{x:4,kind:'shop'}]});
+ obj(z,'building',1,1,{hd:'x_vegas_chapel',signLift:54,signCx:71,signW:90,w:9,h:8,style:'neon',shop:true,awning:'#ff6fb0',signBg:'#1a0a1a',signFg:'#ff9ad0',sign:'WEDDING CHAPEL',doors:[{x:4,kind:'shop'}]});
  msgDoor(z,5,8,"A 24-hour wedding chapel. Two people you know very well got married here after a lot of drinks. Neither remembers it.");
- obj(z,'building',12,1,{w:12,h:8,style:'neon',shop:true,awning:'#e8b820',signBg:'#1a1a0a',signFg:'#ffd84a',sign:'CAESARS PALACE',doors:[{x:6,kind:'shop'}]});
- msgDoor(z,18,8,"Caesars Palace. Inside, an actor in a gladiator outfit is posing for photos and very much living his dream.");
+ obj(z,'building',12,1,{hd:'x_vegas_caesars',signLift:46,signCx:70,signW:126,w:12,h:8,style:'neon',shop:true,awning:'#e8b820',signBg:'#1a1a0a',signFg:'#ffd84a',sign:'CAESARS PALACE',doors:[{x:4,kind:'shop'}]});
+ msgDoor(z,16,8,"Caesars Palace. Inside, an actor in a gladiator outfit is posing for photos and very much living his dream.");
  obj(z,'cab',19,11,{yellow:true}); homeAct(z,19,11,'Back to JFK'); homeAct(z,20,11,'Back to JFK');
  obj(z,'lamp',11,10); obj(z,'palm',2,13); obj(z,'palm',22,13);
  cast(z,'rachel_v','Rachel',8,11,'down',F('#efc9a8','#4a3426','long','#f4f1ea',{fem:true,outfit:'dress'}),{reward:'veil',tags:'rachel ross',n:5,need:4,
