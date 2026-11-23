@@ -4,6 +4,11 @@ A private, Pokémon-style pixel-art trivia adventure set in Friends' Greenwich V
 
 **Play:** open `index.html` in a browser, or turn on GitHub Pages for this repo (Settings → Pages → deploy from `main`, root folder).
 
+## v1.4: "The One Where Nobody's Old-School"
+
+- **Every NPC is HD now.** The townspeople, café customers and passers-by, plus Eddie and the MSG usher, are drawn from the player character templates. Each keeps their colours, and short hair varies between buzz, shaggy and spiky so crowds don't look cloned.
+- The apartment duck uses the runaway duck's art until it gets its own sheet.
+
 ## v1.3: "The One With the New Neighborhood"
 
 - **Greenwich Village redrawn in HD:** all 11 buildings on Grove St are new hand-drawn facades (Central Perk, Ross's building, Phoebe's, the Lucille Lortel, Village Cigars, Ray's Pizza and the brownstones), with shop signs written on their boards.
@@ -150,6 +155,6 @@ Cast members currently use generic placeholder sprites with name tags. To swap i
 
 - More trips: Atlantic City, Tulsa
 - HD sprites for the MSG usher, Eddie, the apartment duck, and the missing looks (Ross's brown shirt, Joey's red shirt, Chandler's green shirt)
-- HD townspeople (the player template could be reused for them)
+- Dedicated HD sheets for Eddie, the MSG usher and the apartment duck
 - HD hats and carried items for the player
 - HD buildings for the other neighborhoods and the interiors (same brief and tools as the Village)

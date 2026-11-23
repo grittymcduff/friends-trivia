@@ -31,13 +31,14 @@ const HD_SPRITES = {
 };
 // Which sheet each cast NPC (by id in maps.js) wears. Secret sightings set look.hd in EGGS instead.
 // Not in the art bundle yet, so these stand in: Ross brown shirt (ross_m), Joey red shirt (joey_l), Chandler green shirt (chandler).
-// Still procedural: the MSG usher, Eddie, and the apartment duck.
+// Eddie and the MSG usher have no sheet yet: they're drawn from the player templates (npcLook).
+// The apartment duck borrows the runaway duck's art.
 const HD_CAST = {
  gunther:'gunther', rachel:'rachel_waitress', phoebe:'phoebe_guitar', monica:'monica_bob', ross:'ross_green', joey:'joey_navy', chandler:'chandler_work', chick:'chick',
  ross_h:'ross_home', chandler_o:'chandler_work', rachel_b:'rachel_work', monica_d:'monica_diner', ross_m:'ross_green', joey_s:'joey_doctor', joey_l:'joey_navy',
  rachel_v:'rachel_vegas', monica_b:'monica_barbados', phoebe_m:'phoebe_sundress',
  heckles:'heckles', jack:'jack', judy:'judy', frankjr:'frankjr', janice:'janice', richard:'richard', estelle:'estelle', mike:'mike',
- monica_f:'monica_bob', chandler_f:'chandler_work', joey_f:'joey_navy', ross_f:'ross_green',
+ duck:'duck_runaway', monica_f:'monica_bob', chandler_f:'chandler_work', joey_f:'joey_navy', ross_f:'ross_green',
 };
 const HD_PROPS = { carcover:'sprites/hd/Joey_BoxPorsche_prop.png' };
 /* v1.3: HD Greenwich Village art (tools/prep_village.py), 8 px per world pixel.
@@ -317,7 +318,13 @@ function carSprite(col,taxi){const k=col+taxi;if(carCache[k])return carCache[k];
 /* ===================== ART: characters ===================== */
 const charCache={};
 function hdKey(look,id){return(look&&look.hd)||HD_CAST[id]}
-function charSprites(look,id){if(look&&look.player){if(PL.ready)return playerSprites(look);look=procLook(look)}const hk=hdKey(look,id);if(hk&&hdSprites[hk])return hdSprites[hk];if(id&&customSprites[id])return customSprites[id];const k=JSON.stringify(look);if(charCache[k])return charCache[k];
+// v1.4: everyone without their own HD sheet (townspeople, Eddie, the usher) is drawn from the player
+// templates, keeping their colours; short hair varies between three cuts so crowds don't look cloned
+function npcLook(L,id){const h=[...JSON.stringify(L)+(id||'')].reduce((a,c)=>(a*31+c.charCodeAt(0))>>>0,7);
+ const short=['buzz','shaggy','buzz','shaggy','spiky'][h%5],st={long:'long',bob:'shaggy',bun:'ponytail',bald:'bald',short}[L.style||'short']||short;
+ return Object.assign({},L,{player:true,style:st,freckles:h%5===3,outfit:L.outfit||'pants',pants:L.pants||'#3a3a44'})}
+function charSprites(look,id){if(look&&look.player){if(PL.ready)return playerSprites(look);look=procLook(look)}const hk=hdKey(look,id);if(hk&&hdSprites[hk])return hdSprites[hk];
+ if(PL.ready&&look&&!look.animal&&!(id&&customSprites[id]))return playerSprites(npcLook(look,id));if(id&&customSprites[id])return customSprites[id];const k=JSON.stringify(look);if(charCache[k])return charCache[k];
  const out={down:[],up:[],left:[],right:[]};
  for(const dir of['down','up','left'])for(let f=0;f<3;f++)out[dir].push(drawChar(look,dir,f));
  out.right=out.left.map(mirror);return charCache[k]=out}
@@ -405,7 +412,7 @@ const STYLE_MAP={bob:'shaggy',short:'buzz',bun:'ponytail'};   // hairstyles from
 function loadPlayerArt(){fetch('sprites/player/meta.json').then(r=>r.json()).then(meta=>{const names=['base','freckles',...meta.styles];let left=names.length;
  for(const n of names){const im=new Image();im.onload=()=>{const[c,g]=mk(im.width,im.height);g.drawImage(im,0,0);const d=g.getImageData(0,0,im.width,im.height).data,lab=new Uint8Array(im.width*im.height);
   for(let i=0;i<lab.length;i++)lab[i]=Math.round(d[i*4]/20);PL.sheets[n]={w:im.width,lab};
-  if(--left===0){PL.meta=meta;PL.ready=true;if(S)refreshPlayer();else player.spr=charSprites(lookFromPick());if(state==='title')drawPreview()}};im.src='sprites/player/'+n+'.png'}}).catch(()=>{})}
+  if(--left===0){PL.meta=meta;PL.ready=true;if(S)refreshPlayer();else player.spr=charSprites(lookFromPick());if(typeof npcs!=='undefined')for(const n of npcs)if(!(n.spr&&n.spr.hd))n.spr=charSprites(n.look,n.id);if(state==='title')drawPreview()}};im.src='sprites/player/'+n+'.png'}}).catch(()=>{})}
 function hexRGB(h){const n=parseInt(h.slice(1,7),16);return[n>>16,n>>8&255,n&255]}
 function playerSprites(L){
  let style=STYLE_MAP[L.style]||L.style||'bald',hair=L.hair||'#4a3426';
