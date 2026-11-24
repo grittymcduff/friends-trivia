@@ -4,6 +4,13 @@ A private, Pokémon-style pixel-art trivia adventure set in Friends' Greenwich V
 
 **Play:** open `index.html` in a browser, or turn on GitHub Pages for this repo (Settings → Pages → deploy from `main`, root folder).
 
+## v2.0.1: Tidier streets
+
+- The game always opens in the Far view so the whole block is on screen. The zoom button still changes it.
+- People walking the sidewalks now step properly instead of gliding.
+- Cast easter eggs happen where they did on the show: the turkey head and the Holiday Armadillo at Monica's, Joey in all of Chandler's clothes and Chandler in a box at Joey & Chandler's, and PIVOT! at Ross's. They swap the regular character's look instead of adding a second copy of them.
+- Only one easter egg can show up per visit, and ones you've already found come back less often. The street keeps the outdoor ones: the runaway duck, Joey's "Porsche" and Joey the tourist.
+
 ## v2.0: HD keepsakes and real-size trips
 
 - Every collectible on the Shelf now has an HD pixel-art icon (35 new icons, cut by `tools/prep_icons.py` from 2x2 sheets).

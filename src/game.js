@@ -672,6 +672,12 @@ const PIECES={
  holiday:{bpm:120,swing:0,chords:[C_(48,MAJ),C_(57,MIN),C_(53,MAJ),C_(55,DOM7),C_(48,MAJ),C_(57,MIN),C_(53,MAJ),C_(55,DOM7)],style:'holiday',
   mel:[[[0,76,2],[2,79,2],[4,84,4],[8,83,2],[10,81,2],[12,79,4]],[[0,81,4],[4,84,4],[8,76,8]],[[0,77,2],[2,81,2],[4,84,4],[8,86,4],[12,84,4]],[[0,83,4],[4,79,4],[8,74,8]],
    [[0,76,2],[2,79,2],[4,84,4],[8,83,2],[10,81,2],[12,79,4]],[[0,81,2],[2,83,2],[4,84,4],[8,88,8]],[[0,86,4],[4,84,2],[6,81,2],[8,77,4],[12,86,4]],[[0,84,12]]],lead:'celesta'}};
+// v2.0 title theme: an original bright guitar-pop tune in E with a clap break at the end of each pass
+PIECES.theme={bpm:132,swing:0,always:true,chords:[C_(52,MAJ),C_(49,MIN),C_(57,MAJ),C_(59,MAJ),C_(52,MAJ),C_(56,MIN),C_(57,MAJ),C_(59,SUS)],style:'theme',
+ mel:[[[0,83,2],[2,83,2],[4,85,2],[6,83,2],[8,80,4],[12,76,4]],[[0,80,2],[2,81,2],[4,80,2],[6,78,2],[8,76,6],[14,73,2]],
+  [[0,76,2],[2,78,2],[4,81,4],[8,85,4],[12,83,4]],[[0,83,6],[6,81,2],[8,78,8]],
+  [[0,83,2],[2,83,2],[4,85,2],[6,87,2],[8,88,4],[12,85,4]],[[0,83,4],[4,80,2],[6,83,2],[8,87,6],[14,85,2]],
+  [[0,85,4],[4,83,2],[6,81,2],[8,80,2],[10,81,2],[12,83,4]],[[0,83,4],[4,78,4]]],lead:'gtr2'};
 const TUNE_PIECE={village:'village',perk:'perk',home:'home',city:'city',travel:'travel'};
 const music={name:null,P:null,step:0,next:0,bus:null};
 const mf=m=>440*Math.pow(2,(m-69)/12);
@@ -697,13 +703,15 @@ function bass(m,t,v,d=.45){const o=AC.createOscillator(),o2=AC.createOscillator(
  f.type='lowpass';f.frequency.setValueAtTime(900,t);f.frequency.exponentialRampToValueAtTime(180,t+d);g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(v,t+.01);g.gain.exponentialRampToValueAtTime(.0001,t+d);
  o.connect(f);o2.connect(f);f.connect(g);o.start(t);o2.start(t);o.stop(t+d+.05);o2.stop(t+d+.05)}
 function drum(kind,t,v){if(kind==='kick'){const o=AC.createOscillator(),g=out(t,v);o.frequency.setValueAtTime(130,t);o.frequency.exponentialRampToValueAtTime(42,t+.12);g.gain.setValueAtTime(v,t);g.gain.exponentialRampToValueAtTime(.0001,t+.18);o.connect(g);o.start(t);o.stop(t+.2);return}
- const s=AC.createBufferSource(),f=AC.createBiquadFilter(),g=out(t,v);s.buffer=noiseBuffer();const P={snare:['bandpass',2200,.14],brush:['bandpass',3200,.26],hat:['highpass',7500,.035],shaker:['highpass',5200,.06],ride:['highpass',6000,.3],bells:['highpass',8000,.14]}[kind];
+ const s=AC.createBufferSource(),f=AC.createBiquadFilter(),g=out(t,v);s.buffer=noiseBuffer();const P={snare:['bandpass',2200,.14],brush:['bandpass',3200,.26],hat:['highpass',7500,.035],shaker:['highpass',5200,.06],ride:['highpass',6000,.3],bells:['highpass',8000,.14],clap:['bandpass',1400,.13]}[kind];
+ if(kind==='clap'){for(const dt of[0,.011,.023]){const s2=AC.createBufferSource(),f2=AC.createBiquadFilter(),g2=out(t+dt,v);s2.buffer=noiseBuffer();f2.type='bandpass';f2.frequency.value=1400;f2.Q.value=.9;
+  g2.gain.setValueAtTime(v,t+dt);g2.gain.exponentialRampToValueAtTime(.0001,t+dt+(dt>.02?.13:.012));s2.connect(f2).connect(g2);s2.start(t+dt,Math.random()*.5);s2.stop(t+dt+.15)}return}
  f.type=P[0];f.frequency.value=P[1];g.gain.setValueAtTime(kind==='brush'||kind==='shaker'?0:v,t);if(kind==='brush'||kind==='shaker')g.gain.linearRampToValueAtTime(v,t+.02);g.gain.exponentialRampToValueAtTime(.0001,t+P[2]);
  s.connect(f).connect(g);s.start(t,Math.random()*.5);s.stop(t+P[2]+.02);if(kind==='bells')bell(98,t,v*.4,.15,[[1,1],[1.5,.6]])}
 function voicing(c,lo){return c.q.map(i=>{let n=c.r+i;while(n<lo)n+=12;return n})}
 // one 16th step of the current piece
 function playStep(P,bar,st,t,loop){const c=P.chords[bar],spb=60/P.bpm/4,beat=st%4===0;
- const melOn=P.mel&&loop%2===1,mel=melOn&&P.mel[bar].filter(n=>n[0]===st);
+ const melOn=P.mel&&(P.always||loop%2===1),mel=melOn&&P.mel[bar].filter(n=>n[0]===st);
  if(P.style==='jangle'){const v=voicing(c,55),arp=[v[0],v[2],v[0]+12,v[1]+12,v[2],v[1]+12,v[0]+12,v[2]];if(st%2===0)pluck(arp[(st/2)%8],t,.11,1.6,.6);
   if(st===0||st===8)v.forEach((n,i)=>pluck(n+12,t+i*.012,.05,1.2,.4));
   if(st===0||st===8)bass(c.r-12,t,.32,.5);if(st===6||st===14)bass(c.r-12+(st===14?7:0),t,.22,.3);
@@ -718,9 +726,15 @@ function playStep(P,bar,st,t,loop){const c=P.chords[bar],spb=60/P.bpm/4,beat=st%
   if(st===0||st===6||st===10)drum('kick',t,.34);if(st===4||st===12)drum('snare',t,.14);drum('hat',t,st%2?.025:.045)}
  else if(P.style==='island'){const v=voicing(c,64);if([0,4,6,10,12,14].includes(st))v.forEach((n,i)=>pluck(n,t+i*.01*(st%4===0?1:-1)+.03,.06,.7,.75));
   if([0,6,8,14].includes(st))bass(c.r-12+(st===14?7:0),t,.26,.4);drum('shaker',t,st%2?.02:.035)}
+ else if(P.style==='theme'){const brk=bar===7&&st>=8,v=voicing(c,52);
+  if(brk){if(st===8||st===10||st===12)drum('clap',t,.3);if(st===14){drum('kick',t,.3);v.forEach((n,i)=>pluck(n+12,t+i*.008,.07,.5,.7))}}
+  else{if(st%2===0){const mute=st%4!==0;v.forEach((n,i)=>pluck(n+12,t+i*.007,mute?.035:.055,mute?.25:.9,mute?.45:.7))}
+   bass(c.r-12+(st===14?7:0),t,st%4===0?.3:.2,.22);
+   if(st===0||st===6||st===8)drum('kick',t,.34);if(st===4||st===12)drum('snare',t,.16);drum('hat',t,st%2?.025:.05);
+   if(bar===3&&st>=12)drum('snare',t,.1)}}
  else if(P.style==='holiday'){const v=voicing(c,60);if(st%4===2)v.forEach(n=>bell(n,t,.03,.5,[[1,1],[2,.2]]));if(st===0||st===8)bass(c.r-12,t,.26,.4);if(st%2===0)drum('bells',t,.04);if(st===0||st===8)drum('kick',t,.2)}
  if(mel&&mel.length)for(const[,m,len]of mel){const d=len*spb*1.3;
-  if(P.lead==='gtr')pluck(m,t,.13,Math.max(.8,d+.6),.5);else if(P.lead==='vibes')vibes(m,t,.07,Math.max(.9,d+.5));else if(P.lead==='steel')bell(m,t,.08,Math.max(.6,d),[[1,1],[2,.3],[3,.1]]);else bell(m,t,.07,Math.max(.8,d+.4))}}
+  if(P.lead==='gtr')pluck(m,t,.13,Math.max(.8,d+.6),.5);else if(P.lead==='gtr2'){pluck(m,t,.14,Math.max(.8,d+.5),.62);pluck(m-12,t+.004,.06,Math.max(.8,d+.5),.5)}else if(P.lead==='vibes')vibes(m,t,.07,Math.max(.9,d+.5));else if(P.lead==='steel')bell(m,t,.08,Math.max(.6,d),[[1,1],[2,.3],[3,.1]]);else bell(m,t,.07,Math.max(.8,d+.4))}}
 function setTune(name){let key=TUNE_PIECE[name]||'city';const sea=season();if(sea==='winter'&&new Date().getMonth()===11&&(key==='village'||key==='city'))key='holiday';
  if(music.name===key)return;music.name=key;music.P=PIECES[key];music.step=0;if(AC)music.next=AC.currentTime+.2}
 function musicTick(){if(!AC||!music.P||muted||state==='title')return;const P=music.P,spb=60/P.bpm/4;if(music.next<AC.currentTime)music.next=AC.currentTime+.05;
@@ -1187,7 +1201,8 @@ function travel(text,to,x,y,dir){if(SUBWAY_LINES[to]){state='fade';SFX.door();
 let forceEggs=false,eggsHere=[];
 function spawnEggs(nosave){Zn.objs=Zn.objs.filter(o=>!o.egg);Zn.acts=Zn.acts.filter(a=>!a.egg);const out=[];if(nosave&&!forceEggs)return out;
  eggsHere=[];
- for(const e of EGGS){if(e.zone!==Zn.id||!(forceEggs||R()<EGG_CHANCE))continue;eggsHere.push(e.id);
+ const here=EGGS.filter(e=>e.zone===Zn.id).sort(()=>R()-.5);let shown=0;
+ for(const e of here){if(!forceEggs){if(shown||R()>=((S&&S.eggs&&S.eggs[e.id])?EGG_CHANCE_FOUND:EGG_CHANCE))continue}shown++;eggsHere.push(e.id);
   for(const o of e.objs||[]){const ob=Object.assign({egg:e.id},o);ob.spr=makeObj(ob);Zn.objs.push(ob)}
   for(const[x,y]of e.acts||[])Zn.acts.push({x,y,type:'egg',egg:e.id});
   for(const n of e.npcs||[]){const[x,y]=n.spots[(R()*n.spots.length)|0];out.push({id:'egg_'+e.id+'_'+n.name,name:n.name,cast:!n.animal,x,y,dir:n.dir||'down',look:n.look,egg:e.id,talk:'egg',
@@ -1292,7 +1307,7 @@ function draw(){ctx.setTransform(1,0,0,1,0,0);ctx.fillStyle=Zn.bg;ctx.fillRect(0
  for(const t of taxis){if(!vis(t.x,t.by-40,CAR_LEN,44))continue;L.push({y:t.by,d:()=>{const hs=carHD(t.col,t.taxi,t.model)||carHD(t.col,t.taxi);if(hs){drawCar(hs,t.x+CAR_LEN/2,t.by,t.dir<0,CAR_LEN/(hs.l.width/8),null);return}const sp=carSprite(t.col,t.taxi);ctx.drawImage(t.dir>0?sp.r:sp.l,Math.round(t.x),t.row*16+16-21)}})}
  for(const n of npcs)L.push({y:n.py+16+.3,d:()=>drawChar2(n,n.spr,n.dir,n.moving?(n.t<.5?1+((n.x+n.y)&1):0):0,n.px,n.py,n.sit||n.seated)});
  L.push({y:player.py+16+.6,d:()=>drawChar2(null,player.spr,player.dir,player.moving?(player.t<.55?1+player.step:0):0,player.px,player.py,player.sit)});
- for(const w of walkers){if(!vis(w.x-8,w.row*16-24,32,40))continue;L.push({y:w.row*16+16+.2,d:()=>drawChar2(null,w.spr,w.dir<0?'left':'right',w.moving?((w.t*5|0)%2)+1:0,w.x,w.row*16,false)})}
+ for(const w of walkers){if(!vis(w.x-8,w.row*16-24,32,40))continue;L.push({y:w.row*16+16+.2,d:()=>drawChar2(null,w.spr,w.dir<0?'left':'right',w.moving?[1,0,2,0][(w.t*7|0)%4]:0,w.x,w.row*16,false)})}
  L.sort((a,b)=>a.y-b.y);for(const e of L)e.d();
  {const now=performance.now(),dt=Math.min(.05,(now-(ambT||now))/1000);ambT=now;drawAmbient(cx,cy,vw,vh,indoor,dt)}
  // screen-space text
@@ -1417,7 +1432,7 @@ let last=performance.now(),saveT=0;
 function loop(now){const dt=Math.min(.05,(now-last)/1000);last=now;clock+=dt;if(((clock*4)|0)!==loop.k){loop.k=(clock*4)|0;checkChapter()}
  if(Zn&&S&&state!=='title'){updPlayer(dt);updNpcs(dt);updTaxis(dt);updWalkers(dt);updDialog(dt);saveT+=dt;if(saveT>5){saveT=0;save()}draw()}
  syncTouch();requestAnimationFrame(loop)}
-try{const z=+localStorage.getItem('friendsTrivia_zoom');if([1,2,3].includes(z))setZoom(z,true);else setZoom(2,true)}catch(e){setZoom(2,true)}
+setZoom(1,true);   // v2.0: always open in Far so the whole block is on screen; the zoom button still changes it
 fit();setupTitle();setupTouch();loadCustomSprites();loadHD();loadPlayerArt();loadVillageArt();loadInteriorArt();loadNightArt();
 // title-screen backdrop: render the village behind the menu
 player.spr=charSprites(lookFromPick());loadZone('village',15,10,'up',true);state='title';
