@@ -63,11 +63,8 @@ function carHD(col,taxi,model){const k=(taxi?'taxi'+(model||''):col+(model||''))
   for(let i=0;i<a.length;i+=4){const r=a[i],gg=a[i+1],b=a[i+2];if(r>55&&b>55&&gg<r*.62&&gg<b*.62){const l=(r+b)/2/255*1.15;a[i]=Math.min(255,R*l);a[i+1]=Math.min(255,G*l);a[i+2]=Math.min(255,B*l)}}
   g.putImageData(d,0,0)}
  return carHDCache[k]=carInfo(c,taxi?(model?'car_taxi90':'taxi'):model?'car_'+model+'_t':'car')}
-// v1.8.1: clean the light fringe left around the tyres by the cut-out, find the tyres (so moving cars can spin them)
-// and how much empty space sits under them (so every model's tyres touch the same line)
-// tyre centres and radii in each car sprite (measured from the art)
-const CAR_WHEELS={car:[[70,74,14],[217,74,14]],taxi:[[68,84,15],[220,84,14]],car_wagon_t:[[70,107,17],[232,107,17]],car_van_t:[[59,114,18],[232,114,18]],
- car_compact_t:[[40,94,15],[193,94,16]],car_taxi90:[[66,112,17],[230,112,17]],grantaxi:[[56,108,18],[226,108,18]]};
+// v1.8.1: clean the light fringe left around the tyres by the cut-out, and measure how much empty space sits under
+// them (so every model's tyres touch the same line)
 function carInfo(c,key){const g=c.getContext('2d'),W=c.width,H=c.height,d=g.getImageData(0,0,W,H),a=d.data,A=i=>a[i*4+3];
  for(let pass=0;pass<2;pass++){const kill=[];for(let y=0;y<H;y++)for(let x=0;x<W;x++){const i=y*W+x;if(!A(i))continue;
    const edge=x===0||y===0||x===W-1||y===H-1||!A(i-1)||!A(i+1)||!A(i-W)||!A(i+W);if(!edge)continue;
@@ -76,15 +73,11 @@ function carInfo(c,key){const g=c.getContext('2d'),W=c.width,H=c.height,d=g.getI
  g.putImageData(d,0,0);
  // ground line: lowest row with a real amount of opaque pixels
  let ground=H-1;for(let y=H-1;y>0;y--){let n=0;for(let x=0;x<W;x++)if(A(y*W+x)>200)n++;if(n>W*.04){ground=y;break}}
- const wheels=(CAR_WHEELS[key]||[]).map(([cx,cy,r0])=>{const r=r0*1.15;
-  const[wc,wg]=mk(Math.ceil(r*2),Math.ceil(r*2));wg.beginPath();wg.arc(r,r,r,0,7);wg.clip();wg.drawImage(c,cx-r,cy-r,r*2,r*2,0,0,r*2,r*2);return{x:cx,y:cy,r,c:wc}});
- return{l:c,pad:H-1-ground,wheels}}
-// draw a car with its tyres on world line `by`; ang spins the tyres (null for parked cars)
+ return{l:c,pad:H-1-ground}}
+// draw a car with its tyres on world line `by`
 function drawCar(info,cx,by,flip,sc,ang){const im=info.l,s=sc/8,w=im.width*s,h=im.height*s,bb=by+info.pad*s;
  ctx.fillStyle='rgba(0,0,0,.2)';ctx.beginPath();ctx.ellipse(cx,by-1,w*.42,Math.max(1.5,w*.08),0,0,7);ctx.fill();
  ctx.save();ctx.translate(cx,bb-h);if(flip)ctx.scale(-1,1);ctx.translate(-w/2,0);smooth(true);ctx.drawImage(im,0,0,w,h);
- if(ang!=null)for(const wh of info.wheels){const R=wh.r*s;ctx.save();ctx.translate(wh.x*s,wh.y*s);ctx.rotate(ang/R);ctx.drawImage(wh.c,-R,-R,2*R,2*R);
-  ctx.fillStyle='rgba(20,20,24,.9)';for(let k=0;k<5;k++){const q=k*Math.PI*2/5;ctx.beginPath();ctx.arc(Math.cos(q)*R*.38,Math.sin(q)*R*.38,R*.09,0,7);ctx.fill()}ctx.restore()}
  smooth(false);ctx.restore()}
 let grantaxiInfo=null;
 // draw an HD image (in 8x pixels) with its bottom centre at world (cx, by); soft shadow underneath
@@ -746,7 +739,7 @@ function updTaxis(dt){const W=Zn.w*16;for(const t of taxis){
  const p0=Math.min(player.px,player.x*16,player.fx*16),p1=Math.max(player.px,player.x*16,player.fx*16)+16;
  let stop=false;if(pRow&&p1>a&&p0<b){stop=true;if(t.honk<=0&&state==='world'){t.honk=2.2;SFX.honk()}}
  for(const o of taxis)if(o!==t&&o.row===t.row&&o.x+CAR_LEN>a&&o.x<b)stop=true;
- if(t.honk>0)t.honk-=dt;if(!stop){t.x+=t.dir*t.sp*dt;t.roll=(t.roll||0)+t.sp*dt}
+ if(t.honk>0)t.honk-=dt;if(!stop)t.x+=t.dir*t.sp*dt;
  if(t.dir>0&&t.x>W+40)t.x=-CAR_LEN-40;if(t.dir<0&&t.x<-CAR_LEN-40)t.x=W+40}}
 
 /* ===================== Dialogue ===================== */
@@ -1021,7 +1014,7 @@ function draw(){ctx.setTransform(1,0,0,1,0,0);ctx.fillStyle=Zn.bg;ctx.fillRect(0
   if((o.kind==='car'&&hdVProps.car)||(o.kind==='grantaxi'&&hdIn.grantaxi)){const md=CAR_MODELS[o.model!==undefined?o.model:(o.x*7+o.y*3)%4],sp=o.kind==='grantaxi'?(grantaxiInfo||(grantaxiInfo=carInfo((()=>{const[c,g]=mk(hdIn.grantaxi.width,hdIn.grantaxi.height);g.drawImage(hdIn.grantaxi,0,0);return c})(),'grantaxi'))):(carHD(o.color,false,md)||carHD(o.color,false)),
    by=Zn.wide?(o.y===11?11*16+9:18*16-1):o.y*16+17,cx=o.x*16+17;L.push({y:by,d:()=>drawCar(sp,cx,by,(o.dir||1)<0,CAR_LEN/(sp.l.width/8),null)});continue}
   L.push({y:(o.y+fh)*16,d:hp?()=>{const w=s.c.width,h=w*hp.height/hp.width;ctx.imageSmoothingEnabled=true;ctx.drawImage(hp,dx,dy+s.c.height-h,w,h);ctx.imageSmoothingEnabled=false}:()=>ctx.drawImage(s.c,dx,dy)})}
- for(const t of taxis){if(!vis(t.x,t.by-40,CAR_LEN,44))continue;L.push({y:t.by,d:()=>{const hs=carHD(t.col,t.taxi,t.model)||carHD(t.col,t.taxi);if(hs){drawCar(hs,t.x+CAR_LEN/2,t.by,t.dir<0,CAR_LEN/(hs.l.width/8),t.roll||0);return}const sp=carSprite(t.col,t.taxi);ctx.drawImage(t.dir>0?sp.r:sp.l,Math.round(t.x),t.row*16+16-21)}})}
+ for(const t of taxis){if(!vis(t.x,t.by-40,CAR_LEN,44))continue;L.push({y:t.by,d:()=>{const hs=carHD(t.col,t.taxi,t.model)||carHD(t.col,t.taxi);if(hs){drawCar(hs,t.x+CAR_LEN/2,t.by,t.dir<0,CAR_LEN/(hs.l.width/8),null);return}const sp=carSprite(t.col,t.taxi);ctx.drawImage(t.dir>0?sp.r:sp.l,Math.round(t.x),t.row*16+16-21)}})}
  for(const n of npcs)L.push({y:n.py+16+.3,d:()=>drawChar2(n,n.spr,n.dir,n.moving?(n.t<.5?1+((n.x+n.y)&1):0):0,n.px,n.py,n.sit||n.seated)});
  L.push({y:player.py+16+.6,d:()=>drawChar2(null,player.spr,player.dir,player.moving?(player.t<.55?1+player.step:0):0,player.px,player.py,player.sit)});
  L.sort((a,b)=>a.y-b.y);for(const e of L)e.d();

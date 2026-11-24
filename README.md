@@ -10,7 +10,7 @@ A private, Pokémon-style pixel-art trivia adventure set in Friends' Greenwich V
 - **Wider streets:** Grove St and every street with traffic has three more road lanes' worth of space. Front to back: cars parked along the far curb (tyres on the edge of the asphalt, roofs overlapping the sidewalk), traffic heading right to left above the yellow line, traffic heading left to right below it, then cars parked along the near curb. Nearer cars draw in front of farther ones.
 - **Every car faces the way it drives:** all car art faces right, and cars heading left are mirrored. Phoebe's taxi is parked along the near curb outside her building.
 - Saved games from before this update are moved down to match the wider streets.
-- v1.8.1: every model's tyres sit on the same line (cars along the far curb sit a little lower, as if their far tyres were on the curb); the light fringe around tyres and the dark magenta outline on recoloured cars are gone; wheels on moving cars spin as they drive.
+- v1.8.1: every model's tyres sit on the same line (cars along the far curb sit a little lower, as if their far tyres were on the curb); the light fringe around tyres and the dark magenta outline on recoloured cars are gone.
 
 ## v1.7.1: HD street fronts everywhere (stopgap)
 
