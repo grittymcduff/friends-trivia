@@ -54,6 +54,30 @@ button:disabled{cursor:default}
 #chapCard b{display:block;font-family:Georgia,'Times New Roman',serif;font-size:32px;font-weight:400;margin-bottom:14px}
 #chapCard p{max-width:460px;margin:0 auto 16px;font-size:13px;line-height:1.5;color:#e8e0cc}
 #chapCard span{font-size:11px;color:#9a8a7a}
+#vs{position:absolute;inset:14px;padding:12px 18px;display:flex;flex-direction:column;z-index:30;overflow:auto}
+#vs h2{margin:0 0 2px;text-align:center}.vsSub{text-align:center;font-size:12px;color:#7a6a8a;margin:0 0 10px}
+#vsPlayers{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.vsP{border:2px solid #2a1a3a;border-radius:8px;padding:8px;background:#fff8e6;text-align:center}
+.vsP input{font:inherit;font-weight:700;font-size:13px;padding:4px 8px;border:2px solid #2a1a3a;border-radius:6px;width:80%;text-align:center}
+.vsPick{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin-top:8px}
+.vsPick button{padding:2px;width:58px;height:66px;display:flex;flex-direction:column;align-items:center;font-size:9px;box-shadow:none}
+.vsPick button canvas{width:50px;height:50px}.vsPick button.on{outline:3px solid #5b3a8c;background:#ffe9a8}
+#vsOpts{display:flex;gap:16px;justify-content:center;margin:10px 0}#vsOpts label{display:flex;flex-direction:column;font-weight:800;font-size:11px;gap:2px}
+#vsOpts select{font:inherit;font-weight:700;font-size:12px;padding:4px 6px;border:2px solid #2a1a3a;border-radius:6px;background:#fff4d6}
+.vsBtns{display:flex;gap:10px;justify-content:center}.vsBtns button{font-size:14px;padding:8px 18px}#vsGo{background:#ffd84a}
+#vsHead{display:flex;justify-content:space-between;align-items:center;border-bottom:2px dashed #d9c49a;padding-bottom:6px}
+.vsS{display:flex;align-items:center;gap:8px;padding:4px 10px;border-radius:10px;border:2px solid transparent}.vsS.on{border-color:#f2c230;background:#fff1b8}
+.vsS canvas{width:64px;height:64px;border:2px solid #2a1a3a;border-radius:8px;background:radial-gradient(circle at 50% 40%,#fff6dc,#ecd6a6)}
+.vsS b{font-size:14px;display:block}.vsS span{font-size:22px;font-weight:900;color:#5b3a8c}.vsS.hop canvas{animation:tvHop .55s ease}.vsS.shake canvas{animation:tvShake .45s ease}
+#vsTurn{text-align:center;font-weight:900;font-size:13px;color:#d9782f;margin:6px 0 0}
+#vsMid{display:flex;gap:14px;align-items:center}#vsPic{width:220px;height:138px;image-rendering:pixelated;border:3px solid #2a1a3a;border-radius:6px;flex:none;background:#fff}
+#vsQ{font-size:16px;font-weight:800;margin:10px 2px;line-height:1.35;flex:1}
+#vsOptsA{display:grid;grid-template-columns:1fr 1fr;gap:8px}#vsOptsA button{text-align:left;font-size:13px;padding:9px 10px;display:flex;gap:8px;align-items:center;min-height:42px}
+#vsOptsA button b{display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;border-radius:4px;background:#5b3a8c;color:#fff;font-size:10px;flex:none}
+#vsOptsA button.right{background:#bff0c4;border-color:#1f8a3a}#vsOptsA button.wrong{background:#ffc9c9;border-color:#c62828}#vsOptsA button:disabled:not(.right):not(.wrong){opacity:.55}
+#vsFoot{display:flex;gap:10px;align-items:flex-start;margin-top:8px}#vsFact{flex:1;font-size:12px;line-height:1.4}#vsNext{font-size:13px}
+#vsEnd{text-align:center}#vsEnd canvas{width:132px;height:132px;border:3px solid #2a1a3a;border-radius:12px;background:radial-gradient(circle at 50% 40%,#fff6dc,#ecd6a6)}
+#vsEnd .t{font-family:Georgia,serif;font-size:26px;margin:6px 0}#vsEnd .sc{font-size:18px;font-weight:900;color:#5b3a8c}#vsEnd button{font-size:13px;margin:8px 4px 0}
 #triv{position:absolute;inset:14px;padding:14px 18px;display:flex;flex-direction:column}
 #tvBody{flex:1;min-height:0;overflow-y:auto;display:flex;flex-direction:column}
 #tvFoot{position:sticky;bottom:0;background:#fdf6e6;padding-top:6px;margin-top:auto}
@@ -200,6 +224,16 @@ kbd{background:#fff;border:1px solid #2a1a3a;border-radius:3px;padding:0 4px;fon
  </div>
  <div id="mapP" class="box hidden"><div class="ph"><h2>🗺 New York</h2><div id="mapCh"></div><button class="close">Close ✕</button></div><div id="mapBody"><div id="mapGrid"></div><div id="mapInfo"></div></div><div id="mapTip"></div></div>
  <div id="chapCard"><div><small id="chapNum"></small><b id="chapT"></b><p id="chapTx"></p><span>Click to continue</span></div></div>
+ <div id="vs" class="box hidden">
+  <div id="vsSetup"><h2>👥 Couch Versus</h2><p class="vsSub">Two players, one couch. Take turns answering. Highest score wins the couch.</p>
+   <div id="vsPlayers"></div>
+   <div id="vsOpts"><label>Questions<select id="vsN"><option value="10">10 (5 each)</option><option value="16" selected>16 (8 each)</option><option value="24">24 (12 each)</option></select></label>
+    <label>Trivia<select id="vsDiff"><option value="casual">Casual</option><option value="fan" selected>Fan</option><option value="super">Super Fan</option></select></label></div>
+   <div class="vsBtns"><button id="vsGo">Start ▶</button><button id="vsBack">Back</button></div></div>
+  <div id="vsGame" class="hidden"><div id="vsHead"></div><div id="vsTurn"></div><div id="vsMid"><canvas id="vsPic" class="hidden" width="256" height="160"></canvas><div id="vsQ"></div></div>
+   <div id="vsOptsA"></div><div id="vsFoot"><div id="vsFact"></div><button id="vsNext" class="hidden">Next ▶</button></div></div>
+  <div id="vsEnd" class="hidden"></div>
+ </div>
  <div id="coll" class="box hidden"><div class="ph"><canvas id="doll" width="92" height="48"></canvas><h2>🏆 The Shelf</h2><b id="collCount"></b><button class="close">Close ✕</button></div><div id="collGrid"></div></div>
  <div id="help" class="box hidden"><div class="ph"><h2>How to play</h2><button class="close">Close ✕</button></div>
   <ul><li><kbd>←↑↓→</kbd> or <kbd>WASD</kbd> to walk, or just <b>click (or tap) where you want to go</b>. Click a person or sign to walk over and talk to it. Hold <kbd>Shift</kbd> to hurry.</li>
@@ -228,7 +262,7 @@ kbd{background:#fff;border:1px solid #2a1a3a;border-radius:3px;padding:0 4px;fon
     <div id="tLeft">
      <canvas id="preview" width="140" height="72"></canvas>
      <input id="pName" maxlength="14" placeholder="Your name">
-     <div id="tBtns"><button id="btnNew">New Game ▶</button><button id="btnBoardT">🏅 Leaderboard</button></div>
+     <div id="tBtns"><button id="btnNew">New Game ▶</button><button id="btnVsT">👥 Couch Versus</button><button id="btnBoardT">🏅 Leaderboard</button></div>
     </div>
     <div id="tRight">
      <div class="row"><label>Shirt</label><div class="sw" id="pShirt"></div></div>
@@ -2268,6 +2302,7 @@ function sitCouch(x,y){player.sit={x,y,fx:player.x,fy:player.y};player.x=player.
  say([{who:'Phoebe',text:"Ooh, couch time! Scoot over."},{who:'Rachel',text:"I'm on my break. Technically. Gunther doesn't need to know."},
   {who:'Rachel',text:won?"Want to do the Couch Challenge again? Seven questions, about everyone.":"Okay, Couch Challenge: seven questions about all of us. Get five right and you get the turkey. Don't ask.",
    choices:[{label:"Start the Couch Challenge",fn:()=>startTrivia({who:{name:'The Couch',couchIcon:true},tags:'all',n:7,need:5,reward:won?null:'turkey',win:"YES! Couch champion! The turkey is yours. Sunglasses included.",lose:"Ooh, so close. The couch will be here when you're ready.",after:()=>say(["(Press Space to get up from the couch.)"])})},
+    {label:'Couch Versus (2 players)',fn:()=>openVs(true)},
     {label:'Just hang out',fn:()=>say([{text:"(You sink into the orange couch. This really is the best spot.)"},{text:"(Press Space to get up.)"}])}]}])}
 function standUp(){const s=player.sit;if(!s)return;let tx=s.x,ty=s.y+1;if(blocked(tx,ty)){tx=s.fx;ty=s.fy}player.x=player.fx=tx;player.y=player.fy=ty;player.px=tx*16;player.py=ty*16;player.sit=null;player.dir='down';
  for(const n of npcs)if(n.sit){const h=n.sit;n.sit=null;let hx=h.hx,hy=h.hy;if(npcAt(hx,hy,n)||(hx===player.x&&hy===player.y)){hx=n.home.x;hy=n.home.y}n.x=n.fx=hx;n.y=n.fy=hy;n.px=hx*16;n.py=hy*16;n.dir=h.hd}save()}
@@ -2375,6 +2410,46 @@ function openMap(){if(state==='world')openMap.sel=null;state='menu';const here=H
  $('#mapGrid').querySelectorAll('.mz').forEach(el=>el.onclick=()=>{openMap.sel=el.dataset.h;SFX.sel();openMap()});
  $('#mapTip').textContent='Ride the subway between neighborhoods: walk into any green subway entrance. Bonus collectibles are hidden around the city.';
  $('#mapP').classList.remove('hidden')}
+
+
+/* ===================== v1.9.4: Couch Versus (two players, one screen) ===================== */
+const VS_CAST=['rachel','monica','phoebe','ross','joey','chandler'];
+let VS=null,vsPrev='title';
+function vsSpr(k){try{return charSprites(LK[k],k)}catch(e){return null}}
+function vsDraw(c,k){tvPortrait(c,{spr:vsSpr(k)})}
+function openVs(fromCouch){vsPrev=state;state='vs';VS={p:[{name:(S&&S.name)||'Player 1',k:'rachel',sc:0},{name:'Player 2',k:'joey',sc:0}],couch:!!fromCouch};
+ $('#vs').classList.remove('hidden');$('#vsSetup').classList.remove('hidden');$('#vsGame').classList.add('hidden');$('#vsEnd').classList.add('hidden');
+ if(S&&S.diff)$('#vsDiff').value=S.diff;vsSetup()}
+function vsSetup(){$('#vsPlayers').innerHTML=VS.p.map((p,i)=>`<div class="vsP"><b>Player ${i+1}</b><br><input data-i="${i}" maxlength="12" value="${esc(p.name)}"><div class="vsPick">${VS_CAST.map(k=>`<button data-i="${i}" data-k="${k}" class="${p.k===k?'on':''}"><canvas width="100" height="100"></canvas>${k[0].toUpperCase()+k.slice(1)}</button>`).join('')}</div></div>`).join('');
+ $('#vsPlayers').querySelectorAll('.vsPick button').forEach(b=>{vsDraw(b.querySelector('canvas'),b.dataset.k);b.onclick=()=>{VS.p[+b.dataset.i].k=b.dataset.k;SFX.sel();vsSetup()}});
+ $('#vsPlayers').querySelectorAll('input').forEach(inp=>inp.oninput=()=>{VS.p[+inp.dataset.i].name=inp.value.trim()||`Player ${+inp.dataset.i+1}`})}
+function vsStart(){const n=+$('#vsN').value,d=$('#vsDiff').value;
+ let pool=QB.map((q,i)=>Object.assign({i},q));const tg=q=>qTags(q);
+ const trim=f=>{const p=pool.filter(f);if(p.length>=n)pool=p};
+ if(d==='casual')trim(q=>!tg(q).includes('sf')&&!tg(q).includes('hard'));else if(d==='fan')trim(q=>!tg(q).includes('sf'));
+ shuffle(pool);if(d==='super')pool.sort((a,b)=>qStars(b)-qStars(a));
+ Object.assign(VS,{qs:pool.slice(0,n),k:0,turn:0,answered:false});VS.p.forEach(p=>p.sc=0);
+ $('#vsSetup').classList.add('hidden');$('#vsGame').classList.remove('hidden');SFX.ok();vsRender()}
+function vsHead(){$('#vsHead').innerHTML=VS.p.map((p,i)=>`<div class="vsS ${VS.turn===i&&!VS.over?'on':''}" id="vsS${i}"><canvas width="100" height="100"></canvas><div><b>${esc(p.name)}</b><span>${p.sc}</span></div></div>`).join('<div style="font-weight:900;color:#7a6a8a">VS</div>');
+ VS.p.forEach((p,i)=>vsDraw($('#vsS'+i).querySelector('canvas'),p.k))}
+function vsRender(){const q=VS.qs[VS.k];VS.answered=false;VS.opts=shuffle(q.a.slice());vsHead();
+ const p=VS.p[VS.turn];$('#vsTurn').textContent=`${p.name}'s turn · question ${VS.k+1} of ${VS.qs.length}${qStars(q)>1?` · worth ${qStars(q)} points`:''}`;
+ $('#vsQ').textContent=q.q;const pc=$('#vsPic');if(q.pic){pc.classList.remove('hidden');const g=pc.getContext('2d');g.imageSmoothingEnabled=false;g.clearRect(0,0,256,160);g.drawImage(drawPic(q.pic),0,0,256,160)}else pc.classList.add('hidden');
+ $('#vsFact').innerHTML='';$('#vsNext').classList.add('hidden');
+ $('#vsOptsA').innerHTML=VS.opts.map((a,i)=>`<button data-i="${i}"><b>${i+1}</b>${esc(a)}</button>`).join('');
+ $('#vsOptsA').querySelectorAll('button').forEach(b=>b.onclick=()=>vsAnswer(+b.dataset.i))}
+function vsAnswer(i){if(!VS||VS.answered)return;const q=VS.qs[VS.k],ok=VS.opts[i]===q.a[0],p=VS.p[VS.turn];VS.answered=true;
+ $('#vsOptsA').querySelectorAll('button').forEach((b,j)=>{b.disabled=true;if(VS.opts[j]===q.a[0])b.classList.add('right');else if(j===i)b.classList.add('wrong')});
+ if(ok){p.sc+=qStars(q);SFX.ok()}else SFX.bad();vsHead();const el=$('#vsS'+VS.turn);el.classList.add(ok?'hop':'shake');
+ const rl=REACT[p.k]||REACT[''];$('#vsFact').innerHTML=`<b class="${ok?'good':'bad'}">${ok?'Correct!':'Not quite.'}</b> <i>“${esc(pickOne(rl[ok?'ok':'no']))}”</i> ${q.f?esc(q.f):ok?'':'The answer was '+esc(q.a[0])+'.'}${q.ep?`<span class="tvEp">📺 ${esc(q.ep)}</span>`:''}`;
+ $('#vsNext').textContent=VS.k+1<VS.qs.length?'Next ▶':'Final score ▶';$('#vsNext').classList.remove('hidden')}
+function vsNext(){if(!VS||!VS.answered)return;VS.k++;VS.turn=1-VS.turn;if(VS.k<VS.qs.length)vsRender();else vsEnd()}
+function vsEnd(){VS.over=true;const[a,b]=VS.p,tie=a.sc===b.sc,w=a.sc>b.sc?a:b;$('#vsGame').classList.add('hidden');const e=$('#vsEnd');e.classList.remove('hidden');
+ e.innerHTML=`<canvas id="vsWin" width="132" height="132"></canvas><div class="t">${tie?'The One Where Nobody Wins':`The One Where ${esc(w.name)} Wins`}</div><div class="sc">${esc(a.name)} ${a.sc} · ${b.sc} ${esc(b.name)}</div>
+  <p><i>“${tie?"It's a tie. Which means you both get the couch. Scoot over.":esc(pickOne((REACT[w.k]||REACT['']).win))}”</i></p><button id="vsAgain">Rematch ▶</button><button id="vsSwap">New players</button><button id="vsQuit">Done</button>`;
+ vsDraw($('#vsWin'),tie?'phoebe':w.k);SFX.ok();
+ $('#vsAgain').onclick=()=>{VS.over=false;vsStart()};$('#vsSwap').onclick=()=>{VS.over=false;$('#vsEnd').classList.add('hidden');$('#vsSetup').classList.remove('hidden');vsSetup()};$('#vsQuit').onclick=closeVs}
+function closeVs(){$('#vs').classList.add('hidden');VS=null;state=vsPrev==='vs'?'world':vsPrev;if(state==='dialog')state='world'}
 
 /* ===================== Subway & travel ===================== */
 const STOPS=[{id:'village',name:'Greenwich Village',sub:'Bleecker St · Central Perk, the apartments'},{id:'soho',name:'SoHo',sub:'Spring St · Moondance Diner'},
@@ -2563,8 +2638,8 @@ const keys={};let dirStack=[];
 const KMAP={ArrowUp:'up',KeyW:'up',ArrowDown:'down',KeyS:'down',ArrowLeft:'left',KeyA:'left',ArrowRight:'right',KeyD:'right'};
 function pushDir(d){dirStack=dirStack.filter(x=>x!==d);dirStack.push(d)}
 function popDir(d){dirStack=dirStack.filter(x=>x!==d)}
-function pressA(){if(state==='dialog')dlgAdvance();else if(state==='trivia'){if(TV&&TV.finished)closeTrivia();else nextQ()}else if(state==='menu')closePanels();else if(state==='world')interact()}
-function pressB(){if(state==='menu')closePanels();else if(state==='dialog'&&dCur&&!dCur.choices)dlgAdvance();else if(state==='world'&&player.sit)standUp()}
+function pressA(){if(state==='vs'){if(VS&&VS.answered)vsNext();return}if(state==='dialog')dlgAdvance();else if(state==='trivia'){if(TV&&TV.finished)closeTrivia();else nextQ()}else if(state==='menu')closePanels();else if(state==='world')interact()}
+function pressB(){if(state==='vs'){closeVs();return}if(state==='menu')closePanels();else if(state==='dialog'&&dCur&&!dCur.choices)dlgAdvance();else if(state==='world'&&player.sit)standUp()}
 addEventListener('keydown',e=>{if(e.target.tagName==='INPUT')return;keys[e.key]=true;
  if(KMAP[e.code]){e.preventDefault();if(state==='dialog'){if(e.code.includes('Up')||e.code==='KeyW'||e.code.includes('Left')||e.code==='KeyA')moveSel(-1);else moveSel(1)}else pushDir(KMAP[e.code]);return}
  if(e.repeat)return;
@@ -2576,7 +2651,8 @@ addEventListener('keydown',e=>{if(e.target.tagName==='INPUT')return;keys[e.key]=
  else if(e.code==='KeyL'&&state==='world')openBoard();
  else if(e.code==='Equal'||e.code==='NumpadAdd')cycleZoom(1);
  else if(e.code==='Minus'||e.code==='NumpadSubtract')cycleZoom(-1);
- else if(state==='trivia'&&/^Digit[1-4]$/.test(e.code))answer(+e.code.slice(5)-1)});
+ else if(state==='trivia'&&/^Digit[1-4]$/.test(e.code))answer(+e.code.slice(5)-1)
+ else if(state==='vs'&&VS&&VS.qs&&!VS.over&&/^Digit[1-4]$/.test(e.code))vsAnswer(+e.code.slice(5)-1)});
 addEventListener('keyup',e=>{keys[e.key]=false;if(KMAP[e.code])popDir(KMAP[e.code])});
 addEventListener('blur',()=>{dirStack=[];for(const k in keys)keys[k]=false});
 function toggleMute(){muted=!muted;$('#btnSnd').textContent=muted?'🔇':'🔊';toast(muted?'Sound off':'Sound on')}
@@ -2595,6 +2671,7 @@ function setupTouch(){coarse=matchMedia('(pointer:coarse)').matches;$('#game').c
  $('#btnA').addEventListener('pointerdown',e=>{e.preventDefault();pressA()});$('#btnB').addEventListener('pointerdown',e=>{e.preventDefault();pressB()})}
 $('#dlg').addEventListener('click',()=>{if(state==='dialog'&&!(dCur&&dCur.choices))dlgAdvance()});
 $('#tvNext').onclick=nextQ;
+$('#btnVsT').onclick=()=>openVs(false);$('#vsGo').onclick=vsStart;$('#vsBack').onclick=closeVs;$('#vsNext').onclick=vsNext;
 $('#btnMap').onclick=()=>{if(state==='world')openMap();else if(state==='menu')closePanels()};
 $('#mapP').querySelector('.close').onclick=closePanels;
 $('#btnColl').onclick=()=>{if(state==='world')openColl();else if(state==='menu')closePanels()};
@@ -2645,7 +2722,7 @@ function fit(){const vv=window.visualViewport,w=vv?vv.width:innerWidth,h=vv?vv.h
 addEventListener('resize',fit);addEventListener('orientationchange',()=>setTimeout(fit,300));if(window.visualViewport){visualViewport.addEventListener('resize',fit);visualViewport.addEventListener('scroll',fit)}
 let last=performance.now(),saveT=0;
 function loop(now){const dt=Math.min(.05,(now-last)/1000);last=now;clock+=dt;if(((clock*4)|0)!==loop.k){loop.k=(clock*4)|0;checkChapter()}
- if(Zn&&state!=='title'){updPlayer(dt);updNpcs(dt);updTaxis(dt);updDialog(dt);saveT+=dt;if(saveT>5){saveT=0;save()}draw()}
+ if(Zn&&S&&state!=='title'){updPlayer(dt);updNpcs(dt);updTaxis(dt);updDialog(dt);saveT+=dt;if(saveT>5){saveT=0;save()}draw()}
  syncTouch();requestAnimationFrame(loop)}
 try{const z=+localStorage.getItem('friendsTrivia_zoom');if([1,2,3].includes(z))setZoom(z,true);else setZoom(2,true)}catch(e){setZoom(2,true)}
 fit();setupTitle();setupTouch();loadCustomSprites();loadHD();loadPlayerArt();loadVillageArt();loadInteriorArt();
