@@ -692,7 +692,7 @@ function loadZone(id,x,y,dir,nosave){Zn=ZONES[id];const eggNpcs=spawnEggs(nosave
  taxis=[];let k=0;for(const tr of Zn.taxiRows)for(let i=0;i<tr.n;i++){const taxi=(k++%3)!==2;taxis.push({row:tr.row,dir:tr.dir,x:(i+.3+R()*.4)*Zn.w*16/tr.n,sp:44+R()*16,honk:0,taxi,model:taxi?(k%2?'90':''):CAR_MODELS[k%4],col:taxi?'#f2c230':['#3b6fb6','#8f2f2f','#6a8f4a','#c9c9cf'][k%4],
   rows:tr.dir<0?[tr.row-1,tr.row]:[tr.row-1,tr.row],by:Zn.laneY?(tr.dir<0?Zn.laneY-3:Zn.laneY+38):tr.row*16+17})}
  player.x=player.fx=x;player.y=player.fy=y;player.px=x*16;player.py=y*16;player.dir=dir;player.moving=false;player.sit=null;clickPath=null;clickMark=null;
- $('#zoneTag').textContent=Zn.name;if(!nosave){S.zone=id;save()}}
+ $('#zoneTag').textContent=Zn.name;spawnWalkers();if(!nosave){S.zone=id;save()}}
 function taxiAt(x,y){return taxis.some(t=>t.rows.includes(y)&&x*16<t.x+CAR_LEN&&x*16+16>t.x)}
 function npcAt(x,y,skip){return npcs.find(n=>n!==skip&&n.x===x&&n.y===y)}
 function blocked(x,y){if(x<0||y<0||x>=Zn.w||y>=Zn.h)return true;return!!(solid[y*Zn.w+x]||npcAt(x,y)||taxiAt(x,y))}
@@ -842,7 +842,14 @@ function interact(){if(player.sit){standUp();return}if(player.moving)return;
  const[dx,dy]=DIRS[player.dir],tx=player.x+dx,ty=player.y+dy;
  const n=npcAt(tx,ty);if(n){talkTo(n);return}
  const a=Zn.acts.find(a=>a.x===tx&&a.y===ty);if(!a)return;
- if(a.type==='msg')say(a.text.split('\n'));
+ if(a.type==='msg'){
+  // v1.9.5: sometimes someone's home after all, and they've got a question for you
+  const key=Zn.id+':'+a.x+','+a.y;S.knock=S.knock||{};const today=new Date().toDateString();
+  if(a.door&&Zn.taxiRows&&Zn.taxiRows.length&&S.knock[key]!==today&&Math.random()<.35){S.knock[key]=today;save();
+   const who=pickOne(['A neighbor','The super','A very tired man in a robe','A lady with curlers','A kid with a popsicle']);
+   say([{text:'(You knock. Footsteps. The door opens a crack.)'},{who,text:pickOne(["Oh, you're not the pizza guy. …Okay, since you're here. Quick question:","Hi. My roommate and I have a bet going. Settle it?","Hey! You look like you watch a lot of TV. Help me out."]),
+    choices:[{label:'Sure',fn:()=>startTrivia({who:{name:who},tags:'easy',n:1,need:1,quick:true,win:"Ha! I knew it. Thanks, neighbor!",lose:"Huh. Well, now I don't know who wins the bet."})},{label:'Maybe later',fn:()=>say([{who,text:'Suit yourself.'},{text:'(The door closes.)'}])}]}]);return}
+  say(a.text.split('\n'))}
  else if(a.type==='couch')sitCouch(tx,ty);
  else if(a.type==='quiz')TALK.cast({name:a.name,icon:a.icon,script:a.script});
  else if(a.type==='subway')openSubway();
@@ -1008,6 +1015,50 @@ function vsEnd(){VS.over=true;const[a,b]=VS.p,tie=a.sc===b.sc,w=a.sc>b.sc?a:b;$(
  $('#vsAgain').onclick=()=>{VS.over=false;vsStart()};$('#vsSwap').onclick=()=>{VS.over=false;$('#vsEnd').classList.add('hidden');$('#vsSetup').classList.remove('hidden');vsSetup()};$('#vsQuit').onclick=closeVs}
 function closeVs(){$('#vs').classList.add('hidden');VS=null;state=vsPrev==='vs'?'world':vsPrev;if(state==='dialog')state='world'}
 
+
+/* ===================== v1.9.5: street life, day and night, the seasons ===================== */
+let walkers=[],flakes=[],ambT=0;
+const nightFacades={};
+function loadNightArt(){for(const k of HD_FACADES){const im=new Image();im.onload=()=>{nightFacades[k]=im};im.src='sprites/village/night_'+k+'.png'}}
+function timeMode(){try{return localStorage.getItem('friendsTrivia_time')||'auto'}catch(e){return'auto'}}
+function cycleTime(){const m=['auto','day','dusk','night'],n=m[(m.indexOf(timeMode())+1)%m.length];try{localStorage.setItem('friendsTrivia_time',n)}catch(e){}
+ toast(n==='auto'?'Time of day: follows your clock':'Time of day: '+n)}
+// 0 = day … .55 = night; follows the real clock unless set with T
+function darkness(){const m=timeMode();if(m==='day')return 0;if(m==='dusk')return .3;if(m==='night')return .55;
+ const d=new Date(),h=d.getHours()+d.getMinutes()/60;if(h>=20||h<5.5)return .55;if(h>=18)return .3*(h-18)/2+.25*((h-18)/2);if(h<7)return .55*(7-h)/1.5;return 0}
+function season(){const m=new Date().getMonth();return m===10?'autumn':(m===11||m<=1)?'winter':''}
+function walkerLook(){const r=a=>a[(Math.random()*a.length)|0];const fem=Math.random()<.5;
+ return{player:true,skin:r(SKINS),hair:r(HAIRS),style:fem?r(['long','ponytail','puffy','shaggy']):r(['shaggy','spiky','buzz','bald']),freckles:Math.random()<.2,
+  shirt:r(['#3a5a8a','#8a3a3a','#5a7a4a','#c9a24a','#6a4a8a','#2a2a30','#c0573a','#e8e4d8','#4a6a7a']),pants:r(['#2b2b30','#3b4a6b','#5a4a3a','#3a3a44']),outfit:fem?r(OUTFITS):'pants'}}
+function spawnWalkers(){walkers=[];flakes=[];if(!Zn.taxiRows||!Zn.taxiRows.length)return;
+ const rows=[9,19].filter(r=>r<Zn.h&&Zn.g.slice(r*Zn.w,(r+1)*Zn.w).filter(t=>t==='walk').length>Zn.w*.6);
+ for(const r of rows){const n=Math.max(2,Math.round(Zn.w/13));for(let i=0;i<n;i++)walkers.push({x:(i+Math.random()*.6)*Zn.w*16/n,row:r,dir:Math.random()<.5?-1:1,sp:15+Math.random()*10,spr:charSprites(walkerLook()),t:Math.random()*3,moving:true})}}
+function updWalkers(dt){const W=Zn.w*16;for(const w of walkers){
+ // they stop politely if you're standing right in front of them
+ const ahead=w.dir>0?[w.x+10,w.x+24]:[w.x-10,w.x+6],py=player.py,blocked=Math.abs(py-w.row*16)<12&&player.px+12>ahead[0]&&player.px+4<ahead[1];
+ w.moving=!blocked;if(w.moving){w.x+=w.dir*w.sp*dt;w.t+=dt}if(w.x>W+30)w.x=-30;if(w.x<-30)w.x=W+30}}
+function drawAmbient(cx,cy,vw,vh,indoor,dt){if(indoor)return;const d=darkness(),sea=season(),T=clock;
+ // December lights along the rooflines
+ if(sea==='winter'&&new Date().getMonth()===11)for(const o of Zn.objs)if(o.kind==='building'&&o.hd&&hdFacades[o.hd]){const im=hdFacades[o.hd],w=o.w*16,h=im.height/8,top=(o.y+o.h)*16-h+5;
+  if(o.x*16>cx+vw||o.x*16+w<cx)continue;const cols=['#ff4a4a','#4aff7a','#ffd84a','#5aa8ff'];
+  ctx.strokeStyle='rgba(30,30,30,.6)';ctx.lineWidth=.5;ctx.beginPath();for(let x=0;x<=w;x+=2){const y=top+Math.sin(x/w*Math.PI*Math.max(2,o.w/3)*1)*1.5+1.5;x?ctx.lineTo(o.x*16+x,y):ctx.moveTo(o.x*16+x,y)}ctx.stroke();
+  for(let x=3,i=0;x<w;x+=6,i++){const y=top+Math.sin(x/w*Math.PI*Math.max(2,o.w/3))*1.5+2.2,on=.55+.45*Math.sin(T*3+i*1.7);ctx.globalAlpha=on;ctx.fillStyle=cols[i%4];ctx.fillRect(o.x*16+x-.8,y-.8,1.6,1.6)}ctx.globalAlpha=1}
+ if(d>0){ctx.save();ctx.globalCompositeOperation='multiply';ctx.fillStyle=`rgba(46,56,120,${Math.min(.85,d*1.5)})`;ctx.fillRect(cx-2,cy-2,vw+4,vh+4);ctx.restore();
+  const a=Math.min(1,d*1.9);
+  // lit windows
+  for(const o of Zn.objs)if(o.kind==='building'&&o.hd&&nightFacades[o.hd]&&hdFacades[o.hd]){const im=hdFacades[o.hd],w=o.w*16,h=im.height/8,by=(o.y+o.h)*16;if(o.x*16>cx+vw||o.x*16+w<cx)continue;
+   ctx.globalAlpha=a;ctx.imageSmoothingEnabled=true;ctx.drawImage(nightFacades[o.hd],o.x*16,by-h,w,h);ctx.imageSmoothingEnabled=false}
+  ctx.globalAlpha=1;ctx.save();ctx.globalCompositeOperation='lighter';
+  const glow=(x,y,r,c)=>{const g=ctx.createRadialGradient(x,y,0,x,y,r);g.addColorStop(0,c);g.addColorStop(1,'rgba(0,0,0,0)');ctx.fillStyle=g;ctx.fillRect(x-r,y-r,r*2,r*2)};
+  for(const o of Zn.objs){if(o.kind==='lamp')glow(o.x*16+8,o.y*16-18,30,`rgba(255,196,110,${.42*a})`);}
+  for(const dd of Zn.doors)glow(dd.x*16+8,dd.y*16+6,16,`rgba(255,200,120,${.28*a})`);
+  for(const t of taxis){const fx=t.dir>0?t.x+CAR_LEN-4:t.x+4,fy=t.by-9,g=ctx.createLinearGradient(fx,0,fx+t.dir*44,0);g.addColorStop(0,`rgba(255,240,190,${.26*a})`);g.addColorStop(1,'rgba(255,240,190,0)');ctx.fillStyle=g;ctx.beginPath();ctx.moveTo(fx,fy-2);ctx.lineTo(fx+t.dir*44,fy-10);ctx.lineTo(fx+t.dir*44,fy+8);ctx.lineTo(fx,fy+2);ctx.closePath();ctx.fill()}
+  ctx.restore()}
+ // falling leaves in November, snow in winter
+ if(sea){if(flakes.length<46)flakes.push({x:cx+Math.random()*vw,y:cy-6,vx:(Math.random()-.5)*8,vy:sea==='winter'?10+Math.random()*10:14+Math.random()*10,ph:Math.random()*6,c:sea==='winter'?'#ffffff':['#d9782f','#b8462a','#e8b830','#8a5a2a'][(Math.random()*4)|0]});
+  for(const f of flakes){f.y+=f.vy*dt;f.x+=(f.vx+Math.sin(T*2+f.ph)*(sea==='winter'?4:10))*dt;if(f.y>cy+vh+4||f.x<cx-10||f.x>cx+vw+10){f.y=cy-4;f.x=cx+Math.random()*vw}
+   ctx.fillStyle=f.c;ctx.globalAlpha=sea==='winter'?.9:.95;if(sea==='winter')ctx.fillRect(f.x,f.y,1.2,1.2);else{ctx.save();ctx.translate(f.x,f.y);ctx.rotate(T*2+f.ph);ctx.fillRect(-1.2,-.7,2.4,1.4);ctx.restore()}}ctx.globalAlpha=1}}
+
 /* ===================== Subway & travel ===================== */
 const STOPS=[{id:'village',name:'Greenwich Village',sub:'Bleecker St · Central Perk, the apartments'},{id:'soho',name:'SoHo',sub:'Spring St · Moondance Diner'},
  {id:'midtown',name:'Midtown',sub:"5 Av / 59 St · Chandler's office, Bloomingdale's, the Garden"},{id:'uptown',name:'Uptown',sub:'81 St · the Museum, Central Park fountain'},
@@ -1160,11 +1211,14 @@ function draw(){ctx.setTransform(1,0,0,1,0,0);ctx.fillStyle=Zn.bg;ctx.fillRect(0
  for(const t of taxis){if(!vis(t.x,t.by-40,CAR_LEN,44))continue;L.push({y:t.by,d:()=>{const hs=carHD(t.col,t.taxi,t.model)||carHD(t.col,t.taxi);if(hs){drawCar(hs,t.x+CAR_LEN/2,t.by,t.dir<0,CAR_LEN/(hs.l.width/8),null);return}const sp=carSprite(t.col,t.taxi);ctx.drawImage(t.dir>0?sp.r:sp.l,Math.round(t.x),t.row*16+16-21)}})}
  for(const n of npcs)L.push({y:n.py+16+.3,d:()=>drawChar2(n,n.spr,n.dir,n.moving?(n.t<.5?1+((n.x+n.y)&1):0):0,n.px,n.py,n.sit||n.seated)});
  L.push({y:player.py+16+.6,d:()=>drawChar2(null,player.spr,player.dir,player.moving?(player.t<.55?1+player.step:0):0,player.px,player.py,player.sit)});
+ for(const w of walkers){if(!vis(w.x-8,w.row*16-24,32,40))continue;L.push({y:w.row*16+16+.2,d:()=>drawChar2(null,w.spr,w.dir<0?'left':'right',w.moving?((w.t*5|0)%2)+1:0,w.x,w.row*16,false)})}
  L.sort((a,b)=>a.y-b.y);for(const e of L)e.d();
+ {const now=performance.now(),dt=Math.min(.05,(now-(ambT||now))/1000);ambT=now;drawAmbient(cx,cy,vw,vh,indoor,dt)}
  // screen-space text
  const k2=SC/2;ctx.setTransform(k2*RS,0,0,k2*RS,0,0);
  const W2=(wx,wy)=>[(wx-cx)*2,(wy-cy)*2];
  ctx.textAlign='center';ctx.textBaseline='middle';
+ for(const n of npcs)if(n.busker){for(let i=0;i<2;i++){const ph=(clock*.6+i*.5)%1,[sx,sy]=W2(n.px+10+i*6+Math.sin(ph*6)*3,n.py-12-ph*18);ctx.globalAlpha=1-ph;ctx.font='bold 12px serif';ctx.fillStyle='#2a1a3a';ctx.fillText(i?'♫':'♪',sx,sy)}ctx.globalAlpha=1}
  for(const o of Zn.objs){if(o.kind==='building'&&o.sign){const hdS=o.hd&&hdFacades[o.hd]&&o.signLift;const[sx,sy]=hdS?W2(o.x*16+o.signCx,(o.y+o.h)*16-o.signLift):W2((o.x+(o.shopW||o.w)/2)*16,(o.y+o.h)*16-32+6.5);if(sx<-200||sx>640/k2+200)continue;ctx.font='bold 11px ui-monospace,Menlo,Consolas,monospace';if(hdS&&o.plate){const tw=Math.min(ctx.measureText(o.sign).width,o.signW*2)+16;ctx.fillStyle=o.signBg||'#1a1a1a';ctx.fillRect(sx-tw/2,sy-9,tw,17);ctx.strokeStyle='#c9a24a';ctx.lineWidth=1;ctx.strokeRect(sx-tw/2+.5,sy-8.5,tw-1,16)}ctx.fillStyle=o.signFg||'#f4e9c8';ctx.fillText(o.sign,sx,sy,hdS?o.signW*2:((o.shopW||o.w)*16-6)*2)}
   else if(o.kind==='walldoor'&&o.num&&hdIn.walldoor){const[sx,sy]=W2(o.x*16+8,o.y*16-18+8.5);ctx.font='bold 8px ui-monospace,Menlo,monospace';ctx.fillStyle='#e8c860';ctx.fillText(o.num,sx,sy)}
   else if(o.kind==='wallsign'){const[sx,sy]=W2((o.x+o.w/2)*16,13);ctx.font='italic bold 22px Georgia,serif';ctx.fillStyle='#f3e1b0';ctx.fillText(o.text,sx,sy)}
@@ -1205,6 +1259,7 @@ addEventListener('keydown',e=>{if(e.target.tagName==='INPUT')return;keys[e.key]=
  else if(e.code==='KeyC'&&(state==='world'||state==='menu')){if(state==='menu')closePanels();else openColl()}
  else if(e.code==='KeyM'){if(state==='world')openMap();else if(state==='menu'&&!$('#mapP').classList.contains('hidden'))closePanels()}
  else if(e.code==='KeyN'){toggleMute()}
+ else if(e.code==='KeyT'&&state==='world'){cycleTime()}
  else if(e.code==='KeyL'&&state==='world')openBoard();
  else if(e.code==='Equal'||e.code==='NumpadAdd')cycleZoom(1);
  else if(e.code==='Minus'||e.code==='NumpadSubtract')cycleZoom(-1);
@@ -1279,10 +1334,10 @@ function fit(){const vv=window.visualViewport,w=vv?vv.width:innerWidth,h=vv?vv.h
 addEventListener('resize',fit);addEventListener('orientationchange',()=>setTimeout(fit,300));if(window.visualViewport){visualViewport.addEventListener('resize',fit);visualViewport.addEventListener('scroll',fit)}
 let last=performance.now(),saveT=0;
 function loop(now){const dt=Math.min(.05,(now-last)/1000);last=now;clock+=dt;if(((clock*4)|0)!==loop.k){loop.k=(clock*4)|0;checkChapter()}
- if(Zn&&S&&state!=='title'){updPlayer(dt);updNpcs(dt);updTaxis(dt);updDialog(dt);saveT+=dt;if(saveT>5){saveT=0;save()}draw()}
+ if(Zn&&S&&state!=='title'){updPlayer(dt);updNpcs(dt);updTaxis(dt);updWalkers(dt);updDialog(dt);saveT+=dt;if(saveT>5){saveT=0;save()}draw()}
  syncTouch();requestAnimationFrame(loop)}
 try{const z=+localStorage.getItem('friendsTrivia_zoom');if([1,2,3].includes(z))setZoom(z,true);else setZoom(2,true)}catch(e){setZoom(2,true)}
-fit();setupTitle();setupTouch();loadCustomSprites();loadHD();loadPlayerArt();loadVillageArt();loadInteriorArt();
+fit();setupTitle();setupTouch();loadCustomSprites();loadHD();loadPlayerArt();loadVillageArt();loadInteriorArt();loadNightArt();
 // title-screen backdrop: render the village behind the menu
 player.spr=charSprites(lookFromPick());loadZone('village',15,10,'up',true);state='title';
 (function titleBg(){if(state!=='title')return;clock+=.016;updNpcs(.016);updTaxis(.016);drawTitleBg();requestAnimationFrame(titleBg)})();

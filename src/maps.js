@@ -11,7 +11,7 @@ function paint(z,t,x,y,w=1,h=1){ for(let j=y;j<y+h;j++)for(let i=x;i<x+w;i++)if(
 function obj(z,kind,x,y,o={}){ const d=Object.assign({kind,x,y},o); z.objs.push(d); return d; }
 function act(z,x,y,o){ z.acts.push(Object.assign({x,y},o)); }
 function door(z,x,y,to,tx,ty,dir){ z.doors.push({x,y,to,tx,ty,dir}); }
-function msgDoor(z,x,y,text){ act(z,x,y,{type:'msg',text}); }
+function msgDoor(z,x,y,text){ act(z,x,y,{type:'msg',text,door:true}); }
 
 /* ---------------- Greenwich Village (exterior) ---------------- */
 (function(){
@@ -53,6 +53,9 @@ function msgDoor(z,x,y,text){ act(z,x,y,{type:'msg',text}); }
  msgDoor(z,9,24,"Nobody's home.");
  msgDoor(z,15,24,"VILLAGE CIGARS. Lottery tickets, newspapers, and gum. The shop opens in a later update.");
  door(z,29,24,'phoebe',20,13,'up');
+ // v1.9.5: a busker by Washington Square Park
+ z.npcs.push({id:'busker',name:'Busker',x:21,y:30,dir:'down',busker:true,guitar:true,quiz:true,look:{skin:'#c68a5a',hair:'#2a1d17',style:'long',shirt:'#6a8f4a',pants:'#3b4a6b'},
+  lines:["(He's playing something jangly on an old acoustic guitar. There's a hat on the sidewalk with three dollars and a guitar pick in it.)","I play here every day. Some lady with a guitar told me this was 'her corner.' I said there's room for two. She disagreed. Musically."]});
  // Phoebe's taxi (v1.5 collectible), parked outside her building
  obj(z,'grantaxi',33,14,{dir:1});
  for(const x of [33,34]) act(z,x,14,{type:'collect',item:'grantaxi',lines:["An old yellow cab, parked half on the curb. One hubcap is missing. The meter is running. Nobody is inside.","A cassette is sticking out of the tape deck. The label says 'SMELLY CAT (DEMO).'"],
