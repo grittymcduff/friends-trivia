@@ -4,6 +4,10 @@ A private, Pokémon-style pixel-art trivia adventure set in Friends' Greenwich V
 
 **Play:** open `index.html` in a browser, or turn on GitHub Pages for this repo (Settings → Pages → deploy from `main`, root folder).
 
+## v2.0.3: Lamps without halos
+
+- The floor lamp and the street lamp had a pale halo baked into their art; it's gone (`tools/fix_lamp_glow.py`). Street lamps still glow at night from the lighting pass.
+
 ## v2.0.2: Matching cars, clearer faces
 
 - Every car is now drawn from one detailed set (sedan, station wagon, minivan, hatchback, recoloured per car; `tools/prep_cars.py`), and every cab uses the detailed taxi. Phoebe's grandmother's taxi still stands out with its rust and dents.
