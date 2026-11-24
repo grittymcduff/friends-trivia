@@ -4,6 +4,12 @@ A private, Pokémon-style pixel-art trivia adventure set in Friends' Greenwich V
 
 **Play:** open `index.html` in a browser, or turn on GitHub Pages for this repo (Settings → Pages → deploy from `main`, root folder).
 
+## v1.9: A title screen that fits
+
+- Two columns: your character, name, New Game and Leaderboard on the left; colours and choices on the right.
+- Hairstyle, Face, Outfit and Trivia difficulty are drop-downs, with the difficulty explained underneath.
+- Saved players are one drop-down with a Continue button, however many there are. Nothing on the title screen scrolls.
+
 ## v1.8: "The One With the Traffic"
 
 - **Real-world car sizes:** cars and cabs are about 2.6 times bigger, so a sedan is roughly two and a half people long.

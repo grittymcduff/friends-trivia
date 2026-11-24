@@ -1099,10 +1099,19 @@ function lookFromPick(){return{player:true,skin:SKINS[pick.skin],hair:HAIRS[pick
 function drawPreview(){const c=$('#preview'),g=c.getContext('2d');g.imageSmoothingEnabled=false;g.clearRect(0,0,c.width,c.height);const sp=charSprites(lookFromPick());const w=sp.hd?Math.round(72*HD_CW/HD_CH):48;art(g,sp.down[0],0,0,w,72);art(g,sp.right[0],w+8,0,w,72)}
 function setupTitle(){const sw=(id,arr,key,isCol=true)=>{$(id).innerHTML=arr.map((v,i)=>`<button data-i="${i}" class="${i===pick[key]?'on':''}" ${isCol?`style="background:${v}"`:''}>${isCol?'':v}</button>`).join('');
   $(id).querySelectorAll('button').forEach(b=>b.onclick=()=>{pick[key]=+b.dataset.i;SFX.sel();setupTitle()})};
- sw('#pShirt',SHIRTS,'shirt');sw('#pSkin',SKINS,'skin');sw('#pHair',HAIRS,'hair');sw('#pStyle',STYLES,'style',false);sw('#pBuild',FRECKLES,'freckles',false);sw('#pOutfit',OUTFITS,'outfit',false);drawPreview();diffButtons('#pDiff',pick.diff,k=>{pick.diff=k;setupTitle()});
+ sw('#pShirt',SHIRTS,'shirt');sw('#pSkin',SKINS,'skin');sw('#pHair',HAIRS,'hair');
+ // v1.9: the text choices are drop-downs, so the whole title screen fits without scrolling
+ const dd=(id,opts,cur,on)=>{const el=$(id);el.innerHTML=opts.map(([v,l])=>`<option value="${v}" ${String(v)===String(cur)?'selected':''}>${l}</option>`).join('');el.onchange=()=>{SFX.sel();on(el.value)}};
+ const cap=t=>t[0].toUpperCase()+t.slice(1);
+ dd('#pStyle',STYLES.map((t,i)=>[i,cap(t)]),pick.style,v=>{pick.style=+v;setupTitle()});
+ dd('#pBuild',FRECKLES.map((t,i)=>[i,cap(t)]),pick.freckles,v=>{pick.freckles=+v;setupTitle()});
+ dd('#pOutfit',OUTFITS.map((t,i)=>[i,cap(t)]),pick.outfit,v=>{pick.outfit=+v;setupTitle()});
+ dd('#pDiff',DIFFS.map(([k,l])=>[k,l]),pick.diff,v=>{pick.diff=v;setupTitle()});
+ $('#pDiffNote').textContent=diffNote(pick.diff);drawPreview();
  const st=loadStore(),list=Object.values(st.saves).sort((a,b)=>(b.updated||0)-(a.updated||0));
- $('#profList').innerHTML=list.slice(0,3).map(p=>`<button data-n="${esc(p.name)}">Continue as ${esc(p.name)} <small>· ${Object.keys(p.items||{}).length}/${ITEMS.length} · ${p.stars||0}★</small></button>`).join('');
- $('#profList').querySelectorAll('button').forEach(b=>b.onclick=()=>{const p=loadStore().saves[b.dataset.n];if(p)begin(p,false)})}
+ // saved players: one drop-down and a Continue button, however many there are
+ $('#profList').innerHTML=list.length?`<div class="pl">Saved players</div><div id="contRow"><select id="pCont">${list.map(p=>`<option value="${esc(p.name)}">${esc(p.name)} · ${Object.keys(p.items||{}).length}/${ITEMS.length} · ${p.stars||0}★</option>`).join('')}</select><button id="btnCont">Continue ▶</button></div>`:'';
+ if(list.length)$('#btnCont').onclick=()=>{const p=loadStore().saves[$('#pCont').value];if(p)begin(p,false)}}
 function begin(s,isNew){try{AC=AC||new(window.AudioContext||window.webkitAudioContext)();AC.resume();music.next=AC.currentTime+.2}catch(e){}S=s;S.equip=S.equip||{};S.eggs=S.eggs||{};refreshPlayer();$('#title').classList.add('hidden');$('#hud').classList.remove('hidden');
  // v1.8 widened the streets by three rows; saves from before then are moved to match
  if(!S.v18){if(ZONES[S.zone]&&ZONES[S.zone].wide&&S.y>=15)S.y+=3;S.v18=1}

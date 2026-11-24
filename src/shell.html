@@ -107,11 +107,21 @@ kbd{background:#fff;border:1px solid #2a1a3a;border-radius:3px;padding:0 4px;fon
 #importMsg{font-weight:800;color:#1f8a3a;min-height:14px}.muted{color:#7a6a8a}
 #doll{width:92px;height:48px;image-rendering:pixelated}
 .card .wear{margin-top:4px;font-size:9px;padding:2px 6px}.card .wear.on{background:#bff0c4}
-#profList{display:flex;flex-direction:column;gap:4px}#profList button{font-size:12px;padding:6px}#profList small{font-weight:600;color:#7a6a8a}
+#profList{margin-top:6px;text-align:left}#profList .pl{font-weight:800;font-size:11px;color:#2a1a3a;margin-bottom:2px}
+#contRow{display:flex;gap:6px}#contRow select{flex:1;min-width:0;font:inherit;font-size:12px;font-weight:700;padding:4px 6px;border:2px solid #2a1a3a;border-radius:6px;background:#fff4d6;color:#2a1a3a}#contRow button{font-size:12px;padding:6px 10px;white-space:nowrap}
 #btnBoardT{font-size:12px;padding:6px;background:#f2eaf8}
 /* Title */
 #title{position:absolute;inset:0;background:linear-gradient(180deg,rgba(20,10,30,.55),rgba(20,10,30,.85));display:flex;align-items:center;justify-content:center}
-#tBox{width:440px;padding:10px 18px 12px;text-align:center;max-height:404px;overflow:auto}
+#tBox{width:590px;padding:10px 16px 12px;text-align:center;max-height:404px;overflow:auto}
+#tGrid{display:grid;grid-template-columns:190px 1fr;gap:14px;align-items:start;margin-top:6px}
+#tLeft{display:flex;flex-direction:column;align-items:center;gap:6px}
+#tLeft #pName{width:100%;box-sizing:border-box;text-align:center;font-family:inherit;font-size:13px;font-weight:700;padding:5px 8px;border:2px solid #2a1a3a;border-radius:6px;background:#fff}
+#tRight{display:flex;flex-direction:column;gap:2px;padding-top:4px}
+#tRight .row{justify-content:flex-start}
+#tSel{display:grid;grid-template-columns:1fr 1fr;gap:6px 10px;margin-top:6px;text-align:left}
+#tSel label{display:flex;flex-direction:column;gap:2px;font-weight:800;font-size:11px;color:#2a1a3a}
+#tSel select{font:inherit;font-size:12px;font-weight:700;padding:4px 6px;border:2px solid #2a1a3a;border-radius:6px;background:#fff4d6;color:#2a1a3a;cursor:pointer}
+#pDiffNote{font-size:10px;color:#7a6a8a;text-align:left;margin-top:5px;min-height:24px;line-height:1.3}
 #tBox h1{margin:0;font-family:Georgia,serif;font-size:23px;color:#5b3a8c;letter-spacing:.01em}
 #tBox h1 span{color:#d9782f}
 #tBox .sub{font-size:11px;font-weight:700;color:#7a6a8a;margin:2px 0 4px}
@@ -122,8 +132,8 @@ kbd{background:#fff;border:1px solid #2a1a3a;border-radius:3px;padding:0 4px;fon
 .sw.tx button{width:auto;padding:0 6px;font-size:10px;background:#fff4d6}
 .dnote{font-size:9px;color:#7a6a8a;margin:-2px 0 4px;text-align:center;min-height:11px}#help .dnote{display:inline;margin:0}
 .tvStars{color:#c98a00;font-weight:700}
-#preview{width:140px;height:72px;image-rendering:pixelated;margin:2px 0 0}
-#tBtns{display:flex;flex-direction:column;gap:5px;margin-top:8px}
+#preview{width:168px;height:86px;image-rendering:pixelated;margin:2px 0 0}
+#tBtns{display:flex;flex-direction:column;gap:5px;margin-top:2px;width:100%}
 #tBtns button{font-size:13px;padding:8px}
 #btnNew{background:#ffd84a}
 /* Touch */
@@ -175,16 +185,26 @@ kbd{background:#fff;border:1px solid #2a1a3a;border-radius:3px;padding:0 4px;fon
   <div id="tBox" class="box">
    <h1>The One With <span>The Trivia Game</span></h1>
    <div class="sub">A Greenwich Village adventure · made with love</div>
-   <canvas id="preview" width="140" height="72"></canvas>
-   <div class="row"><label>Name</label><input id="pName" maxlength="14" placeholder="Your name"></div>
-   <div class="row"><label>Shirt</label><div class="sw" id="pShirt"></div></div>
-   <div class="row"><label>Skin</label><div class="sw" id="pSkin"></div></div>
-   <div class="row"><label>Hair</label><div class="sw" id="pHair"></div></div>
-   <div class="row"><label></label><div class="sw tx" id="pStyle"></div></div>
-   <div class="row"><label>Face</label><div class="sw tx" id="pBuild"></div></div>
-   <div class="row"><label>Outfit</label><div class="sw tx" id="pOutfit"></div></div>
-   <div class="row"><label>Trivia</label><div class="sw tx" id="pDiff"></div></div>
-   <div id="tBtns"><button id="btnNew">New Game ▶</button><div id="profList"></div><button id="btnBoardT">🏅 Leaderboard</button></div>
+   <div id="tGrid">
+    <div id="tLeft">
+     <canvas id="preview" width="140" height="72"></canvas>
+     <input id="pName" maxlength="14" placeholder="Your name">
+     <div id="tBtns"><button id="btnNew">New Game ▶</button><button id="btnBoardT">🏅 Leaderboard</button></div>
+    </div>
+    <div id="tRight">
+     <div class="row"><label>Shirt</label><div class="sw" id="pShirt"></div></div>
+     <div class="row"><label>Skin</label><div class="sw" id="pSkin"></div></div>
+     <div class="row"><label>Hair</label><div class="sw" id="pHair"></div></div>
+     <div id="tSel">
+      <label>Hairstyle<select id="pStyle"></select></label>
+      <label>Face<select id="pBuild"></select></label>
+      <label>Outfit<select id="pOutfit"></select></label>
+      <label>Trivia<select id="pDiff"></select></label>
+     </div>
+     <div id="pDiffNote"></div>
+     <div id="profList"></div>
+    </div>
+   </div>
   </div>
  </div>
  <div id="touch" class="hidden"><div id="joy"><div id="joyKnob"></div></div><div id="ab"><button id="btnB">B</button><button id="btnA">A</button></div></div>
