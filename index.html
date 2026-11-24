@@ -41,9 +41,26 @@ button:disabled{cursor:default}
 #tvFoot{position:sticky;bottom:0;background:#fdf6e6;padding-top:6px;margin-top:auto}
 #tvRes{flex:1;min-height:0;overflow-y:auto}
 #triv.quick{inset:60px 70px}
-#tvHead{display:flex;align-items:center;gap:12px;border-bottom:2px dashed #d9c49a;padding-bottom:8px}
-#tvPortrait{width:48px;height:48px;image-rendering:pixelated;background:#f2e2c0;border:2px solid #2a1a3a;border-radius:6px}
-#tvName{font-weight:900;font-size:16px}
+#tvHead{display:flex;align-items:center;gap:14px;border-bottom:2px dashed #d9c49a;padding-bottom:8px}
+#tvPw{position:relative;flex:none}
+#tvPortrait{width:88px;height:88px;image-rendering:auto;background:radial-gradient(circle at 50% 40%,#fff6dc,#ecd6a6);border:3px solid #2a1a3a;border-radius:10px}
+#tvPw.hop #tvPortrait{animation:tvHop .55s ease}#tvPw.shake #tvPortrait{animation:tvShake .45s ease}
+@keyframes tvHop{0%,100%{transform:translateY(0)}35%{transform:translateY(-10px) scale(1.04)}60%{transform:translateY(0)}80%{transform:translateY(-3px)}}
+@keyframes tvShake{0%,100%{transform:translateX(0)}20%{transform:translateX(-6px) rotate(-3deg)}40%{transform:translateX(5px) rotate(2deg)}60%{transform:translateX(-4px)}80%{transform:translateX(3px)}}
+#tvBubble{position:absolute;top:-10px;right:-14px;font-size:22px;opacity:0;transform:scale(.4);transition:all .25s cubic-bezier(.3,1.6,.6,1)}#tvBubble.on{opacity:1;transform:scale(1)}
+#tvWho{flex:1;min-width:0}
+#tvSay{font-size:12px;font-style:italic;color:#5b3a8c;margin-top:4px;min-height:16px;font-weight:700}
+#tvRight{display:flex;flex-direction:column;align-items:flex-end;gap:6px}
+#tvStreak{font-size:11px;font-weight:900;color:#d9782f;min-height:14px}
+#tvCard{position:absolute;inset:0;background:#0c0a12;color:#f4f1ea;display:none;align-items:center;justify-content:center;border-radius:6px;z-index:5;cursor:pointer}
+#tvCard.on{display:flex;animation:tvCardIn 1.9s ease forwards}
+#tvCard div{text-align:center}#tvCard small{display:block;font-size:12px;letter-spacing:.3em;text-transform:uppercase;color:#d9c49a;margin-bottom:10px}
+#tvCard b{font-family:Georgia,'Times New Roman',serif;font-size:30px;font-weight:400;letter-spacing:.02em}
+@keyframes tvCardIn{0%{opacity:0}15%{opacity:1}80%{opacity:1}100%{opacity:0;visibility:hidden}}
+.tvEp{display:block;margin-top:4px;font-size:11px;font-weight:800;color:#5b3a8c}
+#tvRes .rp{width:132px;height:132px;border:3px solid #2a1a3a;border-radius:12px;background:radial-gradient(circle at 50% 40%,#fff6dc,#ecd6a6);margin:0 auto 6px;display:block}
+#tvRes .rsay{font-style:italic;color:#5b3a8c}
+#tvName{font-weight:900;font-size:18px}
 #tvNeed{font-size:10px;color:#7a6a8a;font-weight:700}
 #tvProg{margin-left:auto;display:flex;gap:4px}
 #tvProg i{width:12px;height:12px;border-radius:50%;border:2px solid #2a1a3a;background:#fff}
@@ -158,9 +175,10 @@ kbd{background:#fff;border:1px solid #2a1a3a;border-radius:3px;padding:0 4px;fon
  <div id="toast" class="box"></div>
  <div id="dlg" class="box hidden"><div id="dlgName"></div><div id="dlgText"></div><div id="dlgChoices"></div><div id="dlgMore">▼</div></div>
  <div id="triv" class="box hidden">
-  <div id="tvHead"><canvas id="tvPortrait" width="48" height="48"></canvas><div><div id="tvName"></div><div id="tvNeed"></div></div><div id="tvProg"></div></div>
+  <div id="tvHead"><div id="tvPw"><canvas id="tvPortrait" width="132" height="132"></canvas><div id="tvBubble"></div></div><div id="tvWho"><div id="tvName"></div><div id="tvNeed"></div><div id="tvSay"></div></div><div id="tvRight"><div id="tvProg"></div><div id="tvStreak"></div></div></div>
   <div id="tvBody"><div id="tvMid"><canvas id="tvPic" class="hidden" width="256" height="160"></canvas><div id="tvQ"></div></div><div id="tvOpts"></div><div id="tvFoot"><div id="tvFact" class="hidden"></div><button id="tvNext" class="hidden">Next ▶</button></div></div>
   <div id="tvRes" class="hidden"></div>
+  <div id="tvCard"><div><small>Tonight on</small><b id="tvCardT"></b></div></div>
  </div>
  <div id="coll" class="box hidden"><div class="ph"><canvas id="doll" width="92" height="48"></canvas><h2>🏆 The Shelf</h2><b id="collCount"></b><button class="close">Close ✕</button></div><div id="collGrid"></div></div>
  <div id="help" class="box hidden"><div class="ph"><h2>How to play</h2><button class="close">Close ✕</button></div>
@@ -222,110 +240,110 @@ const QB = [
 // ---- Central Perk (Gunther's deck) ----
 {t:'perk easy', q:"What color is the famous couch at Central Perk?", a:["Orange","Green","Brown leather","Navy blue"], f:"The big orange couch is the gang's unofficial reserved seat. Somehow it's always free."},
 {t:'perk', q:"Who works behind the counter at Central Perk for all ten seasons?", a:["Gunther","Terry","Paolo","Eddie"], f:"Gunther is there from start to finish. Terry is the early-seasons manager who isn't a fan of Rachel's waitressing."},
-{t:'perk rachel', q:"Who at Central Perk is quietly, hopelessly in love with Rachel?", a:["Gunther","Terry","Mr. Heckles","Paolo"], f:"Gunther carries a torch for Rachel for years and finally tells her in the very last episode."},
-{t:'perk rachel easy', q:"In the early seasons, which friend works as a waitress at Central Perk?", a:["Rachel","Monica","Phoebe","Janice"], f:"Rachel waits tables after leaving Barry, and she's famously not very good at it."},
+{t:'perk rachel', q:"Who at Central Perk is quietly, hopelessly in love with Rachel?", a:["Gunther","Terry","Mr. Heckles","Paolo"], f:"Gunther carries a torch for Rachel for years and finally tells her in the very last episode.", ep:"Season 10 · The Last One"},
+{t:'perk rachel easy', q:"In the early seasons, which friend works as a waitress at Central Perk?", a:["Rachel","Monica","Phoebe","Janice"], f:"Rachel waits tables after leaving Barry, and she's famously not very good at it.", ep:"Season 1 · The One Where Monica Gets a Roommate"},
 {t:'perk phoebe easy', q:"Which friend plays guitar and sings at Central Perk?", a:["Phoebe","Ross","Joey","Monica"], f:"Phoebe's original songs are a Central Perk staple, whether people want them or not."},
 {t:'perk', q:"In which New York neighborhood do the friends live and hang out?", a:["Greenwich Village","Upper East Side","Brooklyn Heights","Harlem"], f:"Central Perk and the apartments are all in Greenwich Village."},
 {t:'perk', q:"Where is Central Perk in relation to Monica's apartment?", a:["Downstairs, in the same building","Across the street","Around the corner","Two subway stops away"], f:"The coffeehouse is right downstairs, which explains a lot about how much time they spend there."},
 {t:'perk', q:"How many seasons did Friends run?", a:["10","8","9","12"], f:"Ten seasons, from 1994 to 2004."},
 
 // ---- Rachel's deck ----
-{t:'rachel easy', q:"Who does Rachel leave at the altar in the very first episode?", a:["Barry","Paolo","Joshua","Tag"], f:"She runs out on Barry and turns up at Central Perk still in her wedding dress."},
+{t:'rachel easy', q:"Who does Rachel leave at the altar in the very first episode?", a:["Barry","Paolo","Joshua","Tag"], f:"She runs out on Barry and turns up at Central Perk still in her wedding dress.", ep:"Season 1 · The One Where Monica Gets a Roommate"},
 {t:'rachel', q:"What is Barry's job?", a:["Orthodontist","Dentist","Podiatrist","Accountant"]},
-{t:'rachel', q:"Where does Rachel get her first fashion job after quitting Central Perk?", a:["Fortunata Fashions","Bloomingdale's","Ralph Lauren","Saks Fifth Avenue"], f:"The job mostly involves fetching coffee. Bloomingdale's comes next."},
+{t:'rachel', q:"Where does Rachel get her first fashion job after quitting Central Perk?", a:["Fortunata Fashions","Bloomingdale's","Ralph Lauren","Saks Fifth Avenue"], f:"The job mostly involves fetching coffee. Bloomingdale's comes next.", ep:"Season 3 · The One Where Rachel Quits"},
 {t:'rachel', q:"What are the names of Rachel's two sisters?", a:["Amy and Jill","Amy and Ursula","Jill and Emily","Monica and Amy"]},
-{t:'rachel', q:"What does Rachel accidentally put in her Thanksgiving trifle?", a:["Beef sautéed with peas and onions","A jar of mayonnaise","Ketchup instead of jam","Smoked salmon"], f:"Two cookbook pages were stuck together, so half her trifle is a shepherd's pie."},
-{t:'rachel', q:"What is the name of Ross and Rachel's daughter?", a:["Emma","Erica","Ella","Emily"]},
-{t:'rachel ross', q:"At his wedding in London, whose name does Ross say instead of Emily's?", a:["Rachel's","Monica's","Carol's","Julie's"]},
-{t:'rachel ross', q:"Who insists, over and over, \"We were on a break!\"?", a:["Ross","Chandler","Joey","Rachel"]},
+{t:'rachel', q:"What does Rachel accidentally put in her Thanksgiving trifle?", a:["Beef sautéed with peas and onions","A jar of mayonnaise","Ketchup instead of jam","Smoked salmon"], f:"Two cookbook pages were stuck together, so half her trifle is a shepherd's pie.", ep:"Season 6 · The One Where Ross Got High"},
+{t:'rachel', q:"What is the name of Ross and Rachel's daughter?", a:["Emma","Erica","Ella","Emily"], ep:"Season 8 · The One Where Rachel Has a Baby"},
+{t:'rachel ross', q:"At his wedding in London, whose name does Ross say instead of Emily's?", a:["Rachel's","Monica's","Carol's","Julie's"], ep:"Season 4 · The One with Ross's Wedding"},
+{t:'rachel ross', q:"Who insists, over and over, \"We were on a break!\"?", a:["Ross","Chandler","Joey","Rachel"], ep:"Season 3 · The One Where Ross and Rachel Take a Break"},
 {t:'rachel', q:"Which store does Rachel work at right after Fortunata Fashions?", a:["Bloomingdale's","Barneys","Macy's","Saks Fifth Avenue"]},
 
 // ---- Phoebe's deck ----
-{t:'phoebe easy', q:"What is Phoebe's most famous song called?", a:["Smelly Cat","Grumpy Dog","Stinky Mouse","Lonely Fish"]},
+{t:'phoebe easy', q:"What is Phoebe's most famous song called?", a:["Smelly Cat","Grumpy Dog","Stinky Mouse","Lonely Fish"], ep:"Season 2 · The One with the Baby on the Bus"},
 {t:'phoebe', q:"What is the name of Phoebe's identical twin sister?", a:["Ursula","Regina","Frances","Leslie"]},
 {t:'phoebe', q:"What fake name does Phoebe like to use when she's pretending to be someone else?", a:["Regina Phalange","Ken Adams","Holden McGroin","Mrs. Bing"], f:"Ken Adams and Holden McGroin are both Joey's aliases."},
-{t:'phoebe', q:"Who does Phoebe marry in season 10?", a:["Mike Hannigan","David","Gary","Duncan"]},
-{t:'phoebe', q:"Phoebe is a surrogate for her brother. How many babies does she carry?", a:["Three","Two","One","Four"], f:"Triplets: Frank Jr. Jr., Leslie, and Chandler."},
+{t:'phoebe', q:"Who does Phoebe marry in season 10?", a:["Mike Hannigan","David","Gary","Duncan"], ep:"Season 10 · The One with Phoebe's Wedding"},
+{t:'phoebe', q:"Phoebe is a surrogate for her brother. How many babies does she carry?", a:["Three","Two","One","Four"], f:"Triplets: Frank Jr. Jr., Leslie, and Chandler.", ep:"Season 4 · The One with Phoebe's Uterus"},
 {t:'phoebe', q:"What's the name of Phoebe's half-brother?", a:["Frank Jr.","Frank Sr.","Bill","Mike"]},
-{t:'phoebe', q:"According to Phoebe, where did her grandmother's cookie recipe come from?", a:["Nestlé Toulouse","Betty Crocker","A Paris baker named Pierre","Her neighbor"], f:"It turns out to be the recipe on the back of the chocolate chip bag."},
-{t:'phoebe', q:"Which of Phoebe's boyfriends is a scientist who moves to Minsk?", a:["David","Mike","Gary","Vince"]},
+{t:'phoebe', q:"According to Phoebe, where did her grandmother's cookie recipe come from?", a:["Nestlé Toulouse","Betty Crocker","A Paris baker named Pierre","Her neighbor"], f:"It turns out to be the recipe on the back of the chocolate chip bag.", ep:"Season 7 · The One with Phoebe's Cookies"},
+{t:'phoebe', q:"Which of Phoebe's boyfriends is a scientist who moves to Minsk?", a:["David","Mike","Gary","Vince"], ep:"Season 1 · The One with the Monkey"},
 
 // ---- Everyone (Couch Challenge & townsfolk) ----
-{t:'easy ross', q:"What is the name of Ross's pet monkey?", a:["Marcel","Mr. Bananas","Bobo","Jean-Claude"]},
+{t:'easy ross', q:"What is the name of Ross's pet monkey?", a:["Marcel","Mr. Bananas","Bobo","Jean-Claude"], ep:"Season 1 · The One with the Monkey"},
 {t:'easy ross', q:"What does Ross do for a living?", a:["Paleontologist","Archaeologist","Geologist","Marine biologist"]},
 {t:'easy joey', q:"What is the name of Joey's stuffed penguin?", a:["Hugsy","Waddles","Pengy","Mr. Flippers"]},
 {t:'joey', q:"Which character does Joey play on Days of Our Lives?", a:["Dr. Drake Ramoray","Dr. Ken Adams","Dr. Johnny Hunter","Dr. Holden McGroin"]},
-{t:'easy joey', q:"What does Joey famously NOT share?", a:["Food","His TV","His clothes","His foosball table"]},
+{t:'easy joey', q:"What does Joey famously NOT share?", a:["Food","His TV","His clothes","His foosball table"], ep:"Season 10 · The One with the Birth Mother"},
 {t:'joey', q:"How many sisters does Joey have?", a:["Seven","Three","Five","None"]},
 {t:'joey', q:"What is the name of Joey's agent?", a:["Estelle","Janice","Judy","Amy"]},
-{t:'chandler', q:"What is Chandler's middle name?", a:["Muriel","Matthew","Maurice","Marion"]},
-{t:'chandler', q:"In the big apartment quiz, what does Rachel guess Chandler's job is?", a:["Transponster","Statistician","Data reconfigurer","Copywriter"], f:"The girls lose the quiz and have to swap apartments with Joey and Chandler."},
+{t:'chandler', q:"What is Chandler's middle name?", a:["Muriel","Matthew","Maurice","Marion"], ep:"Season 4 · The One with the Embryos"},
+{t:'chandler', q:"In the big apartment quiz, what does Rachel guess Chandler's job is?", a:["Transponster","Statistician","Data reconfigurer","Copywriter"], f:"The girls lose the quiz and have to swap apartments with Joey and Chandler.", ep:"Season 4 · The One with the Embryos"},
 {t:'chandler', q:"Which of Chandler's girlfriends is known for her laugh and her \"Oh. My. God.\"?", a:["Janice","Kathy","Joanna","Ginger"]},
 {t:'chandler joey', q:"Which two pets do Joey and Chandler keep in their apartment?", a:["A chick and a duck","Two cats","A monkey and a rabbit","A hamster and a lizard"]},
 {t:'ross', q:"How many times has Ross been divorced by the end of the series?", a:["Three","Two","Four","One"]},
-{t:'ross', q:"What does Ross call the extra gravy-soaked slice of bread in his Thanksgiving sandwich?", a:["The Moist Maker","The Gravy Boat","The Secret Slice","The Sandwich Saver"]},
-{t:'ross', q:"Ross dresses up as which holiday character to teach Ben about Hanukkah?", a:["The Holiday Armadillo","The Hanukkah Hippo","The Festive Ferret","The Menorah Moose"]},
-{t:'ross', q:"What does Ross keep yelling while trying to move a couch up the stairs?", a:["\"PIVOT!\"","\"LIFT!\"","\"TURN!\"","\"PUSH!\""]},
+{t:'ross', q:"What does Ross call the extra gravy-soaked slice of bread in his Thanksgiving sandwich?", a:["The Moist Maker","The Gravy Boat","The Secret Slice","The Sandwich Saver"], ep:"Season 5 · The One with Ross's Sandwich"},
+{t:'ross', q:"Ross dresses up as which holiday character to teach Ben about Hanukkah?", a:["The Holiday Armadillo","The Hanukkah Hippo","The Festive Ferret","The Menorah Moose"], ep:"Season 7 · The One with the Holiday Armadillo"},
+{t:'ross', q:"What does Ross keep yelling while trying to move a couch up the stairs?", a:["\"PIVOT!\"","\"LIFT!\"","\"TURN!\"","\"PUSH!\""], ep:"Season 5 · The One with the Cop"},
 {t:'ross', q:"Who is the mother of Ross's son, Ben?", a:["Carol","Susan","Emily","Rachel"]},
-{t:'monica', q:"To cheer Chandler up at Thanksgiving, what does Monica wear on her head?", a:["A turkey, with sunglasses and a fez","A pumpkin","A pilgrim hat","A pie tin"]},
+{t:'monica', q:"To cheer Chandler up at Thanksgiving, what does Monica wear on her head?", a:["A turkey, with sunglasses and a fez","A pumpkin","A pilgrim hat","A pie tin"], ep:"Season 5 · The One with All the Thanksgivings"},
 {t:'monica', q:"At which restaurant is Monica head chef in the later seasons?", a:["Javu","Alessandro's","Iridium","Moondance Diner"]},
 {t:'monica', q:"What number is Monica's apartment in the later seasons?", a:["20","19","5","14"]},
 {t:'easy', q:"What do the friends build to poke Ugly Naked Guy across the street?", a:["A giant poking device made of chopsticks","A slingshot","A really long umbrella","A paper airplane launcher"]},
-{t:'easy', q:"In which city do Ross and Emily get married?", a:["London","Paris","Las Vegas","Barbados"]},
+{t:'easy', q:"In which city do Ross and Emily get married?", a:["London","Paris","Las Vegas","Barbados"], ep:"Season 4 · The One with Ross's Wedding"},
 
 // ---- v0.2: Monica's deck ----
 {t:'monica easy', q:"What does Monica do for a living?", a:["She's a chef","She's a food critic","She runs a bakery","She's a personal trainer"]},
 {t:'monica easy', q:"What is the name of Monica's brother?", a:["Ross","Ben","Frank","Richard"]},
-{t:'monica', q:"How many categories of towels does Monica have?", a:["Eleven","Three","Seven","Twenty"], f:"Chandler is stunned to learn that 'everyday use' and 'fancy' are only the beginning."},
-{t:'monica', q:"What is the Geller Cup?", a:["A troll doll nailed to a piece of wood","A silver trophy from Monica's school","A chipped coffee mug","A bowling trophy"], f:"Ross and Monica fought over it in Thanksgiving touch football games growing up."},
-{t:'monica', q:"What does Monica's older boyfriend Richard do for a living?", a:["Ophthalmologist","Dentist","Lawyer","Professor"]},
-{t:'monica chandler', q:"Where do Monica and Chandler first get together?", a:["London, at Ross's wedding","Las Vegas","Barbados","Atlantic City"]},
-{t:'monica chandler', q:"What are the names of Monica and Chandler's twins?", a:["Erica and Jack","Emma and Ben","Leslie and Frank","Jill and Jack"]},
+{t:'monica', q:"How many categories of towels does Monica have?", a:["Eleven","Three","Seven","Twenty"], f:"Chandler is stunned to learn that 'everyday use' and 'fancy' are only the beginning.", ep:"Season 4 · The One with the Embryos"},
+{t:'monica', q:"What is the Geller Cup?", a:["A troll doll nailed to a piece of wood","A silver trophy from Monica's school","A chipped coffee mug","A bowling trophy"], f:"Ross and Monica fought over it in Thanksgiving touch football games growing up.", ep:"Season 3 · The One with the Football"},
+{t:'monica', q:"What does Monica's older boyfriend Richard do for a living?", a:["Ophthalmologist","Dentist","Lawyer","Professor"], ep:"Season 2 · The One Where Ross and Rachel… You Know"},
+{t:'monica chandler', q:"Where do Monica and Chandler first get together?", a:["London, at Ross's wedding","Las Vegas","Barbados","Atlantic City"], ep:"Season 4 · The One with Ross's Wedding"},
+{t:'monica chandler', q:"What are the names of Monica and Chandler's twins?", a:["Erica and Jack","Emma and Ben","Leslie and Frank","Jill and Jack"], ep:"Season 10 · The Last One"},
 {t:'monica', q:"Who did Monica's apartment originally belong to?", a:["Her grandmother","Her parents","Rachel","Mr. Heckles"], f:"It's rent-controlled, which is how the gang can afford such a big place."},
-{t:'monica chandler', q:"In the proposal episode, who tries to propose first?", a:["Monica","Chandler","Joey, as a joke","Rachel, by accident"], f:"Monica gets too emotional to finish, so Chandler takes over."},
+{t:'monica chandler', q:"In the proposal episode, who tries to propose first?", a:["Monica","Chandler","Joey, as a joke","Rachel, by accident"], f:"Monica gets too emotional to finish, so Chandler takes over.", ep:"Season 6 · The One with the Proposal"},
 // ---- v0.2: Chandler's deck ----
 {t:'chandler easy', q:"What is Chandler's last name?", a:["Bing","Bong","Bang","Banks"]},
-{t:'chandler', q:"Why does Chandler spend Thanksgiving in a box?", a:["To make up for kissing Joey's girlfriend","He lost a bet with Ross","To hide from Janice","He's practicing a magic act"]},
+{t:'chandler', q:"Why does Chandler spend Thanksgiving in a box?", a:["To make up for kissing Joey's girlfriend","He lost a bet with Ross","To hide from Janice","He's practicing a magic act"], ep:"Season 4 · The One with Chandler in a Box"},
 {t:'chandler', q:"Which city does Chandler get transferred to for work?", a:["Tulsa","Yemen","Minsk","Atlantic City"], f:"He falls asleep in a meeting and agrees to it without realizing."},
 {t:'chandler', q:"Which career does Chandler switch to in the later seasons?", a:["Advertising","Teaching","Real estate","Accounting"]},
-{t:'chandler', q:"What does Chandler have trouble doing in photos?", a:["Smiling normally","Keeping his eyes open","Standing still","Looking at the camera"]},
+{t:'chandler', q:"What does Chandler have trouble doing in photos?", a:["Smiling normally","Keeping his eyes open","Standing still","Looking at the camera"], ep:"Season 7 · The One with the Engagement Picture"},
 {t:'chandler joey', q:"After their entertainment unit fiasco, what do Joey and Chandler end up with?", a:["A canoe","A foosball table","A duck","A jukebox"]},
 {t:'chandler', q:"Where does Chandler tell Janice he's moving so he can break up with her?", a:["Yemen","Tulsa","Minsk","London"]},
-{t:'chandler', q:"While Joey is living elsewhere, which strange roommate does Chandler get stuck with?", a:["Eddie","Eric","Mr. Heckles","Gunther"]},
+{t:'chandler', q:"While Joey is living elsewhere, which strange roommate does Chandler get stuck with?", a:["Eddie","Eric","Mr. Heckles","Gunther"], ep:"Season 2 · The One Where Eddie Moves In"},
 // ---- v0.2: Joey's deck ----
 {t:'joey easy', q:"What is Joey's last name?", a:["Tribbiani","Tortelli","Tribeca","Taglia"]},
 {t:'joey easy', q:"What is Joey's famous pickup line?", a:["\"How you doin'?\"","\"Hey there, gorgeous.\"","\"Come here often?\"","\"What's up?\""]},
-{t:'joey', q:"How is Dr. Drake Ramoray written off Days of Our Lives?", a:["He falls down an elevator shaft","He moves to Paris","He's struck by lightning","He wanders off with amnesia"]},
+{t:'joey', q:"How is Dr. Drake Ramoray written off Days of Our Lives?", a:["He falls down an elevator shaft","He moves to Paris","He's struck by lightning","He wanders off with amnesia"], ep:"Season 2 · The One Where Dr. Ramoray Dies"},
 {t:'joey', q:"What is the name of Joey's imaginary childhood friend?", a:["Maurice","Mr. Peanut","Ken Adams","Hugsy"]},
-{t:'joey chandler', q:"To get back at Chandler, Joey puts on what?", a:["Every piece of Chandler's clothing","Chandler's bathrobe","A wedding dress","A duck costume"]},
+{t:'joey chandler', q:"To get back at Chandler, Joey puts on what?", a:["Every piece of Chandler's clothing","Chandler's bathrobe","A wedding dress","A duck costume"], ep:"Season 3 · The One Where No One's Ready"},
 {t:'joey', q:"What name does Joey give his favorite recliner?", a:["Rosita","Big Leather","Barcalounger Bob","Sandra"]},
 // ---- v0.3: Ross ----
 {t:'ross easy', q:"What is the name of Ross's second wife?", a:["Emily","Carol","Rachel","Julie"]},
 {t:'ross', q:"Ross's first wife, Carol, leaves him for whom?", a:["Susan","Emily","Janice","Kathy"]},
-{t:'ross', q:"On a date, what does Ross wear that gets him into trouble in the bathroom?", a:["Leather pants","A velvet suit","A kilt","A tuxedo"], f:"Lotion plus leather pants: a combination Ross does not recommend."},
-{t:'ross places', q:"What hits Ross in the face at a Rangers game?", a:["A hockey puck","A foam finger","A hot dog","A beach ball"]},
+{t:'ross', q:"On a date, what does Ross wear that gets him into trouble in the bathroom?", a:["Leather pants","A velvet suit","A kilt","A tuxedo"], f:"Lotion plus leather pants: a combination Ross does not recommend.", ep:"Season 5 · The One with All the Resolutions"},
+{t:'ross places', q:"What hits Ross in the face at a Rangers game?", a:["A hockey puck","A foam finger","A hot dog","A beach ball"], ep:"Season 1 · The One with George Stephanopoulos"},
 {t:'ross', q:"Where does Ross teach in the later seasons?", a:["NYU","Columbia","Harvard","The museum's night school"]},
-{t:'ross', q:"According to Ross, what is 'unagi'?", a:["A state of total awareness","A karate kick","A type of dinosaur","A sushi chef's knife"], f:"Phoebe and Rachel point out that unagi is actually a kind of eel."},
-{t:'ross', q:"Where do Ross and Rachel go on their first date?", a:["The museum, after hours","Central Perk","A fancy restaurant","A Rangers game"]},
-{t:'ross', q:"Where does Marcel end up after Ross gives him away?", a:["The San Diego Zoo","The Bronx Zoo","A circus","Ross's parents' house"]},
+{t:'ross', q:"According to Ross, what is 'unagi'?", a:["A state of total awareness","A karate kick","A type of dinosaur","A sushi chef's knife"], f:"Phoebe and Rachel point out that unagi is actually a kind of eel.", ep:"Season 6 · The One with Unagi"},
+{t:'ross', q:"Where do Ross and Rachel go on their first date?", a:["The museum, after hours","Central Perk","A fancy restaurant","A Rangers game"], ep:"Season 2 · The One Where Ross and Rachel… You Know"},
+{t:'ross', q:"Where does Marcel end up after Ross gives him away?", a:["The San Diego Zoo","The Bronx Zoo","A circus","Ross's parents' house"], ep:"Season 2 · The One After the Super Bowl"},
 // ---- v0.3: places & trips ----
-{t:'places', q:"Where does Joey work as a gladiator?", a:["Caesars Palace, Las Vegas","The Plaza Hotel","Madison Square Garden","Atlantic City"]},
-{t:'places', q:"Why is the whole gang in Barbados?", a:["Ross is giving a keynote speech at a paleontology conference","Monica and Chandler's honeymoon","Phoebe's wedding","Joey is filming a movie"]},
-{t:'places monica', q:"In Barbados, what does Monica play for hours against Mike?", a:["Ping-pong","Tennis","Poker","Volleyball"]},
-{t:'places phoebe', q:"In which beach town does Phoebe meet her birth mother?", a:["Montauk","Atlantic City","The Hamptons","Coney Island"]},
-{t:'places joey', q:"What does Joey buy and proudly wear in London?", a:["A hat with the British flag on it","A bowler hat","A royal guard's tall fur hat","A tweed cap"]},
-{t:'places rachel ross', q:"What do Ross and Rachel do in Las Vegas after a lot of drinks?", a:["Get married","Get matching tattoos","Buy a casino","Adopt a dog"]},
+{t:'places', q:"Where does Joey work as a gladiator?", a:["Caesars Palace, Las Vegas","The Plaza Hotel","Madison Square Garden","Atlantic City"], ep:"Season 5 · The One in Vegas"},
+{t:'places', q:"Why is the whole gang in Barbados?", a:["Ross is giving a keynote speech at a paleontology conference","Monica and Chandler's honeymoon","Phoebe's wedding","Joey is filming a movie"], ep:"Season 9 · The One in Barbados"},
+{t:'places monica', q:"In Barbados, what does Monica play for hours against Mike?", a:["Ping-pong","Tennis","Poker","Volleyball"], ep:"Season 9 · The One in Barbados"},
+{t:'places phoebe', q:"In which beach town does Phoebe meet her birth mother?", a:["Montauk","Atlantic City","The Hamptons","Coney Island"], ep:"Season 3 · The One at the Beach"},
+{t:'places joey', q:"What does Joey buy and proudly wear in London?", a:["A hat with the British flag on it","A bowler hat","A royal guard's tall fur hat","A tweed cap"], ep:"Season 4 · The One with Ross's Wedding"},
+{t:'places rachel ross', q:"What do Ross and Rachel do in Las Vegas after a lot of drinks?", a:["Get married","Get matching tattoos","Buy a casino","Adopt a dog"], ep:"Season 5 · The One in Vegas"},
 {t:'places rachel', q:"In the finale, Rachel is moving to Paris for a job with which company?", a:["Louis Vuitton","Chanel","Ralph Lauren","Gucci"]},
-{t:'places rachel', q:"In the finale, which airport is Rachel's Paris flight leaving from?", a:["Newark","JFK","LaGuardia","Philadelphia"]},
+{t:'places rachel', q:"In the finale, which airport is Rachel's Paris flight leaving from?", a:["Newark","JFK","LaGuardia","Philadelphia"], ep:"Season 10 · The Last One"},
 // ---- v0.3: more of everyone ----
 {t:'rachel', q:"Who is Rachel's demanding boss at Bloomingdale's?", a:["Joanna","Janice","Estelle","Emily"]},
-{t:'rachel', q:"At Ralph Lauren, Rachel hires an assistant she has a crush on. What's his name?", a:["Tag","Joshua","Paolo","Mark"]},
+{t:'rachel', q:"At Ralph Lauren, Rachel hires an assistant she has a crush on. What's his name?", a:["Tag","Joshua","Paolo","Mark"], ep:"Season 7 · The One with Rachel's Assistant"},
 {t:'monica', q:"At the Moondance Diner, what does Monica have to wear?", a:["A blonde wig","A chef's hat","A pirate hat","A clown nose"]},
 {t:'phoebe easy', q:"What kind of car does Phoebe drive?", a:["Her grandmother's old taxi","A yellow Beetle","A convertible","A tour bus"]},
-{t:'phoebe', q:"What is the name of Phoebe's birth mother?", a:["Phoebe Abbott","Ursula Buffay","Lily Buffay","Frances Abbott"]},
-{t:'phoebe', q:"Where do Phoebe and Mike get married?", a:["On the street outside Central Perk, in the snow","In Central Park","In Montauk","At the Plaza Hotel"]},
+{t:'phoebe', q:"What is the name of Phoebe's birth mother?", a:["Phoebe Abbott","Ursula Buffay","Lily Buffay","Frances Abbott"], ep:"Season 3 · The One at the Beach"},
+{t:'phoebe', q:"Where do Phoebe and Mike get married?", a:["On the street outside Central Perk, in the snow","In Central Park","In Montauk","At the Plaza Hotel"], ep:"Season 10 · The One with Phoebe's Wedding"},
 {t:'joey', q:"What is the name of the musical Joey stars in, about a famous psychiatrist?", a:["Freud!","Jung at Heart","Doctor Dreams","Couch!"]},
-{t:'joey', q:"How does Joey's Days of Our Lives character come back to the show?", a:["He gets a brain transplant","He was actually his twin","He wakes up from a dream","He returns from Paris"], f:"Dr. Drake Ramoray returns with the brain of Jessica Lockhart."},
+{t:'joey', q:"How does Joey's Days of Our Lives character come back to the show?", a:["He gets a brain transplant","He was actually his twin","He wakes up from a dream","He returns from Paris"], f:"Dr. Drake Ramoray returns with the brain of Jessica Lockhart.", ep:"Season 7 · The One with Joey's New Brain"},
 // ---- v0.4: SUPERFAN questions (tag 'hard') ----
 {t:'hard gunther perk', q:"Gunther says he used to play Bryce on which soap opera?", a:["All My Children","Days of Our Lives","General Hospital","The Young and the Restless"]},
 {t:'hard gunther perk', q:"How was Gunther's soap character, Bryce, killed off?", a:["Buried in an avalanche","Fell down an elevator shaft","Lost at sea","Struck by lightning"], f:"He tells Joey this right after Dr. Drake Ramoray falls down an elevator shaft."},
@@ -338,9 +356,9 @@ const QB = [
 {t:'hard janice ross', q:"Besides Chandler, which friend briefly dates Janice?", a:["Ross","Joey","Gunther","Mike"]},
 {t:'hard janice chandler', q:"In season 3, Joey sees Janice kissing someone, which ends things with Chandler. Who?", a:["Her ex-husband, Gary","Ross","Gunther","Her dentist"]},
 {t:'hard janice monica', q:"In season 10, Janice is thinking of buying a house where?", a:["Right next door to Monica and Chandler's new house","Across the hall from Joey","In Montauk","Above Central Perk"]},
-{t:'hard janice chandler', q:"In 'The One with Unagi,' Janice is only heard, not seen. Through what?", a:["A mixtape she made for Chandler","A voicemail","A radio ad","A singing telegram"]},
+{t:'hard janice chandler', q:"In 'The One with Unagi,' Janice is only heard, not seen. Through what?", a:["A mixtape she made for Chandler","A voicemail","A radio ad","A singing telegram"], ep:"Season 6 · The One with Unagi"},
 {t:'hard mike phoebe', q:"What did Mike do for a living before becoming a piano player?", a:["Lawyer","Doctor","Teacher","Accountant"]},
-{t:'hard mike phoebe', q:"When Phoebe changes her name to Princess Consuela Banana-Hammock, what does Mike change his to?", a:["Crap Bag","Prince Mike","Valhalla","Mister Hammock"]},
+{t:'hard mike phoebe', q:"When Phoebe changes her name to Princess Consuela Banana-Hammock, what does Mike change his to?", a:["Crap Bag","Prince Mike","Valhalla","Mister Hammock"], ep:"Season 10 · The One with Princess Consuela"},
 {t:'hard mike phoebe joey', q:"How does Phoebe end up on her first date with Mike?", a:["Joey yells 'Mike!' in a coffee shop and grabs whoever answers","Ross sets them up from work","They meet at her massage studio","Monica caters his party"]},
 {t:'hard mike phoebe places', q:"Who does Phoebe bring to Barbados before Mike shows up?", a:["David","Gary","Duncan","Jason"]},
 {t:'hard mike phoebe', q:"What's the name of the dog in Mike and Phoebe's wedding party?", a:["Chappy","Clunkers","Chi-Chi","Hugsy"]},
@@ -355,81 +373,81 @@ const QB = [
 {t:'hard richard monica', q:"How does Monica know Richard before they date?", a:["He's a close friend of her parents","He was her chemistry teacher","He's Rachel's uncle","He's her dentist"]},
 {t:'hard estelle joey', q:"Who is Estelle's only other client?", a:["Al Zebooker","Ken Adams","Holden McGroin","Leonard Hayes"]},
 {t:'hard estelle joey', q:"What is Al Zebooker's special talent?", a:["He eats paper","He juggles knives","He can lick his elbow","He sings opera backward"]},
-{t:'hard estelle joey phoebe', q:"After Estelle dies, who pretends to be her on the phone with Joey?", a:["Phoebe","Rachel","Janice","Monica"]},
+{t:'hard estelle joey phoebe', q:"After Estelle dies, who pretends to be her on the phone with Joey?", a:["Phoebe","Rachel","Janice","Monica"], ep:"Season 10 · The One Where Estelle Dies"},
 {t:'hard estelle joey', q:"Estelle gets Joey an early film role as whose 'butt double'?", a:["Al Pacino","Robert De Niro","Tom Cruise","Jean-Claude Van Damme"]},
 {t:'hard frank phoebe', q:"When Phoebe asks Frank Jr. what he likes to do at home, what does he say?", a:["Melt stuff","Build birdhouses","Watch Baywatch","Collect spoons"]},
 {t:'hard frank phoebe', q:"Who does Frank Jr. marry?", a:["Alice, his former home-ec teacher","Ursula","His Spanish tutor","Phoebe's massage client"]},
-{t:'hard frank phoebe chandler', q:"Phoebe's triplet named Chandler turns out to be…", a:["A girl","A boy","A dog","Joey's idea"], f:"The ultrasound was wrong, but Frank and Alice keep the name."},
+{t:'hard frank phoebe chandler', q:"Phoebe's triplet named Chandler turns out to be…", a:["A girl","A boy","A dog","Joey's idea"], f:"The ultrasound was wrong, but Frank and Alice keep the name.", ep:"Season 5 · The One Hundredth"},
 {t:'hard eddie chandler', q:"What is the name of Eddie's goldfish?", a:["Buddy","Chandler","Fishy","Goldie"]},
 {t:'hard eddie chandler', q:"What does Eddie replace his goldfish with?", a:["A fish-shaped cracker, which he names Chandler","A rubber duck","A second fishbowl","A photo of a fish"]},
 {t:'hard eddie chandler', q:"What is the name of Eddie's ex-girlfriend?", a:["Tilly","Tina","Lily","Janice"]},
 {t:'hard eddie chandler', q:"What does Eddie steal out of all of Chandler's shoes?", a:["The insoles","The laces","Left shoes only","His socks"]},
-{t:'hard eddie chandler joey', q:"How do Chandler and Joey finally get rid of Eddie?", a:["They pretend they've never met him","They move apartments","They call his mother","They hire Mr. Heckles"]},
+{t:'hard eddie chandler joey', q:"How do Chandler and Joey finally get rid of Eddie?", a:["They pretend they've never met him","They move apartments","They call his mother","They hire Mr. Heckles"], ep:"Season 2 · The One Where Eddie Won't Go"},
 {t:'hard eddie', q:"What does Eddie spend his time making in the apartment?", a:["Dried fruit","Model ships","Scented candles","Ice sculptures"]},
-{t:'hard heckles monica rachel', q:"In his will, who does Mr. Heckles leave all his possessions to?", a:["\"The noisy girls upstairs\"","Chandler","The building super","His cat"]},
+{t:'hard heckles monica rachel', q:"In his will, who does Mr. Heckles leave all his possessions to?", a:["\"The noisy girls upstairs\"","Chandler","The building super","His cat"], ep:"Season 2 · The One Where Heckles Dies"},
 {t:'hard heckles', q:"What does Mr. Heckles bang on his ceiling with?", a:["A broom","A cane","A frying pan","A tennis racket"]},
-{t:'hard heckles chandler', q:"After Mr. Heckles dies, which friend panics that he'll end up just like him?", a:["Chandler","Ross","Joey","Gunther"]},
+{t:'hard heckles chandler', q:"After Mr. Heckles dies, which friend panics that he'll end up just like him?", a:["Chandler","Ross","Joey","Gunther"], ep:"Season 2 · The One Where Heckles Dies"},
 {t:'hard rachel', q:"What is Rachel's middle name?", a:["Karen","Kathleen","Jennifer","Amy"]},
 {t:'hard ross', q:"What is Ross's middle name?", a:["Eustace","Ernest","Edward","Elliott"]},
 {t:'hard joey', q:"What is Joey's middle name?", a:["Francis","Frank","Anthony","Salvatore"]},
 {t:'hard rachel', q:"How much does Rachel pay for Mrs. Whiskerson?", a:["$1,000","$300","$50","$2,500"]},
-{t:'hard chandler', q:"Whose name is on the address label of Chandler's TV Guide?", a:["Miss Chanandler Bong","Mr. Chandler Bang","Ms. Chandelier Bing","Mrs. Muriel Bing"]},
+{t:'hard chandler', q:"Whose name is on the address label of Chandler's TV Guide?", a:["Miss Chanandler Bong","Mr. Chandler Bang","Ms. Chandelier Bing","Mrs. Muriel Bing"], ep:"Season 4 · The One with the Embryos"},
 {t:'hard joey', q:"What product does Joey advertise in a commercial that only airs in Japan?", a:["Ichiban, lipstick for men","Milk Master 2000","Hugsy cologne","Drake Ramoray hair gel"]},
 {t:'hard joey', q:"In Joey's TV show Mac and C.H.E.E.S.E., what is C.H.E.E.S.E.?", a:["A robot","A dog","A computer virus","A sandwich"]},
 {t:'hard joey chandler', q:"Which of Joey's sisters does Chandler fool around with at Joey's birthday party?", a:["Mary Angela","Mary Therese","Dina","Gina"]},
 {t:'hard ross', q:"What is Marcel's favorite song?", a:["The Lion Sleeps Tonight","Smelly Cat","Walking on Sunshine","Monkey Business"]},
 {t:'hard phoebe', q:"Phoebe believes her mother's spirit lives on in what?", a:["A cat","A tree in Central Park","Her guitar","A seashell"]},
-{t:'hard joey', q:"What does Joey wear to eat an entire Thanksgiving turkey?", a:["Phoebe's maternity pants","His Drake Ramoray scrubs","A bib and a fez","Chandler's sweatpants"]},
-{t:'hard monica chandler', q:"In a Thanksgiving flashback, what does Monica accidentally cut off?", a:["The tip of Chandler's toe","Ross's ponytail","Joey's eyebrow","The tip of her finger"]},
+{t:'hard joey', q:"What does Joey wear to eat an entire Thanksgiving turkey?", a:["Phoebe's maternity pants","His Drake Ramoray scrubs","A bib and a fez","Chandler's sweatpants"], ep:"Season 5 · The One with All the Thanksgivings"},
+{t:'hard monica chandler', q:"In a Thanksgiving flashback, what does Monica accidentally cut off?", a:["The tip of Chandler's toe","Ross's ponytail","Joey's eyebrow","The tip of her finger"], ep:"Season 5 · The One with All the Thanksgivings"},
 {t:'hard monica', q:"Before the numbers were changed, what number was Monica's apartment in season 1?", a:["5","2","9","15"]},
 {t:'hard monica', q:"What fake chocolate product does Monica have to create Thanksgiving recipes for?", a:["Mockolate","Chocolite","Faux-co","Cocoa-ish"]},
 {t:'hard chandler', q:"What does Chandler's mother do for a living?", a:["Writes steamy romance novels","Hosts a cooking show","Sells real estate","Teaches ballroom dancing"]},
 {t:'hard chandler', q:"What is the name of the Las Vegas show Chandler's father stars in?", a:["Viva Las Gaygas","Vegas Nights","Glitter & Gold","The Bing Bang Show"]},
-{t:'hard ross', q:"Why do Ross's teeth glow on a date?", a:["He used too much teeth whitener","He ate glow sticks","He got veneers","A dentist's mistake"]},
+{t:'hard ross', q:"Why do Ross's teeth glow on a date?", a:["He used too much teeth whitener","He ate glow sticks","He got veneers","A dentist's mistake"], ep:"Season 6 · The One with Ross's Teeth"},
 {t:'hard rachel', q:"Who was Rachel's senior prom date?", a:["Chip Matthews","Barry Farber","Joshua Bergin","Paolo"]},
 // ---- v0.5: PICTURE questions (pic = which scene to draw) ----
 {t:'pic monica easy', pic:'door20', q:"Whose front door is this?", a:["Monica's","Joey and Chandler's","Ross's","Phoebe's"], f:"Purple door, yellow peephole frame, apartment 20."},
 {t:'pic joey chandler easy', pic:'jcapt', q:"Whose living room is this?", a:["Joey and Chandler's","Ross's","Monica and Rachel's","Mr. Heckles'"]},
 {t:'pic perk easy', pic:'perk', q:"Where is this famous couch?", a:["Central Perk","Monica's apartment","Ross's apartment","The Moondance Diner"]},
-{t:'pic monica', pic:'turkey', q:"Who wore this on their head to cheer someone up?", a:["Monica","Joey","Phoebe","Rachel"], f:"She did it to cheer up Chandler, who was not having a great Thanksgiving."},
-{t:'pic ross', pic:'pants', q:"Whose disastrous date outfit is this?", a:["Ross's","Joey's","Chandler's","Gunther's"], f:"Leather pants plus lotion plus powder equals paste."},
-{t:'pic ross', pic:'armadillo', q:"Who dressed up as this for the holidays?", a:["Ross","Chandler","Joey","Jack Geller"], f:"Santa was sold out, so Ross became the Holiday Armadillo."},
+{t:'pic monica', pic:'turkey', q:"Who wore this on their head to cheer someone up?", a:["Monica","Joey","Phoebe","Rachel"], f:"She did it to cheer up Chandler, who was not having a great Thanksgiving.", ep:"Season 5 · The One with All the Thanksgivings"},
+{t:'pic ross', pic:'pants', q:"Whose disastrous date outfit is this?", a:["Ross's","Joey's","Chandler's","Gunther's"], f:"Leather pants plus lotion plus powder equals paste.", ep:"Season 5 · The One with All the Resolutions"},
+{t:'pic ross', pic:'armadillo', q:"Who dressed up as this for the holidays?", a:["Ross","Chandler","Joey","Jack Geller"], f:"Santa was sold out, so Ross became the Holiday Armadillo.", ep:"Season 7 · The One with the Holiday Armadillo"},
 {t:'pic joey chandler easy', pic:'chickduck', q:"Whose pets are these?", a:["Joey and Chandler's","Phoebe's","Ross's","Monica's"]},
 {t:'pic phoebe', pic:'taxi', q:"Whose ride is this?", a:["Phoebe's","Joey's","Gunther's","Chandler's"], f:"It was her grandmother's taxi."},
-{t:'pic rachel', pic:'trifle', q:"Who made this Thanksgiving dessert?", a:["Rachel","Monica","Phoebe","Judy Geller"], f:"Custard: good. Jam: good. Beef: …"},
+{t:'pic rachel', pic:'trifle', q:"Who made this Thanksgiving dessert?", a:["Rachel","Monica","Phoebe","Judy Geller"], f:"Custard: good. Jam: good. Beef: …", ep:"Season 6 · The One Where Ross Got High"},
 {t:'pic joey chandler', pic:'dog', q:"Whose apartment does this guard?", a:["Joey and Chandler's","Monica and Rachel's","Ross's","Phoebe's"]},
-{t:'pic monica ross', pic:'cup', q:"What is this trophy called?", a:["The Geller Cup","The Bing Bowl","The Thanksgiving Trophy","The Turkey Cup"]},
-{t:'pic joey places', pic:'hat', q:"Who bought this hat in London?", a:["Joey","Chandler","Ross","Monica"]},
+{t:'pic monica ross', pic:'cup', q:"What is this trophy called?", a:["The Geller Cup","The Bing Bowl","The Thanksgiving Trophy","The Turkey Cup"], ep:"Season 3 · The One with the Football"},
+{t:'pic joey places', pic:'hat', q:"Who bought this hat in London?", a:["Joey","Chandler","Ross","Monica"], ep:"Season 4 · The One with Ross's Wedding"},
 {t:'pic rachel hard', pic:'cat', q:"What is this cat's name?", a:["Mrs. Whiskerson","Julio","Fluffy Meowington","Smelly Cat"]},
 {t:'pic joey easy', pic:'hugsy', q:"What is this penguin's name?", a:["Hugsy","Waddles","Mr. Flippers","Pengy"]},
-{t:'pic ross', pic:'sandwich', q:"Whose sandwich is this? (Note the special middle layer.)", a:["Ross's","Joey's","Chandler's","Gunther's"], f:"The Moist Maker: an extra slice of bread soaked in gravy."},
+{t:'pic ross', pic:'sandwich', q:"Whose sandwich is this? (Note the special middle layer.)", a:["Ross's","Joey's","Chandler's","Gunther's"], f:"The Moist Maker: an extra slice of bread soaked in gravy.", ep:"Season 5 · The One with Ross's Sandwich"},
 {t:'pic ross easy', pic:'dino', q:"Who works here?", a:["Ross","Phoebe","Chandler","Richard"]},
 {t:'pic easy', pic:'poker', q:"What did the friends build this for?", a:["Poking Ugly Naked Guy","Changing light bulbs","Fishing out the window","Reaching Joey's top shelf"], f:"It's made of chopsticks taped together."},
 {t:'pic monica', pic:'wig', q:"Who had to wear this at work?", a:["Monica","Rachel","Phoebe","Janice"]},
-{t:'pic monica places', pic:'paddle', q:"Where did the epic ping-pong marathon take place?", a:["Barbados","Montauk","Las Vegas","Atlantic City"]},
-{t:'pic phoebe easy', pic:'smellycat', q:"Which song is about this guy?", a:["Smelly Cat","Grumpy Dog","Alley Cat Blues","The Stinky Song"]},
-{t:'pic chandler', pic:'box', q:"Who spent a Thanksgiving inside this?", a:["Chandler","Joey","Ross","Gunther"], f:"His penance for kissing Joey's girlfriend, Kathy."},
+{t:'pic monica places', pic:'paddle', q:"Where did the epic ping-pong marathon take place?", a:["Barbados","Montauk","Las Vegas","Atlantic City"], ep:"Season 9 · The One in Barbados"},
+{t:'pic phoebe easy', pic:'smellycat', q:"Which song is about this guy?", a:["Smelly Cat","Grumpy Dog","Alley Cat Blues","The Stinky Song"], ep:"Season 2 · The One with the Baby on the Bus"},
+{t:'pic chandler', pic:'box', q:"Who spent a Thanksgiving inside this?", a:["Chandler","Joey","Ross","Gunther"], f:"His penance for kissing Joey's girlfriend, Kathy.", ep:"Season 4 · The One with Chandler in a Box"},
 {t:'pic joey hard', pic:'rosita', q:"What does Joey call this chair?", a:["Rosita","Big Leather","Sandra","Barcalounger Bob"]},
 // ---- Super Fan deck (very obscure, used by Quiz Night and Super Fan difficulty) ----
 {t:'sf quote chandler', q:"Finish Chandler's line: \"I'm not great at the advice. Can I interest you in a ___ comment?\"", a:["sarcastic", "witty", "snarky", "clever"]},
-{t:'sf quote monica', q:"Finish Monica's welcome to Rachel: \"Welcome to the real world! It ___. You're gonna love it!\"", a:["sucks", "bites", "hurts", "stinks"]},
-{t:'sf quote phoebe', q:"Finish Phoebe's line: \"They don't know that we know they ___!\"", a:["know we know", "know we care", "think we know", "know you know"], f:"Phoebe's master plan while spying on Monica and Chandler."},
+{t:'sf quote monica', q:"Finish Monica's welcome to Rachel: \"Welcome to the real world! It ___. You're gonna love it!\"", a:["sucks", "bites", "hurts", "stinks"], ep:"Season 1 · The One Where Monica Gets a Roommate"},
+{t:'sf quote phoebe', q:"Finish Phoebe's line: \"They don't know that we know they ___!\"", a:["know we know", "know we care", "think we know", "know you know"], f:"Phoebe's master plan while spying on Monica and Chandler.", ep:"Season 5 · The One Where Everybody Finds Out"},
 {t:'sf quote rachel', q:"Finish Rachel's line to Ross: \"No uterus, no ___!\"", a:["opinion", "comment", "complaints", "vote"]},
 {t:'sf quote joey', q:"Finish Joey's line: \"It's a moo point. It's like a cow's opinion. It just doesn't ___.\"", a:["matter", "count", "moo", "make sense"]},
 {t:'sf quote joey', q:"Joey, halfway through a Thanksgiving turkey: \"Here come the meat ___!\"", a:["sweats", "pants", "stretchies", "slacks"]},
-{t:'sf quote ross', q:"Ross, about his ruined lunch at work: \"MY ___?!\"", a:["SANDWICH", "LEFTOVERS", "TURKEY", "LUNCH"]},
+{t:'sf quote ross', q:"Ross, about his ruined lunch at work: \"MY ___?!\"", a:["SANDWICH", "LEFTOVERS", "TURKEY", "LUNCH"], ep:"Season 5 · The One with Ross's Sandwich"},
 {t:'sf quote phoebe', q:"Phoebe, politely declining: \"Oh, I wish I could, but I don't want ___.\"", a:["to", "it", "you", "that"]},
-{t:'sf quote rachel', q:"Rachel, explaining why she left Barry: \"It's like all my life everyone has always told me, 'You're a ___!'\"", a:["shoe", "purse", "princess", "doll"], f:"'Well, what if I don't want to be a shoe? What if I want to be a purse?'"},
+{t:'sf quote rachel', q:"Rachel, explaining why she left Barry: \"It's like all my life everyone has always told me, 'You're a ___!'\"", a:["shoe", "purse", "princess", "doll"], f:"'Well, what if I don't want to be a shoe? What if I want to be a purse?'", ep:"Season 1 · The One Where Monica Gets a Roommate"},
 {t:'sf quote chandler', q:"Finish Chandler's line: \"Hi, I'm Chandler. I make jokes when I'm ___.\"", a:["uncomfortable", "nervous", "bored", "awake"]},
-{t:'sf quote joey', q:"Joey, wearing everything Chandler owns: \"Could I BE wearing any more ___?\"", a:["clothes", "sweaters", "layers", "stuff"], f:"Payback for Chandler hiding all his underwear."},
-{t:'sf quote monica', q:"When Chandler says the pink bunny costume isn't right, Monica says it was either a pink bunny or ___", a:["no bunny at all", "a brown bunny", "a giant carrot", "a chicken"], f:"Chandler: 'No bunny at all! Always no bunny at all!'"},
-{t:'sf quote ross', q:"Ross defines unagi as a state of total ___.", a:["awareness", "relaxation", "sushi", "readiness"], f:"Phoebe and Rachel point out unagi is actually eel."},
+{t:'sf quote joey', q:"Joey, wearing everything Chandler owns: \"Could I BE wearing any more ___?\"", a:["clothes", "sweaters", "layers", "stuff"], f:"Payback for Chandler hiding all his underwear.", ep:"Season 3 · The One Where No One's Ready"},
+{t:'sf quote monica', q:"When Chandler says the pink bunny costume isn't right, Monica says it was either a pink bunny or ___", a:["no bunny at all", "a brown bunny", "a giant carrot", "a chicken"], f:"Chandler: 'No bunny at all! Always no bunny at all!'", ep:"Season 8 · The One with the Halloween Party"},
+{t:'sf quote ross', q:"Ross defines unagi as a state of total ___.", a:["awareness", "relaxation", "sushi", "readiness"], f:"Phoebe and Rachel point out unagi is actually eel.", ep:"Season 6 · The One with Unagi"},
 {t:'sf props monica', q:"What color are the walls in Monica's apartment?", a:["Purple", "Sage green", "Pale yellow", "Sky blue"]},
 {t:'sf props monica', q:"What color is the frame around the peephole on Monica's door?", a:["Yellow", "Purple", "Gold", "White"]},
-{t:'sf props chandler', q:"At Monica's Halloween party, Chandler wanted to dress as which rabbit?", a:["The Velveteen Rabbit", "Bugs Bunny", "Peter Rabbit", "The White Rabbit"], f:"The Velveteen Rabbit was brown and white. He got a big pink bunny instead."},
-{t:'sf props ross', q:"At the Halloween party, Ross dresses as a potato satellite. What does he call it?", a:["Spud-nik", "Potato-nova", "Tater-tot 1", "Spudlink"]},
+{t:'sf props chandler', q:"At Monica's Halloween party, Chandler wanted to dress as which rabbit?", a:["The Velveteen Rabbit", "Bugs Bunny", "Peter Rabbit", "The White Rabbit"], f:"The Velveteen Rabbit was brown and white. He got a big pink bunny instead.", ep:"Season 8 · The One with the Halloween Party"},
+{t:'sf props ross', q:"At the Halloween party, Ross dresses as a potato satellite. What does he call it?", a:["Spud-nik", "Potato-nova", "Tater-tot 1", "Spudlink"], ep:"Season 8 · The One with the Halloween Party"},
 {t:'sf props rachel', q:"Rachel and Phoebe's apartment catches fire in season 6. What started it?", a:["Rachel's hair straightener", "Phoebe's candles", "A toaster", "Monica's lamp"], f:"Rachel left her hair straightener on, though she tries to blame Phoebe's candles first."},
-{t:'sf props chandler', q:"What is the name of the card game Chandler invents so he can give Joey rent money?", a:["Cups", "Saucers", "Bamboozled", "Spoons"], f:"He makes up the rules as he goes so Joey always wins. Joey then loses it all to Ross."},
+{t:'sf props chandler', q:"What is the name of the card game Chandler invents so he can give Joey rent money?", a:["Cups", "Saucers", "Bamboozled", "Spoons"], f:"He makes up the rules as he goes so Joey always wins. Joey then loses it all to Ross.", ep:"Season 6 · The One on the Last Night"},
 {t:'sf props monica', q:"What did Monica get fired for accepting from her restaurant's meat supplier in season 2?", a:["Five steaks", "A case of wine", "A gold watch", "Concert tickets"], f:"The episode is called 'The One with Five Steaks and an Eggplant.'"},
 {t:'sf cast', q:"Which main cast member was the oldest when Friends premiered?", a:["Lisa Kudrow", "Courteney Cox", "David Schwimmer", "Matt LeBlanc"], f:"She was 31."},
 {t:'sf cast', q:"Which main cast member was the youngest when Friends premiered?", a:["Matthew Perry", "Jennifer Aniston", "Matt LeBlanc", "David Schwimmer"], f:"Born August 1969, he was 25 when the pilot aired. Jennifer Aniston was born six months earlier."},
@@ -439,58 +457,58 @@ const QB = [
 {t:'sf cast', q:"How old was Jennifer Aniston when the finale aired in May 2004?", a:["35", "32", "33", "37"], f:"Born February 11, 1969."},
 {t:'sf cast', q:"How old was Courteney Cox when the finale aired in May 2004?", a:["39", "35", "37", "42"]},
 {t:'sf cast', q:"How many episodes of Friends were made?", a:["236", "200", "220", "250"], f:"236 episodes over ten seasons, from September 1994 to May 2004."},
-{t:'sf cast', q:"What was the title of the very first episode?", a:["The One Where Monica Gets a Roommate", "The One Where It All Began", "The Pilot", "The One with the Wedding Dress"]},
+{t:'sf cast', q:"What was the title of the very first episode?", a:["The One Where Monica Gets a Roommate", "The One Where It All Began", "The Pilot", "The One with the Wedding Dress"], ep:"Season 1 · The One Where Monica Gets a Roommate"},
 {t:'sf cast', q:"Which of these was a working title for the show before it became Friends?", a:["Insomnia Cafe", "Latte Nights", "Apartment 20", "Grounds for Friendship"]},
 {t:'sf cast', q:"Which band performed the theme song?", a:["The Rembrandts", "Hootie & the Blowfish", "Gin Blossoms", "Counting Crows"], f:"The song is 'I'll Be There for You.'"},
-{t:'sf cast', q:"What is the title of the series finale?", a:["The Last One", "The One Where They Say Goodbye", "The Final One", "The One with the Keys"]},
-{t:'sf cameo phoebe', q:"Which star played Ryan, Phoebe's Navy boyfriend who catches chicken pox?", a:["Charlie Sheen", "Tom Cruise", "Matthew McConaughey", "Rob Lowe"]},
+{t:'sf cast', q:"What is the title of the series finale?", a:["The Last One", "The One Where They Say Goodbye", "The Final One", "The One with the Keys"], ep:"Season 10 · The Last One"},
+{t:'sf cameo phoebe', q:"Which star played Ryan, Phoebe's Navy boyfriend who catches chicken pox?", a:["Charlie Sheen", "Tom Cruise", "Matthew McConaughey", "Rob Lowe"], ep:"Season 2 · The One with the Chicken Pox"},
 {t:'sf cameo phoebe', q:"Phoebe sells toner as a telemarketer and calls a man named Earl. Who played Earl?", a:["Jason Alexander", "Danny DeVito", "Jon Lovitz", "Michael Richards"]},
 {t:'sf cameo phoebe', q:"Which actor played Parker, Phoebe's relentlessly cheerful boyfriend?", a:["Alec Baldwin", "Bill Murray", "Steve Martin", "Michael Keaton"]},
 {t:'sf cameo joey', q:"Which actor played Richard Crosby, Joey's co-star in a World War II movie who spits when he talks?", a:["Gary Oldman", "Anthony Hopkins", "Jeremy Irons", "Alan Rickman"]},
-{t:'sf cameo phoebe', q:"Who played Eric, Ursula's fiancé who meets Phoebe at the Halloween party?", a:["Sean Penn", "Johnny Depp", "Matt Damon", "Ethan Hawke"]},
+{t:'sf cameo phoebe', q:"Who played Eric, Ursula's fiancé who meets Phoebe at the Halloween party?", a:["Sean Penn", "Johnny Depp", "Matt Damon", "Ethan Hawke"], ep:"Season 8 · The One with the Halloween Party"},
 {t:'sf cameo rachel', q:"Who played Melissa, Rachel's sorority sister who once kissed her?", a:["Winona Ryder", "Gwyneth Paltrow", "Drew Barrymore", "Cameron Diaz"]},
-{t:'sf cameo phoebe', q:"Who played Roy, the stripper at Phoebe's bachelorette party?", a:["Danny DeVito", "Joe Pesci", "Jack Black", "John Goodman"]},
+{t:'sf cameo phoebe', q:"Who played Roy, the stripper at Phoebe's bachelorette party?", a:["Danny DeVito", "Joe Pesci", "Jack Black", "John Goodman"], ep:"Season 10 · The One Where the Stripper Cries"},
 {t:'sf cameo joey', q:"Which star played Leonard Hayes, a director at one of Joey's auditions?", a:["Jeff Goldblum", "Christopher Walken", "Robin Williams", "Kevin Spacey"]},
 {t:'sf cameo rachel', q:"Who played Gavin, Rachel's rival at Ralph Lauren while she's on maternity leave?", a:["Dermot Mulroney", "Greg Kinnear", "Dylan McDermott", "Aaron Eckhart"]},
 {t:'sf cameo chandler', q:"Who played Susie Moss, the old classmate who gets revenge on Chandler?", a:["Julia Roberts", "Sandra Bullock", "Meg Ryan", "Michelle Pfeiffer"], f:"She leaves him in a restaurant bathroom wearing her underwear."},
-{t:'sf cameo ross rachel', q:"Which star played Will, co-founder of the 'I Hate Rachel Green Club'?", a:["Brad Pitt", "Johnny Depp", "Keanu Reeves", "Tom Cruise"], f:"Season 8 Thanksgiving, while he was married to Jennifer Aniston."},
+{t:'sf cameo ross rachel', q:"Which star played Will, co-founder of the 'I Hate Rachel Green Club'?", a:["Brad Pitt", "Johnny Depp", "Keanu Reeves", "Tom Cruise"], f:"Season 8 Thanksgiving, while he was married to Jennifer Aniston.", ep:"Season 8 · The One with the Rumor"},
 {t:'sf cameo ross', q:"Who played Paul Stevens, the intimidating father of Ross's student girlfriend Elizabeth?", a:["Bruce Willis", "Harrison Ford", "Kevin Costner", "Mel Gibson"]},
-{t:'sf cameo rachel', q:"Who played Jill, Rachel's spoiled sister who moves in with her?", a:["Reese Witherspoon", "Christina Applegate", "Alicia Silverstone", "Sarah Michelle Gellar"], f:"Christina Applegate played her other sister, Amy."},
-{t:'sf cameo rachel', q:"Which actor played Tommy, the boyfriend of Rachel's with a scary temper?", a:["Ben Stiller", "Jim Carrey", "Owen Wilson", "Adam Sandler"]},
-{t:'sf cameo joey', q:"Who played Jessica Lockhart, the Days of Our Lives star whose brain goes to Drake Ramoray?", a:["Susan Sarandon", "Meryl Streep", "Glenn Close", "Sigourney Weaver"]},
-{t:'sf cameo joey', q:"Who played Erika, the soap fan who thinks Joey really is Dr. Drake Ramoray?", a:["Brooke Shields", "Heather Locklear", "Teri Hatcher", "Elizabeth Hurley"]},
-{t:'sf cameo ross rachel', q:"Who played Sandy, the sensitive male nanny Ross and Rachel hire?", a:["Freddie Prinze Jr.", "Paul Walker", "Ryan Phillippe", "James Van Der Beek"]},
-{t:'sf cameo monica rachel', q:"In season 1, Monica and Rachel go on a double date with two doctors. Which two actors played them?", a:["George Clooney & Noah Wyle", "Tom Selleck & Ted Danson", "Hugh Grant & Colin Firth", "Brad Pitt & Matt Damon"], f:"Both were starring on ER at the time."},
-{t:'sf cameo monica rachel', q:"Which action star do Monica and Rachel fight over on a film set?", a:["Jean-Claude Van Damme", "Sylvester Stallone", "Arnold Schwarzenegger", "Steven Seagal"]},
+{t:'sf cameo rachel', q:"Who played Jill, Rachel's spoiled sister who moves in with her?", a:["Reese Witherspoon", "Christina Applegate", "Alicia Silverstone", "Sarah Michelle Gellar"], f:"Christina Applegate played her other sister, Amy.", ep:"Season 6 · The One with Rachel's Sister"},
+{t:'sf cameo rachel', q:"Which actor played Tommy, the boyfriend of Rachel's with a scary temper?", a:["Ben Stiller", "Jim Carrey", "Owen Wilson", "Adam Sandler"], ep:"Season 3 · The One with the Screamer"},
+{t:'sf cameo joey', q:"Who played Jessica Lockhart, the Days of Our Lives star whose brain goes to Drake Ramoray?", a:["Susan Sarandon", "Meryl Streep", "Glenn Close", "Sigourney Weaver"], ep:"Season 7 · The One with Joey's New Brain"},
+{t:'sf cameo joey', q:"Who played Erika, the soap fan who thinks Joey really is Dr. Drake Ramoray?", a:["Brooke Shields", "Heather Locklear", "Teri Hatcher", "Elizabeth Hurley"], ep:"Season 2 · The One After the Super Bowl"},
+{t:'sf cameo ross rachel', q:"Who played Sandy, the sensitive male nanny Ross and Rachel hire?", a:["Freddie Prinze Jr.", "Paul Walker", "Ryan Phillippe", "James Van Der Beek"], ep:"Season 9 · The One with the Male Nanny"},
+{t:'sf cameo monica rachel', q:"In season 1, Monica and Rachel go on a double date with two doctors. Which two actors played them?", a:["George Clooney & Noah Wyle", "Tom Selleck & Ted Danson", "Hugh Grant & Colin Firth", "Brad Pitt & Matt Damon"], f:"Both were starring on ER at the time.", ep:"Season 1 · The One with Two Parts"},
+{t:'sf cameo monica rachel', q:"Which action star do Monica and Rachel fight over on a film set?", a:["Jean-Claude Van Damme", "Sylvester Stallone", "Arnold Schwarzenegger", "Steven Seagal"], ep:"Season 2 · The One After the Super Bowl"},
 {t:'sf cameo monica', q:"Which actor played Pete Becker, the millionaire who dates Monica and becomes an Ultimate Fighter?", a:["Jon Favreau", "Vince Vaughn", "Jason Bateman", "Mark Ruffalo"]},
 {t:'sf cameo phoebe', q:"Before Friends, Lisa Kudrow played Ursula on which other NBC sitcom?", a:["Mad About You", "Seinfeld", "Frasier", "Wings"]},
 {t:'sf jobs joey', q:"Which cologne does Joey spray on shoppers at the department store?", a:["Hombre", "Bijan", "Drakkar", "Brut"], f:"He gets into a 'cologne war' with a rival sampler spraying Bijan."},
 {t:'sf jobs joey', q:"In the 'Milk Master 2000' infomercial, what is the name of Joey's character?", a:["Kevin", "Mario", "Drake", "Rick"]},
 {t:'sf jobs joey', q:"What game show does Joey practice hosting with Ross and Chandler?", a:["Bamboozled", "Mayhem!", "Ladder of Chance", "Spin & Win"], f:"You spin the Wheel of Mayhem to go up the Ladder of Chance. Season 8."},
 {t:'sf jobs joey', q:"What job does Joey get at Ross's museum?", a:["Tour guide", "Security guard", "Gift shop clerk", "Fossil cleaner"], f:"The scientists in white coats don't eat lunch with the guides in blue."},
-{t:'sf jobs joey', q:"Which seasonal job does Joey take in season 3?", a:["Selling Christmas trees", "Playing a mall Santa", "Wrapping gifts at Macy's", "Ringing the Salvation Army bell"]},
+{t:'sf jobs joey', q:"Which seasonal job does Joey take in season 3?", a:["Selling Christmas trees", "Playing a mall Santa", "Wrapping gifts at Macy's", "Ringing the Salvation Army bell"], ep:"Season 3 · The One Where Rachel Quits"},
 {t:'sf jobs joey monica', q:"Why does Monica hire Joey as a waiter at Alessandro's in season 4?", a:["So she can fire him to scare her staff", "Because nobody else applied", "To pay back a bet", "So he can research a role"], f:"A staged firing to win the staff's respect. Joey drags his feet because the holiday tips are great."},
 {t:'sf jobs rachel', q:"How does Rachel lose her job at Ralph Lauren in season 10?", a:["Her boss overhears her job interview with another company", "She's caught sleeping in the office", "She leaks a design", "She hires Tag"]},
-{t:'sf jobs rachel', q:"Who tells Rachel about the opening at Bloomingdale's?", a:["Mark", "Tag", "Joshua", "Paolo"], f:"Ross is jealous of Mark from the moment he shows up."},
+{t:'sf jobs rachel', q:"Who tells Rachel about the opening at Bloomingdale's?", a:["Mark", "Tag", "Joshua", "Paolo"], f:"Ross is jealous of Mark from the moment he shows up.", ep:"Season 3 · The One Where Rachel Quits"},
 {t:'sf jobs monica', q:"Monica gets the head chef job at Alessandro's right after doing what?", a:["Writing a bad review of it", "Winning a cooking contest", "Catering a wedding there", "Saving the owner from choking"]},
 {t:'sf jobs monica', q:"Where is Monica a chef in the first two seasons, before she's fired?", a:["Iridium", "Alessandro's", "Javu", "The Moondance"]},
 {t:'sf jobs chandler', q:"After quitting his data job, which career does Chandler start as an unpaid intern?", a:["Advertising", "Journalism", "Teaching", "Accounting"]},
-{t:'sf jobs ross', q:"After 'MY SANDWICH!', Ross is sent on what from the museum?", a:["A forced sabbatical", "An archaeological dig", "A lecture tour", "Unpaid leave in Tulsa"]},
+{t:'sf jobs ross', q:"After 'MY SANDWICH!', Ross is sent on what from the museum?", a:["A forced sabbatical", "An archaeological dig", "A lecture tour", "Unpaid leave in Tulsa"], ep:"Season 5 · The One with Ross's Sandwich"},
 {t:'sf jobs phoebe', q:"When Phoebe takes a telemarketing job, what does she sell?", a:["Toner", "Vacuum cleaners", "Magazines", "Phone plans"]},
-{t:'sf seasons ross rachel', q:"In which season do Ross and Rachel finally share their first kiss at Central Perk?", a:["Season 2", "Season 1", "Season 3", "Season 4"]},
-{t:'sf seasons ross rachel', q:"In which season are Ross and Rachel 'on a break'?", a:["Season 3", "Season 2", "Season 4", "Season 5"]},
-{t:'sf seasons monica chandler', q:"Monica and Chandler first get together at the end of which season?", a:["Season 4", "Season 3", "Season 5", "Season 6"], f:"In London, at Ross's wedding to Emily."},
-{t:'sf seasons ross rachel', q:"Ross and Rachel get married in Las Vegas at the end of which season?", a:["Season 5", "Season 4", "Season 6", "Season 7"]},
-{t:'sf seasons monica chandler', q:"Monica and Chandler get engaged at the end of which season?", a:["Season 6", "Season 5", "Season 7", "Season 4"]},
-{t:'sf seasons monica chandler', q:"Monica and Chandler's wedding is the finale of which season?", a:["Season 7", "Season 6", "Season 8", "Season 5"]},
-{t:'sf seasons rachel', q:"Emma is born at the end of which season?", a:["Season 8", "Season 7", "Season 9", "Season 6"]},
-{t:'sf seasons phoebe', q:"In which season does Phoebe give birth to her brother's triplets?", a:["Season 5", "Season 4", "Season 6", "Season 3"]},
+{t:'sf seasons ross rachel', q:"In which season do Ross and Rachel finally share their first kiss at Central Perk?", a:["Season 2", "Season 1", "Season 3", "Season 4"], ep:"Season 2 · The One Where Ross Finds Out"},
+{t:'sf seasons ross rachel', q:"In which season are Ross and Rachel 'on a break'?", a:["Season 3", "Season 2", "Season 4", "Season 5"], ep:"Season 3 · The One Where Ross and Rachel Take a Break"},
+{t:'sf seasons monica chandler', q:"Monica and Chandler first get together at the end of which season?", a:["Season 4", "Season 3", "Season 5", "Season 6"], f:"In London, at Ross's wedding to Emily.", ep:"Season 4 · The One with Ross's Wedding"},
+{t:'sf seasons ross rachel', q:"Ross and Rachel get married in Las Vegas at the end of which season?", a:["Season 5", "Season 4", "Season 6", "Season 7"], ep:"Season 5 · The One in Vegas"},
+{t:'sf seasons monica chandler', q:"Monica and Chandler get engaged at the end of which season?", a:["Season 6", "Season 5", "Season 7", "Season 4"], ep:"Season 6 · The One with the Proposal"},
+{t:'sf seasons monica chandler', q:"Monica and Chandler's wedding is the finale of which season?", a:["Season 7", "Season 6", "Season 8", "Season 5"], ep:"Season 7 · The One with Monica and Chandler's Wedding"},
+{t:'sf seasons rachel', q:"Emma is born at the end of which season?", a:["Season 8", "Season 7", "Season 9", "Season 6"], ep:"Season 8 · The One Where Rachel Has a Baby"},
+{t:'sf seasons phoebe', q:"In which season does Phoebe give birth to her brother's triplets?", a:["Season 5", "Season 4", "Season 6", "Season 3"], ep:"Season 5 · The One Hundredth"},
 {t:'sf seasons chandler', q:"In which season does Chandler's job send him to Tulsa?", a:["Season 9", "Season 8", "Season 7", "Season 10"]},
 {t:'sf seasons joey rachel', q:"In which season does Joey first realize he has feelings for Rachel?", a:["Season 8", "Season 7", "Season 9", "Season 10"]},
-{t:'sf seasons', q:"The whole gang goes to Barbados in the finale of which season?", a:["Season 9", "Season 8", "Season 10", "Season 7"]},
-{t:'sf seasons', q:"Friends' only Halloween episode is in which season?", a:["Season 8", "Season 3", "Season 6", "Season 10"]},
-{t:'sf seasons phoebe', q:"Phoebe and Mike get married in which season?", a:["Season 10", "Season 9", "Season 8", "Season 7"]},
-{t:'sf seasons chandler', q:"Chandler and Joey's 'Cups' game happens the night before Chandler moves in with Monica. Which season?", a:["Season 6", "Season 5", "Season 7", "Season 4"]},
+{t:'sf seasons', q:"The whole gang goes to Barbados in the finale of which season?", a:["Season 9", "Season 8", "Season 10", "Season 7"], ep:"Season 9 · The One in Barbados"},
+{t:'sf seasons', q:"Friends' only Halloween episode is in which season?", a:["Season 8", "Season 3", "Season 6", "Season 10"], ep:"Season 8 · The One with the Halloween Party"},
+{t:'sf seasons phoebe', q:"Phoebe and Mike get married in which season?", a:["Season 10", "Season 9", "Season 8", "Season 7"], ep:"Season 10 · The One with Phoebe's Wedding"},
+{t:'sf seasons chandler', q:"Chandler and Joey's 'Cups' game happens the night before Chandler moves in with Monica. Which season?", a:["Season 6", "Season 5", "Season 7", "Season 4"], ep:"Season 6 · The One on the Last Night"},
 ];
 
 /* ===== A personal touch =====
@@ -2247,10 +2265,37 @@ function startTrivia(o){const tags=o.tags==='all'?null:o.tags.split(' '),d=S.dif
  TV=Object.assign({qs:pool.slice(0,o.n),k:0,score:0,answered:false,res:[]},o);state='trivia';
  $('#triv').classList.remove('hidden');$('#triv').classList.toggle('quick',!!o.quick);$('#tvRes').classList.add('hidden');$('#tvBody').classList.remove('hidden');
  $('#tvName').textContent=o.who.name||(o.quick?'Quick Question':'Trivia');
- const pc=$('#tvPortrait'),g=pc.getContext('2d');g.imageSmoothingEnabled=false;g.clearRect(0,0,pc.width,pc.height);
- if(o.who.icon){g.drawImage(itemIcon(o.who.icon),0,0,48,48)}else if(o.who.couchIcon){const s=makeObj({kind:'couch',w:3,x:0,y:0});g.drawImage(s.c,0,4,48,30*48/48*.95)}else if(o.who.spr){const im=o.who.spr.down[0];if(im.hd)art(g,im,2,0,44,48);else g.drawImage(im,8,0,32,48)}
+ tvPortrait($('#tvPortrait'),o.who);TV.streak=0;$('#tvSay').textContent='';$('#tvStreak').textContent='';
+ if(!o.quick){$('#tvCardT').textContent=tvTitle(o.who);const cd=$('#tvCard');cd.classList.remove('on');void cd.offsetWidth;cd.classList.add('on');cd.onclick=()=>cd.classList.remove('on')}
+
  renderQ()}
-function renderQ(){const q=TV.qs[TV.k];TV.answered=false;TV.opts=shuffle(q.a.slice());
+/* v1.9.2: the quiz is a little episode. A title card, a portrait that reacts, and a line in character after each answer. */
+function pickOne(a){return a[(Math.random()*a.length)|0]}
+function tvKey(w){const n=((w&&(w.id||w.name))||'').toLowerCase();for(const k of['rachel','monica','phoebe','ross','joey','chandler','gunther','janice','mike','eddie','heckles','richard','estelle','frank','judy','jack','tag'])if(n.includes(k))return k;return''}
+const REACT={
+ rachel:{ok:["Oh my God, yes!","See? You totally get me.","Ooh, somebody's been paying attention!"],no:["Um, no. Honey, no.","Okay, that was… a choice.","Noooo. But it's cute that you tried."],win:["You're amazing! Okay, it's yours. Don't let Ross touch it."],lose:["It's okay! I failed things too. Like… waitressing."]},
+ monica:{ok:["Yes! I mean, obviously. But yes!","Correct! I'm putting that in the binder.","Perfect. Like a hospital corner."],no:["No! That's wrong! How is that wrong?!","Okay. Deep breath. We'll fix this.","That answer is going in the wrong-answer towel pile."],win:["I WIN! I mean… you win. We both win. But mostly me, for picking you."],lose:["Rematch. Right now. I've already laminated the cards."]},
+ phoebe:{ok:["Yay! Your aura just went totally purple.","I knew you'd get that. Well, my grandmother's spirit did.","Ooh, correct! That's very good energy."],no:["That's okay. The wrong answers are just right answers in a past life.","Hmm. Mercury's probably in something.","No, but I still like you."],win:["You did it! I'm writing a song about you. It's mostly about a cat, but it's about you."],lose:["Don't worry. Smelly answers, smelly answers, it's not your fault."]},
+ ross:{ok:["Yes! Correct! That's— that's exactly right!","Ha! See? Facts! Facts are great!","Yes. Thank you. Someone respects the material."],no:["No. No! That's— okay, that's not right.","Unagi. You need more unagi.","Wrong. And we were NOT on a break when I wrote this question."],win:["Okay, you won. Fair and square. I'll just… go update the index cards."],lose:["Hey, it's fine. You're still learning. Like the trilobite."]},
+ joey:{ok:["Yeah! How YOU doin'!","Nice! That's right, right? Yeah, that's right.","Whoa. You're like a genius. Like a smart genius."],no:["Ooh. Moo answer. It doesn't matter.","Nah. But hey, you look good, so…","Wrong! Wait, what was the question?"],win:["You did it! Okay. You can borrow him. BORROW."],lose:["That's okay! You owe me a sandwich, though."]},
+ chandler:{ok:["Could you BE any more right?","Correct. I'd clap, but I don't do sincere.","Look at you, knowing things."],no:["Oh good, a wrong answer. My favorite kind of answer.","Nope. I'd make a joke, but you're already sad.","That was not it. I'm not great at the comfort."],win:["You won. I'm handling it with mature, healthy humor. Please don't tell anyone."],lose:["You lost. Want a sarcastic comment? I have several."]},
+ gunther:{ok:["…Yes.","Correct. Whatever."],no:["No.","…Wrong."],win:["Fine. Take it."],lose:["Try again. Or don't."]},
+ '':{ok:["Nice!","That's right!","You know your stuff!"],no:["Not quite!","Ooh, so close.","Nope, but good guess!"],win:["Nicely done!"],lose:["Better luck next time!"]}};
+function reactLines(w){return REACT[tvKey(w)]||REACT['']}
+function tvTitle(w){const k=tvKey(w),n=(w&&w.name)||'Trivia';
+ if(w&&w.couchIcon)return 'The One on the Couch';
+ return k==='ross'?'The One With the Index Cards':k==='monica'?'The One Where Monica Has to Win':k==='gunther'?'The One Where Gunther Speaks':k==='joey'?"The One Where Joey Doesn't Share":k==='chandler'?'The One With the Sarcasm':k==='phoebe'?'The One With the Aura':k==='rachel'?'The One Where You Quiz Rachel':`The One With ${n}`}
+// head-and-shoulders portrait, cropped from the character's front-facing sprite
+function tvPortrait(c,w){const g=c.getContext('2d'),W=c.width;g.clearRect(0,0,W,W);
+ if(w&&w.icon){g.imageSmoothingEnabled=false;g.drawImage(itemIcon(w.icon),W*.1,W*.1,W*.8,W*.8);return}
+ if(w&&w.couchIcon){const s=makeObj({kind:'couch',w:3,x:0,y:0});g.imageSmoothingEnabled=false;g.drawImage(s.c,0,W*.25,W,W*.6);return}
+ const im=w&&w.spr&&w.spr.down&&w.spr.down[0];if(!im)return;
+ if(im.hd){g.imageSmoothingEnabled=true;g.imageSmoothingQuality='high';const dw=W*1.75,dh=dw*im.height/im.width;g.drawImage(im,(W-dw)/2,-dh*.17,dw,dh)}
+ else{g.imageSmoothingEnabled=false;const dw=W*1.1,dh=dw*im.height/im.width;g.drawImage(im,(W-dw)/2,-dh*.02,dw,dh)}}
+function tvReact(ok){const pw=$('#tvPw'),b=$('#tvBubble');pw.classList.remove('hop','shake');void pw.offsetWidth;pw.classList.add(ok?'hop':'shake');
+ b.textContent=ok?pickOne(['❤️','✨','!','😄']):pickOne(['💧','?!','😬']);b.classList.add('on');clearTimeout(tvReact.t);tvReact.t=setTimeout(()=>b.classList.remove('on'),1400);
+ $('#tvSay').textContent='“'+pickOne(reactLines(TV.who)[ok?'ok':'no'])+'”'}
+function renderQ(){const q=TV.qs[TV.k];TV.answered=false;$('#tvSay').textContent='';TV.opts=shuffle(q.a.slice());
  $('#tvProg').innerHTML=TV.qs.map((_,i)=>`<i class="${i<TV.k?(TV.res[i]?'ok':'no'):i===TV.k?'cur':''}"></i>`).join('');
  $('#tvNeed').textContent=TV.quick?'':`Need ${TV.need} of ${TV.qs.length}`;
  $('#tvQ').textContent=q.q;const pc=$('#tvPic');if(q.pic){pc.classList.remove('hidden');const gg=pc.getContext('2d');gg.imageSmoothingEnabled=false;gg.clearRect(0,0,256,160);gg.drawImage(drawPic(q.pic),0,0,256,160)}else pc.classList.add('hidden');$('#tvFact').classList.add('hidden');$('#tvNext').classList.add('hidden');
@@ -2260,17 +2305,19 @@ function answer(i){if(!TV||TV.answered)return;const q=TV.qs[TV.k],ok=TV.opts[i]=
  S.seen[q.i]=(S.seen[q.i]||0)+1;
  $('#tvOpts').querySelectorAll('button').forEach((b,j)=>{b.disabled=true;if(TV.opts[j]===q.a[0])b.classList.add('right');else if(j===i)b.classList.add('wrong')});
  const gain=qStars(q);if(ok){TV.score++;S.stars+=gain;SFX.ok()}else SFX.bad();updHud();save();
- const f=$('#tvFact');f.innerHTML=(ok?'<b class="good">Correct!</b> '+(gain>1?`<span class="tvStars">+${'★'.repeat(gain)}</span> `:''):'<b class="bad">Not quite.</b> ')+(q.f?esc(q.f):ok?'':'The answer was '+esc(q.a[0])+'.');f.classList.remove('hidden');
+ TV.streak=ok?(TV.streak||0)+1:0;$('#tvStreak').textContent=TV.streak>=3?`🔥 ${TV.streak} in a row!`:'';tvReact(ok);
+ const f=$('#tvFact');f.innerHTML=(ok?'<b class="good">Correct!</b> '+(gain>1?`<span class="tvStars">+${'★'.repeat(gain)}</span> `:''):'<b class="bad">Not quite.</b> ')+(q.f?esc(q.f):ok?'':'The answer was '+esc(q.a[0])+'.')+(q.ep?`<span class="tvEp">📺 ${esc(q.ep)}</span>`:'');f.classList.remove('hidden');
  $('#tvNext').textContent=TV.k+1<TV.qs.length?'Next ▶':'Finish ▶';$('#tvNext').classList.remove('hidden');try{$('#tvNext').scrollIntoView({block:'nearest'})}catch(e){}}
 function nextQ(){if(!TV||!TV.answered)return;TV.k++;if(TV.k<TV.qs.length)renderQ();else endTrivia()}
 function endTrivia(){const won=TV.score>=TV.need;$('#tvBody').classList.add('hidden');const r=$('#tvRes');r.classList.remove('hidden');
  $('#tvProg').innerHTML=TV.qs.map((_,i)=>`<i class="${TV.res[i]?'ok':'no'}"></i>`).join('');
- let h=TV.quick?'':`<div class="score">${TV.score} / ${TV.qs.length}</div>`;
+ let h=TV.quick?'':`<canvas class="rp" id="tvRP" width="132" height="132"></canvas><div class="score">${TV.score} / ${TV.qs.length}</div>`;
+ const rl=reactLines(TV.who)[won?'win':'lose'];if(!TV.quick&&rl)h+=`<p class="rsay">“${esc(fill(pickOne(rl)))}”</p>`;
  h+=`<p>${esc(fill(won?(TV.win||'Nice work!'):(TV.lose||'Better luck next time!')))}</p>`;
  if(won&&TV.reward&&!S.items[TV.reward]){S.items[TV.reward]=Date.now();const it=ITEM(TV.reward);h+=`<div class="award"><canvas id="awardCv" width="64" height="64"></canvas><div><small>NEW COLLECTIBLE</small><b>${esc(it.name)}</b><span>${esc(it.desc)}</span><small>Added to your shelf. Press C to view it.</small></div></div>`;setTimeout(SFX.item,150)}
  h+=`<button id="tvDone">Continue ▶</button>`;r.innerHTML=h;
  const ac=$('#awardCv');if(ac){const g=ac.getContext('2d');art(g,itemArt(TV.reward),0,0,64,64)}
- $('#tvDone').onclick=closeTrivia;TV.finished=true;updHud();save()}
+ $('#tvDone').onclick=closeTrivia;TV.finished=true;if($('#tvRP'))tvPortrait($('#tvRP'),TV.who);updHud();save()}
 function closeTrivia(){$('#triv').classList.add('hidden');state='world';const a=TV&&TV.after;TV=null;if(a)a();else{const n=itemCount();if(finaleReady()&&!S.items.key&&!S.talked.finaleHint){S.talked.finaleHint=1;save();say(["You've found everything! Your phone buzzes: a text from Monica.","'Central Perk. The orange couch. Everybody's waiting. Don't be late!'"]);addFinaleCast()}else if(n>=10&&!S.talked.airportHint){S.talked.airportHint=1;save();say(["10 collectibles! The AirTrain to JFK Airport is now open on the subway map. Flights to London, Las Vegas, Barbados and Montauk await."])}else if(n===8&&!S.talked.subwayHint){S.talked.subwayHint=1;save();say(["The Village is all yours! Take the subway at Bleecker St to explore the rest of the city."])}}}
 
 /* ===================== Subway & travel ===================== */

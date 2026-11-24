@@ -876,10 +876,37 @@ function startTrivia(o){const tags=o.tags==='all'?null:o.tags.split(' '),d=S.dif
  TV=Object.assign({qs:pool.slice(0,o.n),k:0,score:0,answered:false,res:[]},o);state='trivia';
  $('#triv').classList.remove('hidden');$('#triv').classList.toggle('quick',!!o.quick);$('#tvRes').classList.add('hidden');$('#tvBody').classList.remove('hidden');
  $('#tvName').textContent=o.who.name||(o.quick?'Quick Question':'Trivia');
- const pc=$('#tvPortrait'),g=pc.getContext('2d');g.imageSmoothingEnabled=false;g.clearRect(0,0,pc.width,pc.height);
- if(o.who.icon){g.drawImage(itemIcon(o.who.icon),0,0,48,48)}else if(o.who.couchIcon){const s=makeObj({kind:'couch',w:3,x:0,y:0});g.drawImage(s.c,0,4,48,30*48/48*.95)}else if(o.who.spr){const im=o.who.spr.down[0];if(im.hd)art(g,im,2,0,44,48);else g.drawImage(im,8,0,32,48)}
+ tvPortrait($('#tvPortrait'),o.who);TV.streak=0;$('#tvSay').textContent='';$('#tvStreak').textContent='';
+ if(!o.quick){$('#tvCardT').textContent=tvTitle(o.who);const cd=$('#tvCard');cd.classList.remove('on');void cd.offsetWidth;cd.classList.add('on');cd.onclick=()=>cd.classList.remove('on')}
+
  renderQ()}
-function renderQ(){const q=TV.qs[TV.k];TV.answered=false;TV.opts=shuffle(q.a.slice());
+/* v1.9.2: the quiz is a little episode. A title card, a portrait that reacts, and a line in character after each answer. */
+function pickOne(a){return a[(Math.random()*a.length)|0]}
+function tvKey(w){const n=((w&&(w.id||w.name))||'').toLowerCase();for(const k of['rachel','monica','phoebe','ross','joey','chandler','gunther','janice','mike','eddie','heckles','richard','estelle','frank','judy','jack','tag'])if(n.includes(k))return k;return''}
+const REACT={
+ rachel:{ok:["Oh my God, yes!","See? You totally get me.","Ooh, somebody's been paying attention!"],no:["Um, no. Honey, no.","Okay, that was… a choice.","Noooo. But it's cute that you tried."],win:["You're amazing! Okay, it's yours. Don't let Ross touch it."],lose:["It's okay! I failed things too. Like… waitressing."]},
+ monica:{ok:["Yes! I mean, obviously. But yes!","Correct! I'm putting that in the binder.","Perfect. Like a hospital corner."],no:["No! That's wrong! How is that wrong?!","Okay. Deep breath. We'll fix this.","That answer is going in the wrong-answer towel pile."],win:["I WIN! I mean… you win. We both win. But mostly me, for picking you."],lose:["Rematch. Right now. I've already laminated the cards."]},
+ phoebe:{ok:["Yay! Your aura just went totally purple.","I knew you'd get that. Well, my grandmother's spirit did.","Ooh, correct! That's very good energy."],no:["That's okay. The wrong answers are just right answers in a past life.","Hmm. Mercury's probably in something.","No, but I still like you."],win:["You did it! I'm writing a song about you. It's mostly about a cat, but it's about you."],lose:["Don't worry. Smelly answers, smelly answers, it's not your fault."]},
+ ross:{ok:["Yes! Correct! That's— that's exactly right!","Ha! See? Facts! Facts are great!","Yes. Thank you. Someone respects the material."],no:["No. No! That's— okay, that's not right.","Unagi. You need more unagi.","Wrong. And we were NOT on a break when I wrote this question."],win:["Okay, you won. Fair and square. I'll just… go update the index cards."],lose:["Hey, it's fine. You're still learning. Like the trilobite."]},
+ joey:{ok:["Yeah! How YOU doin'!","Nice! That's right, right? Yeah, that's right.","Whoa. You're like a genius. Like a smart genius."],no:["Ooh. Moo answer. It doesn't matter.","Nah. But hey, you look good, so…","Wrong! Wait, what was the question?"],win:["You did it! Okay. You can borrow him. BORROW."],lose:["That's okay! You owe me a sandwich, though."]},
+ chandler:{ok:["Could you BE any more right?","Correct. I'd clap, but I don't do sincere.","Look at you, knowing things."],no:["Oh good, a wrong answer. My favorite kind of answer.","Nope. I'd make a joke, but you're already sad.","That was not it. I'm not great at the comfort."],win:["You won. I'm handling it with mature, healthy humor. Please don't tell anyone."],lose:["You lost. Want a sarcastic comment? I have several."]},
+ gunther:{ok:["…Yes.","Correct. Whatever."],no:["No.","…Wrong."],win:["Fine. Take it."],lose:["Try again. Or don't."]},
+ '':{ok:["Nice!","That's right!","You know your stuff!"],no:["Not quite!","Ooh, so close.","Nope, but good guess!"],win:["Nicely done!"],lose:["Better luck next time!"]}};
+function reactLines(w){return REACT[tvKey(w)]||REACT['']}
+function tvTitle(w){const k=tvKey(w),n=(w&&w.name)||'Trivia';
+ if(w&&w.couchIcon)return 'The One on the Couch';
+ return k==='ross'?'The One With the Index Cards':k==='monica'?'The One Where Monica Has to Win':k==='gunther'?'The One Where Gunther Speaks':k==='joey'?"The One Where Joey Doesn't Share":k==='chandler'?'The One With the Sarcasm':k==='phoebe'?'The One With the Aura':k==='rachel'?'The One Where You Quiz Rachel':`The One With ${n}`}
+// head-and-shoulders portrait, cropped from the character's front-facing sprite
+function tvPortrait(c,w){const g=c.getContext('2d'),W=c.width;g.clearRect(0,0,W,W);
+ if(w&&w.icon){g.imageSmoothingEnabled=false;g.drawImage(itemIcon(w.icon),W*.1,W*.1,W*.8,W*.8);return}
+ if(w&&w.couchIcon){const s=makeObj({kind:'couch',w:3,x:0,y:0});g.imageSmoothingEnabled=false;g.drawImage(s.c,0,W*.25,W,W*.6);return}
+ const im=w&&w.spr&&w.spr.down&&w.spr.down[0];if(!im)return;
+ if(im.hd){g.imageSmoothingEnabled=true;g.imageSmoothingQuality='high';const dw=W*1.75,dh=dw*im.height/im.width;g.drawImage(im,(W-dw)/2,-dh*.17,dw,dh)}
+ else{g.imageSmoothingEnabled=false;const dw=W*1.1,dh=dw*im.height/im.width;g.drawImage(im,(W-dw)/2,-dh*.02,dw,dh)}}
+function tvReact(ok){const pw=$('#tvPw'),b=$('#tvBubble');pw.classList.remove('hop','shake');void pw.offsetWidth;pw.classList.add(ok?'hop':'shake');
+ b.textContent=ok?pickOne(['❤️','✨','!','😄']):pickOne(['💧','?!','😬']);b.classList.add('on');clearTimeout(tvReact.t);tvReact.t=setTimeout(()=>b.classList.remove('on'),1400);
+ $('#tvSay').textContent='“'+pickOne(reactLines(TV.who)[ok?'ok':'no'])+'”'}
+function renderQ(){const q=TV.qs[TV.k];TV.answered=false;$('#tvSay').textContent='';TV.opts=shuffle(q.a.slice());
  $('#tvProg').innerHTML=TV.qs.map((_,i)=>`<i class="${i<TV.k?(TV.res[i]?'ok':'no'):i===TV.k?'cur':''}"></i>`).join('');
  $('#tvNeed').textContent=TV.quick?'':`Need ${TV.need} of ${TV.qs.length}`;
  $('#tvQ').textContent=q.q;const pc=$('#tvPic');if(q.pic){pc.classList.remove('hidden');const gg=pc.getContext('2d');gg.imageSmoothingEnabled=false;gg.clearRect(0,0,256,160);gg.drawImage(drawPic(q.pic),0,0,256,160)}else pc.classList.add('hidden');$('#tvFact').classList.add('hidden');$('#tvNext').classList.add('hidden');
@@ -889,17 +916,19 @@ function answer(i){if(!TV||TV.answered)return;const q=TV.qs[TV.k],ok=TV.opts[i]=
  S.seen[q.i]=(S.seen[q.i]||0)+1;
  $('#tvOpts').querySelectorAll('button').forEach((b,j)=>{b.disabled=true;if(TV.opts[j]===q.a[0])b.classList.add('right');else if(j===i)b.classList.add('wrong')});
  const gain=qStars(q);if(ok){TV.score++;S.stars+=gain;SFX.ok()}else SFX.bad();updHud();save();
- const f=$('#tvFact');f.innerHTML=(ok?'<b class="good">Correct!</b> '+(gain>1?`<span class="tvStars">+${'★'.repeat(gain)}</span> `:''):'<b class="bad">Not quite.</b> ')+(q.f?esc(q.f):ok?'':'The answer was '+esc(q.a[0])+'.');f.classList.remove('hidden');
+ TV.streak=ok?(TV.streak||0)+1:0;$('#tvStreak').textContent=TV.streak>=3?`🔥 ${TV.streak} in a row!`:'';tvReact(ok);
+ const f=$('#tvFact');f.innerHTML=(ok?'<b class="good">Correct!</b> '+(gain>1?`<span class="tvStars">+${'★'.repeat(gain)}</span> `:''):'<b class="bad">Not quite.</b> ')+(q.f?esc(q.f):ok?'':'The answer was '+esc(q.a[0])+'.')+(q.ep?`<span class="tvEp">📺 ${esc(q.ep)}</span>`:'');f.classList.remove('hidden');
  $('#tvNext').textContent=TV.k+1<TV.qs.length?'Next ▶':'Finish ▶';$('#tvNext').classList.remove('hidden');try{$('#tvNext').scrollIntoView({block:'nearest'})}catch(e){}}
 function nextQ(){if(!TV||!TV.answered)return;TV.k++;if(TV.k<TV.qs.length)renderQ();else endTrivia()}
 function endTrivia(){const won=TV.score>=TV.need;$('#tvBody').classList.add('hidden');const r=$('#tvRes');r.classList.remove('hidden');
  $('#tvProg').innerHTML=TV.qs.map((_,i)=>`<i class="${TV.res[i]?'ok':'no'}"></i>`).join('');
- let h=TV.quick?'':`<div class="score">${TV.score} / ${TV.qs.length}</div>`;
+ let h=TV.quick?'':`<canvas class="rp" id="tvRP" width="132" height="132"></canvas><div class="score">${TV.score} / ${TV.qs.length}</div>`;
+ const rl=reactLines(TV.who)[won?'win':'lose'];if(!TV.quick&&rl)h+=`<p class="rsay">“${esc(fill(pickOne(rl)))}”</p>`;
  h+=`<p>${esc(fill(won?(TV.win||'Nice work!'):(TV.lose||'Better luck next time!')))}</p>`;
  if(won&&TV.reward&&!S.items[TV.reward]){S.items[TV.reward]=Date.now();const it=ITEM(TV.reward);h+=`<div class="award"><canvas id="awardCv" width="64" height="64"></canvas><div><small>NEW COLLECTIBLE</small><b>${esc(it.name)}</b><span>${esc(it.desc)}</span><small>Added to your shelf. Press C to view it.</small></div></div>`;setTimeout(SFX.item,150)}
  h+=`<button id="tvDone">Continue ▶</button>`;r.innerHTML=h;
  const ac=$('#awardCv');if(ac){const g=ac.getContext('2d');art(g,itemArt(TV.reward),0,0,64,64)}
- $('#tvDone').onclick=closeTrivia;TV.finished=true;updHud();save()}
+ $('#tvDone').onclick=closeTrivia;TV.finished=true;if($('#tvRP'))tvPortrait($('#tvRP'),TV.who);updHud();save()}
 function closeTrivia(){$('#triv').classList.add('hidden');state='world';const a=TV&&TV.after;TV=null;if(a)a();else{const n=itemCount();if(finaleReady()&&!S.items.key&&!S.talked.finaleHint){S.talked.finaleHint=1;save();say(["You've found everything! Your phone buzzes: a text from Monica.","'Central Perk. The orange couch. Everybody's waiting. Don't be late!'"]);addFinaleCast()}else if(n>=10&&!S.talked.airportHint){S.talked.airportHint=1;save();say(["10 collectibles! The AirTrain to JFK Airport is now open on the subway map. Flights to London, Las Vegas, Barbados and Montauk await."])}else if(n===8&&!S.talked.subwayHint){S.talked.subwayHint=1;save();say(["The Village is all yours! Take the subway at Bleecker St to explore the rest of the city."])}}}
 
 /* ===================== Subway & travel ===================== */
