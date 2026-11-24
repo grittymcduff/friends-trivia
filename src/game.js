@@ -1156,7 +1156,13 @@ function drawAmbient(cx,cy,vw,vh,indoor,dt){if(indoor)return;const d=darkness(),
   const glow=(x,y,r,c)=>{const g=ctx.createRadialGradient(x,y,0,x,y,r);g.addColorStop(0,c);g.addColorStop(1,'rgba(0,0,0,0)');ctx.fillStyle=g;ctx.fillRect(x-r,y-r,r*2,r*2)};
   for(const o of Zn.objs){if(o.kind==='lamp')glow(o.x*16+8,o.y*16-18,30,`rgba(255,196,110,${.42*a})`);}
   for(const dd of Zn.doors)glow(dd.x*16+8,dd.y*16+6,16,`rgba(255,200,120,${.28*a})`);
-  for(const t of taxis){const fx=t.dir>0?t.x+CAR_LEN-4:t.x+4,fy=t.by-9,g=ctx.createLinearGradient(fx,0,fx+t.dir*44,0);g.addColorStop(0,`rgba(255,240,190,${.26*a})`);g.addColorStop(1,'rgba(255,240,190,0)');ctx.fillStyle=g;ctx.beginPath();ctx.moveTo(fx,fy-2);ctx.lineTo(fx+t.dir*44,fy-10);ctx.lineTo(fx+t.dir*44,fy+8);ctx.lineTo(fx,fy+2);ctx.closePath();ctx.fill()}
+  // v2.0.4: headlights are a glow at the lamp plus a soft pool of light on the road that travels with the car
+  // (no more triangle beam); tail lights glow red at the back
+  const pool=(x,y,rx,ry,c)=>{ctx.save();ctx.translate(x,y);ctx.scale(1,ry/rx);const g=ctx.createRadialGradient(0,0,0,0,0,rx);g.addColorStop(0,c);g.addColorStop(1,'rgba(0,0,0,0)');ctx.fillStyle=g;ctx.fillRect(-rx,-rx,rx*2,rx*2);ctx.restore()};
+  for(const t of taxis){if(t.x>cx+vw+60||t.x+CAR_LEN<cx-60)continue;const fx=t.dir>0?t.x+CAR_LEN-3:t.x+3,bx=t.dir>0?t.x+3:t.x+CAR_LEN-3,fy=t.by-10;
+   pool(fx+t.dir*26,t.by-2,30,7,`rgba(255,236,180,${.32*a})`);
+   glow(fx,fy,7,`rgba(255,246,210,${.55*a})`);
+   glow(bx,fy-1,6,`rgba(255,60,40,${.6*a})`)}
   ctx.restore()}
  // falling leaves in November, snow in winter
  if(sea){if(flakes.length<46)flakes.push({x:cx+Math.random()*vw,y:cy-6,vx:(Math.random()-.5)*8,vy:sea==='winter'?10+Math.random()*10:14+Math.random()*10,ph:Math.random()*6,c:sea==='winter'?'#ffffff':['#d9782f','#b8462a','#e8b830','#8a5a2a'][(Math.random()*4)|0]});

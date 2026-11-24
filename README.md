@@ -4,6 +4,10 @@ A private, Pokémon-style pixel-art trivia adventure set in Friends' Greenwich V
 
 **Play:** open `index.html` in a browser, or turn on GitHub Pages for this repo (Settings → Pages → deploy from `main`, root folder).
 
+## v2.0.4: Headlights
+
+- At night, moving cars show a glow at each headlight, a soft pool of light on the road just ahead that travels with them, and red tail lights. The old triangle beams are gone.
+
 ## v2.0.3: Lamps without halos
 
 - The floor lamp and the street lamp had a pale halo baked into their art; it's gone (`tools/fix_lamp_glow.py`). Street lamps still glow at night from the lighting pass.
