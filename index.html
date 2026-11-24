@@ -587,8 +587,8 @@ function msgDoor(z,x,y,text){ act(z,x,y,{type:'msg',text}); }
  msgDoor(z,15,24,"VILLAGE CIGARS. Lottery tickets, newspapers, and gum. The shop opens in a later update.");
  door(z,29,24,'phoebe',20,13,'up');
  // Phoebe's taxi (v1.5 collectible), parked outside her building
- obj(z,'grantaxi',30,14);
- for(const x of [30,31]) act(z,x,14,{type:'collect',item:'grantaxi',lines:["An old yellow cab, parked half on the curb. One hubcap is missing. The meter is running. Nobody is inside.","A cassette is sticking out of the tape deck. The label says 'SMELLY CAT (DEMO).'"],
+ obj(z,'grantaxi',33,14,{dir:1});
+ for(const x of [33,34]) act(z,x,14,{type:'collect',item:'grantaxi',lines:["An old yellow cab, parked half on the curb. One hubcap is missing. The meter is running. Nobody is inside.","A cassette is sticking out of the tape deck. The label says 'SMELLY CAT (DEMO).'"],
   q:"Whose cab is this?",answers:["Phoebe's","Joey's","Gunther's","Mr. Treeger's"],
   win:"Phoebe pops her head out of the building. 'Oh, you found my taxi! Keep the keys for a while. Just pump the brakes twice. And don't open the trunk.'",
   lose:"A note on the dashboard: 'If found, return to P. Buffay. NOT the other Phoebe.' Try again.",
@@ -606,7 +606,7 @@ function msgDoor(z,x,y,text){ act(z,x,y,{type:'msg',text}); }
  act(z,21,10,{type:'msg',text:'GROVE ST & BEDFORD ST'}); act(z,26,16,{type:'msg',text:'BEDFORD ST & GROVE ST'});
  // parked cars along the curbs
  obj(z,'car',3,11,{color:'#3b6fb6',dir:-1}); obj(z,'car',9,11,{color:'#8f2f2f',dir:-1}); obj(z,'car',34,11,{color:'#3a3a44',dir:-1}); obj(z,'car',41,11,{color:'#6a8f4a',dir:-1});
- obj(z,'car',6,14,{color:'#c9c9cf',dir:1}); obj(z,'car',13,14,{color:'#2f5c7a',dir:1}); obj(z,'car',37,14,{color:'#7a4a8f',dir:1});
+ obj(z,'car',6,14,{color:'#c9c9cf',dir:1}); obj(z,'car',13,14,{color:'#2f5c7a',dir:1}); obj(z,'car',40,14,{color:'#7a4a8f',dir:1});
  // Bedford St is closed at the bottom for a street fair
  obj(z,'barricade',22,24,{w:4});
  act(z,22,24,{type:'msg',text:'ROAD CLOSED: VILLAGE STREET FAIR. (The fair is somewhere in a future update.)'});
@@ -858,7 +858,7 @@ function street(id,name,w,o){
  } else { for(const b of o.south||[]) B(b,17); for(let x=6;x<w;x+=11) if(!near(x)) obj(z,'tree',x,15); }
  for(let x=3;x<w;x+=9) if(!near(x)) obj(z,'lamp',x,10);
  const cols=['#3b6fb6','#8f2f2f','#3a3a44','#6a8f4a','#c9c9cf','#7a4a8f'];
- for(let x=2,i=0;x<w-3;x+=7+(i%3)*2,i++){ if(near(x)||near(x+1)) continue; obj(z,'car',x,i%2?11:14,{color:cols[i%cols.length],dir:i%2?-1:1}); }
+ for(let x=3,i=0;x<w-4;x+=7+(i%3)*2,i++){ if(cw.some(c=>x>=c-4&&x<=c+5)) continue; obj(z,'car',x,i%2?11:14,{color:cols[i%cols.length],dir:i%2?-1:1}); }
  if(o.subway){ const sx=o.subway.x,sy=o.subway.y; obj(z,'subway',sx,sy,{text:o.subway.label}); act(z,sx,sy,{type:'subway'}); act(z,sx+1,sy,{type:'subway'}); z.subwaySpawn=o.subway.spawn; }
  if(o.extra) o.extra(z);
  return z;
@@ -1311,6 +1311,35 @@ dress('montauk',[
  ['surfboard',10,5,{tone:'#7ad0ff'}],['grill',11,8,{},"A charcoal grill. Somebody's making burgers. It smells like summer."],['lounger',19,7],
  ['rug',5,11,{w:3,h:2,low:true,tone:'#c0573a'}],['icebox',8,11],...[12,13,14,15,16,17,18,19].map(x=>['fence',x,9])]);
 
+
+/* ---------------- v1.8: wider streets ----------------
+ * Cars are drawn at real-world scale next to people now, so every street with traffic gets three more road rows.
+ * Road rows 11–17: parked cars along the top curb (row 11), the right-to-left lane (rows 12–13), the centre line
+ * (row 14), the left-to-right lane (rows 15–16) and parked cars along the bottom curb (row 17).
+ * Everything that was below the old road (row 15 and down) moves down three rows, including doors, spawn points
+ * and easter-egg spots in other zones that point here. */
+(function(){
+ const N=3, OLD=15;
+ const sh=y=>y>=OLD?y+N:y;
+ for(const z of Object.values(ZONES)){
+  if(!z.taxiRows||!z.taxiRows.length||z.g[12*z.w]==null) continue;
+  const w=z.w, oh=z.h, g=z.g, ng=new Array(w*(oh+N));
+  for(let y=0;y<oh;y++) for(let x=0;x<w;x++) ng[sh(y)*w+x]=g[y*w+x];
+  for(let x=0;x<w;x++){ const t=g[11*w+x], col=t==='crossH'?'crossH':t==='inter'?'inter':null;
+   for(let y=11;y<=17;y++) ng[y*w+x]=col||(y===14?'laneH':'road'); }
+  z.g=ng; z.h=oh+N;
+  for(const o of z.objs){ if(o.kind==='car'||o.kind==='grantaxi') o.y=o.y===11?11:17; else o.y=sh(o.y); }
+  for(const a of z.acts) a.y=(a.y===14&&a.type==='collect')?17:sh(a.y);
+  for(const d of z.doors) d.y=sh(d.y);
+  for(const n of z.npcs){ n.y=sh(n.y); if(n.wander){ const[wx,wy,ww,wh]=n.wander; const y1=sh(wy+wh-1); n.wander=[wx,sh(wy),ww,y1-sh(wy)+1]; } }
+  if(z.subwaySpawn) z.subwaySpawn=[z.subwaySpawn[0],sh(z.subwaySpawn[1]),z.subwaySpawn[2]];
+  z.taxiRows=z.taxiRows.map(t=>Object.assign({},t,{row:t.dir<0?13:16}));
+  z.laneY=14*16+8; z.wide=true;
+  for(const o of Object.values(ZONES)) for(const d of o.doors) if(d.to===z.id) d.ty=sh(d.ty);
+  for(const e of EGGS) if(e.zone===z.id) for(const n of e.npcs){ n.spots=n.spots.map(([x,y])=>[x,sh(y)]); }
+ }
+})();
+
 'use strict';
 /* =====================================================================
  *  The One With The Trivia Game: engine
@@ -1377,7 +1406,7 @@ function carHD(col,taxi,model){const k=(taxi?'taxi'+(model||''):col+(model||''))
   g.putImageData(d,0,0)}
  return carHDCache[k]={l:c,r:mirror(c)}}
 // draw an HD image (in 8x pixels) with its bottom centre at world (cx, by); soft shadow underneath
-function drawHDProp(im,cx,by,shadow,flip){const w=im.width/8,h=im.height/8;
+function drawHDProp(im,cx,by,shadow,flip,sc){const w=im.width/8*(sc||1),h=im.height/8*(sc||1);
  if(shadow){ctx.fillStyle='rgba(0,0,0,.2)';ctx.beginPath();ctx.ellipse(cx,by-1,w*.42,Math.max(1.5,w*.08),0,0,7);ctx.fill()}
  ctx.imageSmoothingEnabled=true;ctx.imageSmoothingQuality='high';
  if(flip){ctx.save();ctx.translate(cx,0);ctx.scale(-1,1);ctx.drawImage(im,-w/2,by-h,w,h);ctx.restore()}else ctx.drawImage(im,cx-w/2,by-h,w,h);
@@ -1403,6 +1432,8 @@ const HD_FLOOR={wood:'floor_wood',marble:'floor_marble',sand:'floor_sand',water:
  wallT:'wall_tile_blue',wainsT:'wall_tile_navy',tileM:'floor_moroccan',
  brick:'wall_brick',wallC:'wall_plaster',wallH:'wall_plaster_peach',wallP:'wall_plaster_lavender',wallG:'wall_plaster_sage',wains:'wall_wains'};
 const CAR_MODELS=['','wagon','van','compact'];
+// v1.8: cars at real-world scale next to people (about 2.6 times the old size); every car sprite faces right
+const CAR_LEN=88,CAR_SC=2.6;
 const hdIn={},hdFloor={},hdInCache={};
 function loadInteriorArt(){
  const files=new Set([...Object.entries(HD_IN).map(([k,v])=>v.f||k),'armchair','armchair_t','rug_geo_t','dinertable','car_wagon_t','car_van_t','car_compact_t','car_taxi90','couch_back_t','armchair_back_t','tv_back','recliner_back','armchair_side_t','chair_side','recliner_side','entside']);
@@ -1416,7 +1447,7 @@ function recolor(im,col,mode){const[c,g]=mk(im.width,im.height);g.drawImage(im,0
   if(hit)for(let k=0;k<3;k++)a[i+k]=f<=1?T[k]*f:T[k]+(255-T[k])*Math.min(1,(f-1)*.9)}
  g.putImageData(d,0,0);return c}
 // facing: o.back draws the piece from behind; o.face ('left'|'right') draws a side view facing that way
-function inSpec(o){const fl=o.face==='left';
+function inSpec(o){const fl=o.face==='left';if(o.kind==='grantaxi')return null;
  if(o.kind==='armchair'){if(o.back)return{f:'armchair_back_t',t:'#8a5a3a'};if(o.face)return o.color?{f:'armchair_side_t',t:'#8a5a3a',flip:fl}:{f:'armchair',flip:fl};return{f:'armchair_t',t:'#8a5a3a'}}
  if(o.kind==='couch'&&o.back)return{f:'couch_back_t',t:'#d9782f',sl:true};
  if(o.kind==='chair'&&o.face)return{f:'chair_side',flip:fl};
@@ -1968,8 +1999,8 @@ const player={x:0,y:0,px:0,py:0,fx:0,fy:0,dir:'down',moving:false,t:0,step:0,sit
 const DIRS={up:[0,-1],down:[0,1],left:[-1,0],right:[1,0]},OPP={up:'down',down:'up',left:'right',right:'left'};
 function rectT(x,y,w,h){const a=[];for(let j=y;j<y+h;j++)for(let i=x;i<x+w;i++)a.push([i,j]);return a}
 function fp(o){switch(o.kind){case'building':return rectT(o.x,o.y,o.w,o.h);
- case'couch':case'counter':case'kcounter':case'dtable':case'dinercounter':case'backcounter':return rectT(o.x,o.y,o.w,1);case'dinertable4':return rectT(o.x,o.y,3,2);case'tv':case'foosball':case'carcover':case'flat':case'cubicle':case'rack':case'booth':case'hospbed':case'gatedesk':case'pingpong':case'cab':case'clocktower':return rectT(o.x,o.y,2,1);case'bus':case'seats':case'canoe':return rectT(o.x,o.y,3,1);case'dino':return rectT(o.x,o.y,6,2);case'fountain':return rectT(o.x,o.y,3,2);case'car':case'bench':case'coffee':return rectT(o.x,o.y,2,1);case'barricade':return rectT(o.x,o.y,o.w||4,1);
- case'subway':return rectT(o.x,o.y,2,2);case'bed':return rectT(o.x,o.y,2,2);case'dining':return rectT(o.x,o.y,3,2);case'rockmound':return rectT(o.x,o.y,6,2);case'entertain':return o.face?rectT(o.x,o.y,1,o.h||3):rectT(o.x,o.y,2,1);case'bathtub':case'desk':case'grantaxi':return rectT(o.x,o.y,2,1);
+ case'couch':case'counter':case'kcounter':case'dtable':case'dinercounter':case'backcounter':return rectT(o.x,o.y,o.w,1);case'dinertable4':return rectT(o.x,o.y,3,2);case'tv':case'foosball':case'carcover':case'flat':case'cubicle':case'rack':case'booth':case'hospbed':case'gatedesk':case'pingpong':case'cab':case'clocktower':return rectT(o.x,o.y,2,1);case'bus':case'seats':case'canoe':return rectT(o.x,o.y,3,1);case'dino':return rectT(o.x,o.y,6,2);case'fountain':return rectT(o.x,o.y,3,2);case'car':case'grantaxi':return rectT(o.x-2,o.y,6,1);case'bench':case'coffee':return rectT(o.x,o.y,2,1);case'barricade':return rectT(o.x,o.y,o.w||4,1);
+ case'subway':return rectT(o.x,o.y,2,2);case'bed':return rectT(o.x,o.y,2,2);case'dining':return rectT(o.x,o.y,3,2);case'rockmound':return rectT(o.x,o.y,6,2);case'entertain':return o.face?rectT(o.x,o.y,1,o.h||3):rectT(o.x,o.y,2,1);case'bathtub':case'desk':return rectT(o.x,o.y,2,1);
  case'menuboard':case'wallclock':case'splat':case'mural':case'flag':case'wreath':case'drapewindow':case'rug':case'wallsign':case'menu':case'window':case'frame':case'walldoor':case'bigwindow':case'board':case'towel':case'poster':case'banner':return[];default:return[[o.x,o.y]]}}
 function setSolid(x,y,v){if(x>=0&&y>=0&&x<Zn.w&&y<Zn.h)solid[y*Zn.w+x]=v}
 function gAt(x,y){return Zn.g[y*Zn.w+x]}
@@ -1983,10 +2014,11 @@ function loadZone(id,x,y,dir,nosave){Zn=ZONES[id];const eggNpcs=spawnEggs(nosave
  for(const e of eggNpcs)if(!npcs.some(n=>n.x===e.x&&n.y===e.y))npcs.push(Object.assign(e,{px:e.x*16,py:e.y*16,home:{x:e.x,y:e.y,dir:e.dir},moving:false,t:0,wait:1+R()*3,spr:charSprites(e.look)}));
  for(const e of EGGS)if(e.swap&&eggsHere.includes(e.id)){const n=npcs.find(q=>q.id===e.swap.npc);if(n){n.look=Object.assign({},n.look,e.look);n.spr=charSprites(n.look);n.egg=e.id}}
  if(S&&S.items)addFinaleCast();setTune(Zn.tune||'city');
- taxis=[];let k=0;for(const tr of Zn.taxiRows)for(let i=0;i<tr.n;i++){const taxi=(k++%3)!==2;taxis.push({row:tr.row,dir:tr.dir,x:(i+.3+R()*.4)*Zn.w*16/tr.n,sp:44+R()*16,honk:0,taxi,model:taxi?(k%2?'90':''):CAR_MODELS[k%4],col:taxi?'#f2c230':['#3b6fb6','#8f2f2f','#6a8f4a','#c9c9cf'][k%4]})}
+ taxis=[];let k=0;for(const tr of Zn.taxiRows)for(let i=0;i<tr.n;i++){const taxi=(k++%3)!==2;taxis.push({row:tr.row,dir:tr.dir,x:(i+.3+R()*.4)*Zn.w*16/tr.n,sp:44+R()*16,honk:0,taxi,model:taxi?(k%2?'90':''):CAR_MODELS[k%4],col:taxi?'#f2c230':['#3b6fb6','#8f2f2f','#6a8f4a','#c9c9cf'][k%4],
+  rows:tr.dir<0?[tr.row-1,tr.row]:[tr.row-1,tr.row],by:Zn.laneY?(tr.dir<0?Zn.laneY-3:Zn.laneY+38):tr.row*16+17})}
  player.x=player.fx=x;player.y=player.fy=y;player.px=x*16;player.py=y*16;player.dir=dir;player.moving=false;player.sit=null;clickPath=null;clickMark=null;
  $('#zoneTag').textContent=Zn.name;if(!nosave){S.zone=id;save()}}
-function taxiAt(x,y){return taxis.some(t=>t.row===y&&x*16<t.x+32&&x*16+16>t.x)}
+function taxiAt(x,y){return taxis.some(t=>t.rows.includes(y)&&x*16<t.x+CAR_LEN&&x*16+16>t.x)}
 function npcAt(x,y,skip){return npcs.find(n=>n!==skip&&n.x===x&&n.y===y)}
 function blocked(x,y){if(x<0||y<0||x>=Zn.w||y>=Zn.h)return true;return!!(solid[y*Zn.w+x]||npcAt(x,y)||taxiAt(x,y))}
 function heldDir(){return dirStack.length?dirStack[dirStack.length-1]:null}
@@ -2027,13 +2059,13 @@ function updNpcs(dt){for(const n of npcs){
  if(Zn.acts.some(a=>a.x===tx&&a.y===ty&&a.type==='couch'))continue;
  n.fx=n.x;n.fy=n.y;n.x=tx;n.y=ty;n.t=0;n.moving=true}}
 function updTaxis(dt){const W=Zn.w*16;for(const t of taxis){
- const a=t.dir>0?t.x+32:t.x-14,b=t.dir>0?t.x+46:t.x;
- const pRow=player.y===t.row||(player.moving&&player.fy===t.row)||Math.abs(player.py-t.row*16)<14;
+ const a=t.dir>0?t.x+CAR_LEN:t.x-14,b=t.dir>0?t.x+CAR_LEN+14:t.x;
+ const pRow=t.rows.includes(player.y)||(player.moving&&t.rows.includes(player.fy))||t.rows.some(r=>Math.abs(player.py-r*16)<14);
  const p0=Math.min(player.px,player.x*16,player.fx*16),p1=Math.max(player.px,player.x*16,player.fx*16)+16;
  let stop=false;if(pRow&&p1>a&&p0<b){stop=true;if(t.honk<=0&&state==='world'){t.honk=2.2;SFX.honk()}}
- for(const o of taxis)if(o!==t&&o.row===t.row&&o.x+32>a&&o.x<b)stop=true;
+ for(const o of taxis)if(o!==t&&o.row===t.row&&o.x+CAR_LEN>a&&o.x<b)stop=true;
  if(t.honk>0)t.honk-=dt;if(!stop)t.x+=t.dir*t.sp*dt;
- if(t.dir>0&&t.x>W+40)t.x=-70;if(t.dir<0&&t.x<-70)t.x=W+40}}
+ if(t.dir>0&&t.x>W+40)t.x=-CAR_LEN-40;if(t.dir<0&&t.x<-CAR_LEN-40)t.x=W+40}}
 
 /* ===================== Dialogue ===================== */
 let dq=[],dCur=null,dShown=0,dDone=null,dSel=0;
@@ -2304,9 +2336,10 @@ function draw(){ctx.setTransform(1,0,0,1,0,0);ctx.fillStyle=Zn.bg;ctx.fillRect(0
   if(vp&&o.kind!=='car'){const cx=dx+s.c.width/2,by=dy+s.c.height,shadow=!['fence','sign','subway','barricade'].includes(o.kind);
    if(o.kind==='barricade'){L.push({y:(o.y+fh)*16,d:()=>drawHDProp(vp,cx,by,true)});continue}
    L.push({y:(o.y+fh)*16,d:()=>drawHDProp(vp,cx,by,shadow)});continue}
-  if(o.kind==='car'&&hdVProps.car){const md=CAR_MODELS[o.model!==undefined?o.model:(o.x*7+o.y*3)%4],sp=carHD(o.color,false,md)||carHD(o.color,false),fr=!!(md&&hdIn['car_'+md+'_t']);L.push({y:(o.y+fh)*16,d:()=>drawHDProp(sp.l,dx+s.c.width/2,o.y*16+17,true,fr?o.dir<0:o.dir>0)});continue}
+  if((o.kind==='car'&&hdVProps.car)||(o.kind==='grantaxi'&&hdIn.grantaxi)){const md=CAR_MODELS[o.model!==undefined?o.model:(o.x*7+o.y*3)%4],sp=o.kind==='grantaxi'?{l:hdIn.grantaxi}:(carHD(o.color,false,md)||carHD(o.color,false)),
+   by=Zn.wide?(o.y===11?11*16+5:18*16-1):o.y*16+17,cx=o.x*16+17;L.push({y:by,d:()=>drawHDProp(sp.l,cx,by,true,(o.dir||1)<0,CAR_LEN/(sp.l.width/8))});continue}
   L.push({y:(o.y+fh)*16,d:hp?()=>{const w=s.c.width,h=w*hp.height/hp.width;ctx.imageSmoothingEnabled=true;ctx.drawImage(hp,dx,dy+s.c.height-h,w,h);ctx.imageSmoothingEnabled=false}:()=>ctx.drawImage(s.c,dx,dy)})}
- for(const t of taxis){if(!vis(t.x,t.row*16-10,34,22))continue;L.push({y:(t.row+1)*16-.5,d:()=>{const hm=carHD(t.col,t.taxi,t.model),hs=hm||carHD(t.col,t.taxi),fr=!!(hm&&t.model);if(hs){drawHDProp(hs.l,t.x+17,t.row*16+17,true,fr?t.dir<0:t.dir>0);return}const sp=carSprite(t.col,t.taxi);ctx.drawImage(t.dir>0?sp.r:sp.l,Math.round(t.x),t.row*16+16-21)}})}
+ for(const t of taxis){if(!vis(t.x,t.by-40,CAR_LEN,44))continue;L.push({y:t.by,d:()=>{const hs=carHD(t.col,t.taxi,t.model)||carHD(t.col,t.taxi);if(hs){drawHDProp(hs.l,t.x+CAR_LEN/2,t.by,true,t.dir<0,CAR_SC*CAR_LEN/(hs.l.width/8*CAR_SC));return}const sp=carSprite(t.col,t.taxi);ctx.drawImage(t.dir>0?sp.r:sp.l,Math.round(t.x),t.row*16+16-21)}})}
  for(const n of npcs)L.push({y:n.py+16+.3,d:()=>drawChar2(n,n.spr,n.dir,n.moving?(n.t<.5?1+((n.x+n.y)&1):0):0,n.px,n.py,n.sit||n.seated)});
  L.push({y:player.py+16+.6,d:()=>drawChar2(null,player.spr,player.dir,player.moving?(player.t<.55?1+player.step:0):0,player.px,player.py,player.sit)});
  L.sort((a,b)=>a.y-b.y);for(const e of L)e.d();
@@ -2325,7 +2358,7 @@ function draw(){ctx.setTransform(1,0,0,1,0,0);ctx.fillStyle=Zn.bg;ctx.fillRect(0
   ctx.fillStyle='rgba(28,20,40,.82)';rr(sx-w/2,sy-8,w,15,6);ctx.fill();ctx.fillStyle='#fff3c4';ctx.fillText(n.name,sx,sy);
   if(n.reward&&!S.items[n.reward]){const b=Math.sin(clock*4)*2;ctx.fillStyle='#ffd84a';rr(sx+w/2-2,sy-20+b,14,14,7);ctx.fill();ctx.fillStyle='#3a2a10';ctx.font='bold 11px ui-monospace,monospace';ctx.fillText('?',sx+w/2+5,sy-13+b)}}
  for(const n of npcs){if(n.cast||!n.quiz||n.asked)continue;const[sx,sy]=W3(n.px+8,n.py-16);const b=Math.sin(clock*4+n.x)*2;ctx.fillStyle='#ffffff';rr(sx-6,sy-7+b,12,12,6);ctx.fill();ctx.fillStyle='#5b3a8c';ctx.font='bold 10px ui-monospace,monospace';ctx.fillText('?',sx,sy-1+b)}
- for(const t of taxis)if(t.honk>1.2){const[sx,sy]=W3(t.x+16,t.row*16-12);ctx.font='bold 11px ui-monospace,monospace';ctx.fillStyle='#fff';rr(sx-24,sy-9,48,17,6);ctx.fill();ctx.fillStyle='#c0262c';ctx.fillText('HONK!',sx,sy)}
+ for(const t of taxis)if(t.honk>1.2){const[sx,sy]=W3(t.x+CAR_LEN/2,t.by-40);ctx.font='bold 11px ui-monospace,monospace';ctx.fillStyle='#fff';rr(sx-24,sy-9,48,17,6);ctx.fill();ctx.fillStyle='#c0262c';ctx.fillText('HONK!',sx,sy)}
  ctx.textAlign='left'}
 function rr(x,y,w,h,r){ctx.beginPath();ctx.moveTo(x+r,y);ctx.arcTo(x+w,y,x+w,y+h,r);ctx.arcTo(x+w,y+h,x,y+h,r);ctx.arcTo(x,y+h,x,y,r);ctx.arcTo(x,y,x+w,y,r);ctx.closePath()}
 function curb(x,y){const R2=(xx,yy)=>xx>=0&&yy>=0&&xx<Zn.w&&yy<Zn.h&&ROADT.has(gAt(xx,yy));const X=x*16,Y=y*16;
@@ -2396,7 +2429,12 @@ function setupTitle(){const sw=(id,arr,key,isCol=true)=>{$(id).innerHTML=arr.map
  $('#profList').innerHTML=list.slice(0,3).map(p=>`<button data-n="${esc(p.name)}">Continue as ${esc(p.name)} <small>· ${Object.keys(p.items||{}).length}/${ITEMS.length} · ${p.stars||0}★</small></button>`).join('');
  $('#profList').querySelectorAll('button').forEach(b=>b.onclick=()=>{const p=loadStore().saves[b.dataset.n];if(p)begin(p,false)})}
 function begin(s,isNew){try{AC=AC||new(window.AudioContext||window.webkitAudioContext)();AC.resume();music.next=AC.currentTime+.2}catch(e){}S=s;S.equip=S.equip||{};S.eggs=S.eggs||{};refreshPlayer();$('#title').classList.add('hidden');$('#hud').classList.remove('hidden');
- loadZone(S.zone||'village',S.x??15,S.y??10,S.dir||'up');state='world';updHud();
+ // v1.8 widened the streets by three rows; saves from before then are moved to match
+ if(!S.v18){if(ZONES[S.zone]&&ZONES[S.zone].wide&&S.y>=15)S.y+=3;S.v18=1}
+ loadZone(S.zone||'village',S.x??15,S.y??10,S.dir||'up');
+ if(solid[player.y*Zn.w+player.x]){let best=null;for(let r=1;r<12&&!best;r++)for(let dy=-r;dy<=r&&!best;dy++)for(let dx=-r;dx<=r;dx++){const x=player.x+dx,y=player.y+dy;if(x>=0&&y>=0&&x<Zn.w&&y<Zn.h&&!solid[y*Zn.w+x]){best=[x,y];break}}
+  if(best){player.x=player.fx=best[0];player.y=player.fy=best[1];player.px=best[0]*16;player.py=best[1]*16}}
+ state='world';updHud();
  if(isNew)say([{text:`Welcome to the Village, ${S.name}!`},{text:"That's Central Perk right in front of you. Walk up to the door to go inside."},{text:"Arrows or WASD to move (hold Shift to hurry). Space to talk. C opens your collectibles shelf."},{text:"Find people with a ? over their heads. They want to quiz you."}])}
 $('#btnNew').onclick=()=>{let nm=($('#pName').value||'').trim().slice(0,14)||'Friend';const st=loadStore();if(st.saves[nm]){let k=2;while(st.saves[nm+' '+k])k++;nm=(nm.slice(0,11)+' '+k)}begin(freshSave(nm,lookFromPick()),true)};
 function confirmNew(){const b=$('#btnNew');if(b.dataset.arm){delete b.dataset.arm;return true}b.dataset.arm=1;b.textContent='Overwrite saved game? Click again';setTimeout(()=>{delete b.dataset.arm;b.textContent='New Game ▶'},3000);return false}

@@ -54,8 +54,8 @@ function msgDoor(z,x,y,text){ act(z,x,y,{type:'msg',text}); }
  msgDoor(z,15,24,"VILLAGE CIGARS. Lottery tickets, newspapers, and gum. The shop opens in a later update.");
  door(z,29,24,'phoebe',20,13,'up');
  // Phoebe's taxi (v1.5 collectible), parked outside her building
- obj(z,'grantaxi',30,14);
- for(const x of [30,31]) act(z,x,14,{type:'collect',item:'grantaxi',lines:["An old yellow cab, parked half on the curb. One hubcap is missing. The meter is running. Nobody is inside.","A cassette is sticking out of the tape deck. The label says 'SMELLY CAT (DEMO).'"],
+ obj(z,'grantaxi',33,14,{dir:1});
+ for(const x of [33,34]) act(z,x,14,{type:'collect',item:'grantaxi',lines:["An old yellow cab, parked half on the curb. One hubcap is missing. The meter is running. Nobody is inside.","A cassette is sticking out of the tape deck. The label says 'SMELLY CAT (DEMO).'"],
   q:"Whose cab is this?",answers:["Phoebe's","Joey's","Gunther's","Mr. Treeger's"],
   win:"Phoebe pops her head out of the building. 'Oh, you found my taxi! Keep the keys for a while. Just pump the brakes twice. And don't open the trunk.'",
   lose:"A note on the dashboard: 'If found, return to P. Buffay. NOT the other Phoebe.' Try again.",
@@ -73,7 +73,7 @@ function msgDoor(z,x,y,text){ act(z,x,y,{type:'msg',text}); }
  act(z,21,10,{type:'msg',text:'GROVE ST & BEDFORD ST'}); act(z,26,16,{type:'msg',text:'BEDFORD ST & GROVE ST'});
  // parked cars along the curbs
  obj(z,'car',3,11,{color:'#3b6fb6',dir:-1}); obj(z,'car',9,11,{color:'#8f2f2f',dir:-1}); obj(z,'car',34,11,{color:'#3a3a44',dir:-1}); obj(z,'car',41,11,{color:'#6a8f4a',dir:-1});
- obj(z,'car',6,14,{color:'#c9c9cf',dir:1}); obj(z,'car',13,14,{color:'#2f5c7a',dir:1}); obj(z,'car',37,14,{color:'#7a4a8f',dir:1});
+ obj(z,'car',6,14,{color:'#c9c9cf',dir:1}); obj(z,'car',13,14,{color:'#2f5c7a',dir:1}); obj(z,'car',40,14,{color:'#7a4a8f',dir:1});
  // Bedford St is closed at the bottom for a street fair
  obj(z,'barricade',22,24,{w:4});
  act(z,22,24,{type:'msg',text:'ROAD CLOSED: VILLAGE STREET FAIR. (The fair is somewhere in a future update.)'});
@@ -325,7 +325,7 @@ function street(id,name,w,o){
  } else { for(const b of o.south||[]) B(b,17); for(let x=6;x<w;x+=11) if(!near(x)) obj(z,'tree',x,15); }
  for(let x=3;x<w;x+=9) if(!near(x)) obj(z,'lamp',x,10);
  const cols=['#3b6fb6','#8f2f2f','#3a3a44','#6a8f4a','#c9c9cf','#7a4a8f'];
- for(let x=2,i=0;x<w-3;x+=7+(i%3)*2,i++){ if(near(x)||near(x+1)) continue; obj(z,'car',x,i%2?11:14,{color:cols[i%cols.length],dir:i%2?-1:1}); }
+ for(let x=3,i=0;x<w-4;x+=7+(i%3)*2,i++){ if(cw.some(c=>x>=c-4&&x<=c+5)) continue; obj(z,'car',x,i%2?11:14,{color:cols[i%cols.length],dir:i%2?-1:1}); }
  if(o.subway){ const sx=o.subway.x,sy=o.subway.y; obj(z,'subway',sx,sy,{text:o.subway.label}); act(z,sx,sy,{type:'subway'}); act(z,sx+1,sy,{type:'subway'}); z.subwaySpawn=o.subway.spawn; }
  if(o.extra) o.extra(z);
  return z;
@@ -777,3 +777,32 @@ dress('montauk',[
  ['towel',16,6,{w:2,tone:'#8e6bbf'}],['umbrella',17,5,{tone:'#e8b830'}],['sandcastle',12,4,{},"A sandcastle shaped like a duck. Phoebe says it's 'a castle for a duck,' which is different."],
  ['surfboard',10,5,{tone:'#7ad0ff'}],['grill',11,8,{},"A charcoal grill. Somebody's making burgers. It smells like summer."],['lounger',19,7],
  ['rug',5,11,{w:3,h:2,low:true,tone:'#c0573a'}],['icebox',8,11],...[12,13,14,15,16,17,18,19].map(x=>['fence',x,9])]);
+
+
+/* ---------------- v1.8: wider streets ----------------
+ * Cars are drawn at real-world scale next to people now, so every street with traffic gets three more road rows.
+ * Road rows 11–17: parked cars along the top curb (row 11), the right-to-left lane (rows 12–13), the centre line
+ * (row 14), the left-to-right lane (rows 15–16) and parked cars along the bottom curb (row 17).
+ * Everything that was below the old road (row 15 and down) moves down three rows, including doors, spawn points
+ * and easter-egg spots in other zones that point here. */
+(function(){
+ const N=3, OLD=15;
+ const sh=y=>y>=OLD?y+N:y;
+ for(const z of Object.values(ZONES)){
+  if(!z.taxiRows||!z.taxiRows.length||z.g[12*z.w]==null) continue;
+  const w=z.w, oh=z.h, g=z.g, ng=new Array(w*(oh+N));
+  for(let y=0;y<oh;y++) for(let x=0;x<w;x++) ng[sh(y)*w+x]=g[y*w+x];
+  for(let x=0;x<w;x++){ const t=g[11*w+x], col=t==='crossH'?'crossH':t==='inter'?'inter':null;
+   for(let y=11;y<=17;y++) ng[y*w+x]=col||(y===14?'laneH':'road'); }
+  z.g=ng; z.h=oh+N;
+  for(const o of z.objs){ if(o.kind==='car'||o.kind==='grantaxi') o.y=o.y===11?11:17; else o.y=sh(o.y); }
+  for(const a of z.acts) a.y=(a.y===14&&a.type==='collect')?17:sh(a.y);
+  for(const d of z.doors) d.y=sh(d.y);
+  for(const n of z.npcs){ n.y=sh(n.y); if(n.wander){ const[wx,wy,ww,wh]=n.wander; const y1=sh(wy+wh-1); n.wander=[wx,sh(wy),ww,y1-sh(wy)+1]; } }
+  if(z.subwaySpawn) z.subwaySpawn=[z.subwaySpawn[0],sh(z.subwaySpawn[1]),z.subwaySpawn[2]];
+  z.taxiRows=z.taxiRows.map(t=>Object.assign({},t,{row:t.dir<0?13:16}));
+  z.laneY=14*16+8; z.wide=true;
+  for(const o of Object.values(ZONES)) for(const d of o.doors) if(d.to===z.id) d.ty=sh(d.ty);
+  for(const e of EGGS) if(e.zone===z.id) for(const n of e.npcs){ n.spots=n.spots.map(([x,y])=>[x,sh(y)]); }
+ }
+})();

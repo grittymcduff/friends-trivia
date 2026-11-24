@@ -4,6 +4,13 @@ A private, Pokémon-style pixel-art trivia adventure set in Friends' Greenwich V
 
 **Play:** open `index.html` in a browser, or turn on GitHub Pages for this repo (Settings → Pages → deploy from `main`, root folder).
 
+## v1.8: "The One With the Traffic"
+
+- **Real-world car sizes:** cars and cabs are about 2.6 times bigger, so a sedan is roughly two and a half people long.
+- **Wider streets:** Grove St and every street with traffic has three more road lanes' worth of space. Front to back: cars parked along the far curb (tyres on the edge of the asphalt, roofs overlapping the sidewalk), traffic heading right to left above the yellow line, traffic heading left to right below it, then cars parked along the near curb. Nearer cars draw in front of farther ones.
+- **Every car faces the way it drives:** all car art faces right, and cars heading left are mirrored. Phoebe's taxi is parked along the near curb outside her building.
+- Saved games from before this update are moved down to match the wider streets.
+
 ## v1.7.1: HD street fronts everywhere (stopgap)
 
 - Midtown, SoHo, Uptown, Queens and Las Vegas now use HD building fronts made from the Village art: the same facades, recoloured, stretched to each building's width, or set side by side. Doors line up with the art, and shop names sit on the sign boards (or on a small plate where the front has none).
@@ -190,4 +197,5 @@ Cast members currently use generic placeholder sprites with name tags. To swap i
 - HD sprites for the missing looks (Ross's brown shirt, Joey's red shirt, Chandler's green shirt) and for Tag
 - HD hats and carried items for the player
 - Dedicated HD fronts for the other neighborhoods (they currently reuse recoloured Village facades), and Montauk's beach house
-- Floor plans for the diner, Chandler's office, the studio and the airport
+- London's bus and cab and the Vegas cab at the new car scale (those roads are still narrow)
+- Floor plans for Chandler's office, the studio and the airport
