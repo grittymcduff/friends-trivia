@@ -931,6 +931,42 @@ function endTrivia(){const won=TV.score>=TV.need;$('#tvBody').classList.add('hid
  $('#tvDone').onclick=closeTrivia;TV.finished=true;if($('#tvRP'))tvPortrait($('#tvRP'),TV.who);updHud();save()}
 function closeTrivia(){$('#triv').classList.add('hidden');state='world';const a=TV&&TV.after;TV=null;if(a)a();else{const n=itemCount();if(finaleReady()&&!S.items.key&&!S.talked.finaleHint){S.talked.finaleHint=1;save();say(["You've found everything! Your phone buzzes: a text from Monica.","'Central Perk. The orange couch. Everybody's waiting. Don't be late!'"]);addFinaleCast()}else if(n>=10&&!S.talked.airportHint){S.talked.airportHint=1;save();say(["10 collectibles! The AirTrain to JFK Airport is now open on the subway map. Flights to London, Las Vegas, Barbados and Montauk await."])}else if(n===8&&!S.talked.subwayHint){S.talked.subwayHint=1;save();say(["The Village is all yours! Take the subway at Bleecker St to explore the rest of the city."])}}}
 
+
+/* ===================== v1.9.3: the story in chapters, and the map ===================== */
+const HOOD_OF_ZONE={village:'village',perk:'village',hall:'village',monica:'village',joey:'village',rossapt:'village',phoebe:'village',
+ midtown:'midtown',office:'midtown',ralph:'midtown',bloomies:'midtown',soho:'soho',diner:'soho',uptown:'uptown',museum:'uptown',
+ queens:'queens',studio:'queens',airport:'trips',london:'trips',vegas:'trips',barbados:'trips',montauk:'trips'};
+const HOODS=[{id:'uptown',name:'Uptown',sub:'81 St · the Museum, Central Park',area:'1/1/2/3'},{id:'midtown',name:'Midtown',sub:"5 Av / 59 St · Chandler's office, Bloomingdale's, the Garden",area:'2/1/3/3'},
+ {id:'village',name:'Greenwich Village',sub:'Bleecker St · Central Perk and the apartments',area:'3/1/4/3'},{id:'soho',name:'SoHo',sub:'Spring St · the Moondance Diner',area:'4/1/5/3'},
+ {id:'queens',name:'Queens',sub:'Queensboro Plaza · Silvercup Studios',area:'2/3/3/4'},{id:'trips',name:'JFK & beyond',sub:'London · Las Vegas · Barbados · Montauk',area:'3/3/5/4'}];
+function hoodOfItem(it){const f=it.from||'';
+ if(/Last One/.test(f))return null;if(/London|Las Vegas|Barbados|Montauk/.test(f))return'trips';if(/Silvercup/.test(f))return'queens';
+ if(/Museum|Central Park/.test(f))return'uptown';if(/Moondance/.test(f))return'soho';if(/Midtown|Madison|Bloomingdale|Ralph/.test(f))return'midtown';return'village'}
+const CHAPTERS=[
+ {t:'The One Where It All Begins',tx:"It's the gang's last year in the Village. Monica and Chandler are moving to the suburbs, and everyone's feeling sentimental. Collect a keepsake from every corner of their New York, starting at Central Perk and the apartments upstairs.",
+  goal:()=>{const v=ITEMS.filter(i=>!i.bonus&&hoodOfItem(i)==='village');return`Keepsakes from the Village: ${v.filter(i=>S.items[i.id]).length} / ${v.length}`},done:()=>ITEMS.filter(i=>!i.bonus&&hoodOfItem(i)==='village'&&S.items[i.id]).length>=6},
+ {t:'The One Around Town',tx:"Word's gotten around that you're collecting memories. Take the subway uptown, to Midtown, to SoHo and over to Queens. Everybody has a story, and something to give you.",
+  goal:()=>`Collect ${Math.max(0,10-itemCount())} more to unlock the airport`,done:()=>itemCount()>=10},
+ {t:'The One With All the Trips',tx:"You've earned some time off. Take the AirTrain to JFK: London, Las Vegas, Barbados and Montauk are waiting, and so is a friend in each one.",
+  goal:()=>{const r=ITEMS.filter(i=>i.id!=='key'&&!i.bonus&&!S.items[i.id]).length;return r?`${r} keepsake${r>1?'s':''} left before the last one`:'Everything found!'},done:()=>finaleReady()},
+ {t:'The Last One',tx:"You found everything. Everyone's meeting at Central Perk one last time before Monica and Chandler hand over their keys. Go sit on the couch.",goal:()=>S.items.key?'The end. (Or is it?)':'Everyone is waiting at Central Perk',done:()=>false}];
+function chapterNow(){let c=0;while(c<CHAPTERS.length-1&&CHAPTERS[c].done())c++;return c}
+function showChapter(c){const ch=CHAPTERS[c];$('#chapNum').textContent=`Chapter ${c+1}`;$('#chapT').textContent=ch.t;$('#chapTx').textContent=ch.tx;
+ const el=$('#chapCard');el.classList.add('on');const prev=state;state='card';SFX.ok();el.onclick=()=>{el.classList.remove('on');state=prev==='card'?'world':prev}}
+function checkChapter(){if(!S||state!=='world')return;if(S.chapter==null){S.chapter=chapterNow();save();return}
+ const c=chapterNow();if(c>S.chapter){S.chapter=c;save();showChapter(c)}}
+function openMap(){if(state==='world')openMap.sel=null;state='menu';const here=HOOD_OF_ZONE[Zn.id];const ch=S.chapter||0;
+ $('#mapCh').textContent=`Chapter ${ch+1}: ${CHAPTERS[ch].t} · ${CHAPTERS[ch].goal()}`;
+ const sel=openMap.sel&&HOODS.some(h=>h.id===openMap.sel)?openMap.sel:here;
+ const info=id=>{const h=HOODS.find(q=>q.id===id),its=ITEMS.filter(i=>hoodOfItem(i)===id),miss=its.filter(i=>!S.items[i.id]),lock=id==='trips'&&itemCount()<10;
+  return`<h3>${esc(h.name)}</h3><div>${esc(h.sub)}</div>`+(lock?`<p>🔒 Collect 10 keepsakes to unlock the airport (you have ${itemCount()}).</p>`:miss.length?`<p><b>Still to find (${miss.length})</b></p><ul>${miss.map(i=>`<li>${i.bonus?'✨ ':''}${esc(i.hint||i.from)}</li>`).join('')}</ul>`:'<p>✅ Everything here is on your shelf.</p>')};
+ $('#mapGrid').innerHTML=HOODS.map(h=>{const its=ITEMS.filter(i=>hoodOfItem(i)===h.id),got=its.filter(i=>S.items[i.id]).length,lock=h.id==='trips'&&itemCount()<10;
+  return`<div class="mz ${h.id===here?'here':''} ${h.id===sel?'sel':''} ${lock?'lock':''} ${got===its.length?'done':''}" data-h="${h.id}" style="grid-area:${h.area}"><h3>${h.id===here?'📍 ':''}${esc(h.name)}</h3><div class="pc">${lock?'🔒 Locked':`🏆 ${got} / ${its.length}`}</div></div>`}).join('');
+ $('#mapInfo').innerHTML=info(sel);
+ $('#mapGrid').querySelectorAll('.mz').forEach(el=>el.onclick=()=>{openMap.sel=el.dataset.h;SFX.sel();openMap()});
+ $('#mapTip').textContent='Ride the subway between neighborhoods: walk into any green subway entrance. Bonus collectibles are hidden around the city.';
+ $('#mapP').classList.remove('hidden')}
+
 /* ===================== Subway & travel ===================== */
 const STOPS=[{id:'village',name:'Greenwich Village',sub:'Bleecker St · Central Perk, the apartments'},{id:'soho',name:'SoHo',sub:'Spring St · Moondance Diner'},
  {id:'midtown',name:'Midtown',sub:"5 Av / 59 St · Chandler's office, Bloomingdale's, the Garden"},{id:'uptown',name:'Uptown',sub:'81 St · the Museum, Central Park fountain'},
@@ -1036,7 +1072,7 @@ function openColl(){state='menu';$('#coll').classList.remove('hidden');const got
  $('#collGrid').innerHTML='<h3>The Story</h3>'+ITEMS.filter(i=>!i.bonus).map(card).join('')+'<h3>Superfan Extras <small>(optional, very hard)</small></h3>'+ITEMS.filter(i=>i.bonus).map(card).join('')+`<h3>Secret Sightings <small>(${Object.keys(S.eggs||{}).length} of ${EGGS.length} spotted, keep exploring!)</small></h3>`+EGGS.map(e=>{const f=S.eggs&&S.eggs[e.id];return`<div class="card egg ${f?'got':''}"><canvas data-egg="${e.id}" width="128" height="128"></canvas><b>${f?esc(e.title):'???'}</b><small>${esc(e.hint)}</small></div>`}).join('');
  $('#collGrid').querySelectorAll('button[data-wear]').forEach(b=>b.onclick=e=>{e.stopPropagation();toggleWear(b.dataset.wear)});
  $('#collGrid').querySelectorAll('canvas').forEach(c=>{const g=c.getContext('2d');if(c.dataset.egg){const e=EGGS.find(q=>q.id===c.dataset.egg),ic=eggIcon(e);art(g,S.eggs&&S.eggs[e.id]?ic:silhouette(ic),0,0,c.width,c.height);return}const ic=itemArt(c.dataset.id);art(g,S.items[c.dataset.id]?ic:silhouette(ic),0,0,c.width,c.height)})}
-function closePanels(){if(!$('#subway').classList.contains('hidden')){subwayArmed=false;subwayTile=[player.x,player.y]}for(const id of['#coll','#help','#subway','#credits','#board'])$(id).classList.add('hidden');state='world'}
+function closePanels(){if(!$('#subway').classList.contains('hidden')){subwayArmed=false;subwayTile=[player.x,player.y]}for(const id of['#coll','#help','#subway','#credits','#board','#mapP'])$(id).classList.add('hidden');state='world'}
 function openHelp(){state='menu';setupHelpDiff();$('#help').classList.remove('hidden')}
 
 /* ===================== HUD ===================== */
@@ -1126,7 +1162,8 @@ addEventListener('keydown',e=>{if(e.target.tagName==='INPUT')return;keys[e.key]=
  if(e.code==='Space'||e.code==='Enter'||e.code==='KeyZ'){e.preventDefault();if(document.activeElement&&document.activeElement.blur)document.activeElement.blur();pressA()}
  else if(e.code==='Escape'||e.code==='KeyX'||e.code==='Backspace')pressB();
  else if(e.code==='KeyC'&&(state==='world'||state==='menu')){if(state==='menu')closePanels();else openColl()}
- else if(e.code==='KeyM'){toggleMute()}
+ else if(e.code==='KeyM'){if(state==='world')openMap();else if(state==='menu'&&!$('#mapP').classList.contains('hidden'))closePanels()}
+ else if(e.code==='KeyN'){toggleMute()}
  else if(e.code==='KeyL'&&state==='world')openBoard();
  else if(e.code==='Equal'||e.code==='NumpadAdd')cycleZoom(1);
  else if(e.code==='Minus'||e.code==='NumpadSubtract')cycleZoom(-1);
@@ -1149,6 +1186,8 @@ function setupTouch(){coarse=matchMedia('(pointer:coarse)').matches;$('#game').c
  $('#btnA').addEventListener('pointerdown',e=>{e.preventDefault();pressA()});$('#btnB').addEventListener('pointerdown',e=>{e.preventDefault();pressB()})}
 $('#dlg').addEventListener('click',()=>{if(state==='dialog'&&!(dCur&&dCur.choices))dlgAdvance()});
 $('#tvNext').onclick=nextQ;
+$('#btnMap').onclick=()=>{if(state==='world')openMap();else if(state==='menu')closePanels()};
+$('#mapP').querySelector('.close').onclick=closePanels;
 $('#btnColl').onclick=()=>{if(state==='world')openColl();else if(state==='menu')closePanels()};
 $('#btnHelp').onclick=()=>{if(state==='world')openHelp()};
 $('#btnSnd').onclick=toggleMute;
@@ -1185,7 +1224,8 @@ function begin(s,isNew){try{AC=AC||new(window.AudioContext||window.webkitAudioCo
  if(solid[player.y*Zn.w+player.x]){let best=null;for(let r=1;r<12&&!best;r++)for(let dy=-r;dy<=r&&!best;dy++)for(let dx=-r;dx<=r;dx++){const x=player.x+dx,y=player.y+dy;if(x>=0&&y>=0&&x<Zn.w&&y<Zn.h&&!solid[y*Zn.w+x]){best=[x,y];break}}
   if(best){player.x=player.fx=best[0];player.y=player.fy=best[1];player.px=best[0]*16;player.py=best[1]*16}}
  state='world';updHud();
- if(isNew)say([{text:`Welcome to the Village, ${S.name}!`},{text:"That's Central Perk right in front of you. Walk up to the door to go inside."},{text:"Arrows or WASD to move (hold Shift to hurry). Space to talk. C opens your collectibles shelf."},{text:"Find people with a ? over their heads. They want to quiz you."}])}
+ if(isNew)say([{text:`Welcome to the Village, ${S.name}!`},{text:"That's Central Perk right in front of you. Walk up to the door to go inside."},{text:"Arrows or WASD to move (hold Shift to hurry). Space to talk. C opens your collectibles shelf, and M opens the map."},{text:"Find people with a ? over their heads. They want to quiz you."}]);
+ if(isNew){S.chapter=0;save();const el=$('#chapCard');$('#chapNum').textContent='Chapter 1';$('#chapT').textContent=CHAPTERS[0].t;$('#chapTx').textContent=CHAPTERS[0].tx;el.classList.add('on');SFX.ok();el.onclick=()=>el.classList.remove('on')}}
 $('#btnNew').onclick=()=>{let nm=($('#pName').value||'').trim().slice(0,14)||'Friend';const st=loadStore();if(st.saves[nm]){let k=2;while(st.saves[nm+' '+k])k++;nm=(nm.slice(0,11)+' '+k)}begin(freshSave(nm,lookFromPick()),true)};
 function confirmNew(){const b=$('#btnNew');if(b.dataset.arm){delete b.dataset.arm;return true}b.dataset.arm=1;b.textContent='Overwrite saved game? Click again';setTimeout(()=>{delete b.dataset.arm;b.textContent='New Game ▶'},3000);return false}
 
@@ -1195,7 +1235,7 @@ function fit(){const vv=window.visualViewport,w=vv?vv.width:innerWidth,h=vv?vv.h
  const wr=$('#wrap');wr.style.height=h+'px';wr.style.top=(vv?vv.offsetTop:0)+'px'}
 addEventListener('resize',fit);addEventListener('orientationchange',()=>setTimeout(fit,300));if(window.visualViewport){visualViewport.addEventListener('resize',fit);visualViewport.addEventListener('scroll',fit)}
 let last=performance.now(),saveT=0;
-function loop(now){const dt=Math.min(.05,(now-last)/1000);last=now;clock+=dt;
+function loop(now){const dt=Math.min(.05,(now-last)/1000);last=now;clock+=dt;if(((clock*4)|0)!==loop.k){loop.k=(clock*4)|0;checkChapter()}
  if(Zn&&state!=='title'){updPlayer(dt);updNpcs(dt);updTaxis(dt);updDialog(dt);saveT+=dt;if(saveT>5){saveT=0;save()}draw()}
  syncTouch();requestAnimationFrame(loop)}
 try{const z=+localStorage.getItem('friendsTrivia_zoom');if([1,2,3].includes(z))setZoom(z,true);else setZoom(2,true)}catch(e){setZoom(2,true)}
