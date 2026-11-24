@@ -4,6 +4,12 @@ A private, Pokémon-style pixel-art trivia adventure set in Friends' Greenwich V
 
 **Play:** open `index.html` in a browser, or turn on GitHub Pages for this repo (Settings → Pages → deploy from `main`, root folder).
 
+## v2.0.2: Matching cars, clearer faces
+
+- Every car is now drawn from one detailed set (sedan, station wagon, minivan, hatchback, recoloured per car; `tools/prep_cars.py`), and every cab uses the detailed taxi. Phoebe's grandmother's taxi still stands out with its rust and dents.
+- Eyes on the main character and every extra are wider so they still show at Far zoom, and hair that hung over the eyes in side view (curly and shaggy styles) is trimmed back.
+- The yellow line on the north–south avenue sits in the true middle of the road.
+
 ## v2.0.1: Tidier streets
 
 - The game always opens in the Far view so the whole block is on screen. The zoom button still changes it.

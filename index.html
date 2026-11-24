@@ -1533,12 +1533,12 @@ function loadVillageArt(){
 // the parked/driving car template has a magenta body: repaint it per colour, keeping its shading
 let carHDCache={};
 function carHD(col,taxi,model){const k=(taxi?'taxi'+(model||''):col+(model||''));if(carHDCache[k])return carHDCache[k];
- const src=taxi?(model?hdIn.car_taxi90:hdVProps.taxi):model?hdIn['car_'+model+'_t']:hdVProps.car;if(!src)return null;
+ const src=taxi?(hdIn.car_taxi90||hdVProps.taxi):(model&&hdIn['car_'+model+'_t'])||hdVProps.car;if(!src)return null;
  const[c,g]=mk(src.width,src.height);g.drawImage(src,0,0);
  if(!taxi){const d=g.getImageData(0,0,c.width,c.height),a=d.data,[R,G,B]=hexRGB(col);
   for(let i=0;i<a.length;i+=4){const r=a[i],gg=a[i+1],b=a[i+2];if(r>55&&b>55&&gg<r*.62&&gg<b*.62){const l=(r+b)/2/255*1.15;a[i]=Math.min(255,R*l);a[i+1]=Math.min(255,G*l);a[i+2]=Math.min(255,B*l)}}
   g.putImageData(d,0,0)}
- return carHDCache[k]=carInfo(c,taxi?(model?'car_taxi90':'taxi'):model?'car_'+model+'_t':'car')}
+ return carHDCache[k]=carInfo(c,taxi?(hdIn.car_taxi90?'car_taxi90':'taxi'):model&&hdIn['car_'+model+'_t']?'car_'+model+'_t':'car')}
 // v1.8.1: clean the light fringe left around the tyres by the cut-out, and measure how much empty space sits under
 // them (so every model's tyres touch the same line)
 function carInfo(c,key){const g=c.getContext('2d'),W=c.width,H=c.height,d=g.getImageData(0,0,W,H),a=d.data,A=i=>a[i*4+3];
@@ -1582,12 +1582,12 @@ const HD_FLOOR={wood:'floor_wood',marble:'floor_marble',sand:'floor_sand',water:
  hallf:'floor_hall',tileK:'floor_tileK',tileD:'floor_tileD',bath:'floor_bath',rotunda:'floor_rotunda',stairs:'floor_stairs',
  wallT:'wall_tile_blue',wainsT:'wall_tile_navy',tileM:'floor_moroccan',
  brick:'wall_brick',wallC:'wall_plaster',wallH:'wall_plaster_peach',wallP:'wall_plaster_lavender',wallG:'wall_plaster_sage',wains:'wall_wains'};
-const CAR_MODELS=['','wagon','van','compact'];
+const CAR_MODELS=['sedan','wagon','van','compact'];   // v2.0.2: one detailed set (tools/prep_cars.py); taxis all use car_taxi90
 // v1.8: cars at real-world scale next to people (about 2.6 times the old size); every car sprite faces right
 const CAR_LEN=88,CAR_SC=2.6;
 const hdIn={},hdFloor={},hdInCache={};
 function loadInteriorArt(){
- const files=new Set([...Object.entries(HD_IN).map(([k,v])=>v.f||k),'armchair','armchair_t','rug_geo_t','dinertable','car_wagon_t','car_van_t','car_compact_t','car_taxi90','couch_back_t','armchair_back_t','tv_back','recliner_back','armchair_side_t','chair_side','recliner_side','entside']);
+ const files=new Set([...Object.entries(HD_IN).map(([k,v])=>v.f||k),'armchair','armchair_t','rug_geo_t','dinertable','car_sedan_t','car_wagon_t','car_van_t','car_compact_t','car_taxi90','couch_back_t','armchair_back_t','tv_back','recliner_back','armchair_side_t','chair_side','recliner_side','entside']);
  for(const f of files){const im=new Image();im.onload=()=>{hdIn[f]=im;for(const k in hdInCache)delete hdInCache[k];carHDCache={}};im.src=IN+f+'.png'}
  for(const[t,f]of Object.entries(HD_FLOOR)){const im=new Image();im.onload=()=>{hdFloor[t]=im};im.src=IN+f+'.png'}}
 // repaint a template: 'mag' swaps the magenta body colour, 'cream' swaps a cream quilt; shading is kept
@@ -2007,9 +2007,23 @@ function playerSprites(L){
    for(let x=0;x<CW;x++)for(let y=end+1;y<CH;y++){const k=y*CW+x;if(isSk(lab[k-CW])&&lab[k]!==0&&lab[k]!==P_OUT){lab[k]=P_OUT;break}}}
   if(L.leather)for(let y=0;y<CH;y++)for(let x=2;x<CW;x++){const k=y*CW+x;if(lab[k]===P_PANTS&&lab[k-1]===P_PANTS&&lab[k-2]!==P_PANTS&&(y+x)%5)lab[k]=P_SHINE}
   const[c,g]=mk(CW,CH),id=g.createImageData(CW,CH),D=id.data;
+  boldEyes(lab,r,f,d,CW,CH);
   for(let k=0;k<lab.length;k++){const col=RGB[lab[k]];if(!col)continue;D[k*4]=col[0];D[k*4+1]=col[1];D[k*4+2]=col[2];D[k*4+3]=255}
   g.putImageData(id,0,0);playerOverlays(g,L,d,f,PL.meta.anchors[d][f]);c.hd=true;out[d].push(c)}});
  return playerCache[key]=out}
+// v2.0.2: the sheet's eyes are a few pixels wide, which vanishes when a 176-px figure is drawn ~60 px tall,
+// so they're found on the bald base sheet, widened, and any hair hanging over them is cut back to show the face
+const eyeCache={};
+function eyePix(r,f,d){const k=r+'|'+f;if(eyeCache[k])return eyeCache[k];const b=PL.sheets.base,[CW,CH]=PL.meta.cell,W=b.w,[hx0,,hx1]=PL.meta.anchors[d][f].head,mid=(hx0+hx1)/2,out=[];
+ if(d!=='up')for(let y=38;y<64;y++)for(let x=2;x<CW-2;x++){const at=(xx)=>b.lab[(r*CH+y)*W+f*CW+xx];if(at(x)!==P_OUT)continue;
+  if(d==='left'&&x>mid-4)continue;if(d==='right'&&x<mid+4)continue;
+  let L=false,R=false;for(let k=1;k<=5;k++){const l=at(x-k),rr=at(x+k);if(l===P_SKIN||l===P_SKIN2)L=true;if(rr===P_SKIN||rr===P_SKIN2)R=true}if(L&&R)out.push([x,y])}
+ return eyeCache[k]=out}
+function boldEyes(lab,r,f,d,CW,CH){const E=eyePix(r,f,d);if(!E.length)return;const b=PL.sheets.base,W=b.w;
+ let x0=1e9,x1=-1,y0=1e9,y1=-1;for(const[x,y]of E){x0=Math.min(x0,x);x1=Math.max(x1,x);y0=Math.min(y0,y);y1=Math.max(y1,y)}
+ // face window: hair over the eyes goes back to the face underneath
+ for(let y=Math.max(0,y0-6);y<=Math.min(CH-1,y1+8);y++)for(let x=Math.max(0,x0-9);x<=Math.min(CW-1,x1+9);x++){const k=y*CW+x,v=lab[k];if(v===P_HAIR||v===P_HAIR2){const bv=b.lab[(r*CH+y)*W+f*CW+x];if(bv===P_SKIN||bv===P_SKIN2||bv===P_SKIN3)lab[k]=bv}}
+ for(const[x,y]of E)for(let dy=-2;dy<=2;dy++)for(let dx=-2;dx<=2;dx++){const xx=x+dx,yy=y+dy;if(xx<0||yy<0||xx>=CW||yy>=CH)continue;const k=yy*CW+xx,v=lab[k];if(v===P_SKIN||v===P_SKIN2||v===P_SKIN3||v===P_OUT)lab[k]=P_OUT}}
 // Hats, costumes and held items are still the 16x24 pixel props, scaled onto the HD body:
 // hats to the head, costumes to the whole figure, held things to the front hand.
 const HAT_LIFT={unionjack:1.6,redcap:1.6,veil:.6};
@@ -2746,10 +2760,16 @@ function draw(){ctx.setTransform(1,0,0,1,0,0);ctx.fillStyle=Zn.bg;ctx.fillRect(0
  ctx.setTransform(SC*RS,0,0,SC*RS,-cx*SC*RS,-cy*SC*RS);ctx.imageSmoothingEnabled=false;
  const x0=Math.max(0,Math.floor(cx/16)),x1=Math.min(Zn.w-1,Math.floor((cx+vw)/16)),y0=Math.max(0,Math.floor(cy/16)),y1=Math.min(Zn.h-1,Math.floor((cy+vh)/16));
  const indoor=!Zn.taxiRows.length&&!Zn.g.includes('road');
+ const vLines=[];
  for(let y=y0;y<=y1;y++)for(let x=x0;x<=x1;x++){const t=Zn.g[y*Zn.w+x],G=(!indoor&&hdGround[t])||hdFloor[t];
+  if(G&&t==='laneV'&&!indoor&&hdGround.road){vLines.push([x,y]);const S=128;ctx.imageSmoothingEnabled=true;ctx.drawImage(hdGround.road,(x%4)*S,(y%4)*S,S,S,x*16,y*16,16.05,16.05);ctx.imageSmoothingEnabled=false;if(t==='walk')curb(x,y);continue}
   if(G){const n=t==='walk'?2:4,S=128;let sx,sy;if(t==='laneH'||t==='crossH'){sx=(x%4)*S;sy=0}else if(t==='laneV'||t==='crossV'){sx=0;sy=(y%4)*S}else if(t==='wains'||t==='wainsT'){sx=(x%4)*S;sy=0}else if(t==='stairs'){sx=0;sy=0}else{sx=(x%n)*S;sy=(y%n)*S}
    ctx.imageSmoothingEnabled=true;ctx.drawImage(G,sx,sy,S,S,x*16,y*16,16.05,16.05);ctx.imageSmoothingEnabled=false}
   else ctx.drawImage(tile(t,x,y),x*16,y*16);if(t==='walk')curb(x,y)}
+ // v2.0.2: north–south centre lines sit in the middle of the whole road, not the middle of their own tile
+ // (the avenues are an even number of tiles wide, so the true centre is a tile edge)
+ for(const[x,y]of vLines){const G=hdGround.laneV;if(!G)break;const rt=xx=>xx>=0&&xx<Zn.w&&ROADT.has(Zn.g[y*Zn.w+xx]);let l=x,r=x;while(rt(l-1))l--;while(rt(r+1))r++;
+  const mid=(l+r+1)*8;ctx.imageSmoothingEnabled=true;ctx.drawImage(G,44,(y%4)*128,40,128,mid-2.5,y*16,5,16.05);ctx.imageSmoothingEnabled=false}
  if(clickMark){clickMark.t+=.05;const a=.5+.4*Math.sin(clickMark.t*4),mx=clickMark.x*16+8,my=clickMark.y*16+12;ctx.fillStyle=`rgba(255,216,74,${a})`;ctx.beginPath();ctx.moveTo(mx,my-4);ctx.lineTo(mx+6,my);ctx.lineTo(mx,my+4);ctx.lineTo(mx-6,my);ctx.closePath();ctx.fill()}
  const vis=(x,y,w,h)=>x+w>=cx-40&&x<=cx+vw+40&&y+h>=cy-60&&y<=cy+vh+60;
  const L=[];
