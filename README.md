@@ -4,6 +4,13 @@ A private, Pokémon-style pixel-art trivia adventure set in Friends' Greenwich V
 
 **Play:** open `index.html` in a browser, or turn on GitHub Pages for this repo (Settings → Pages → deploy from `main`, root folder).
 
+## v2.0: HD keepsakes and real-size trips
+
+- Every collectible on the Shelf now has an HD pixel-art icon (35 new icons, cut by `tools/prep_icons.py` from 2x2 sheets).
+- Picture questions use the same HD art on their old backdrops: Hugsy, the armadillo, the chick and the duck, Mrs. Whiskerson, Smelly Cat, Rosita, the Moist Maker, the trifle, the turkey, the Geller Cup and more.
+- London has a full-width road: a real-size double-decker on the top lane, and a black cab at the bottom curb that takes you back to JFK. They drive on the left there.
+- Vegas has a wider road too, and its yellow cab is at real-world car size.
+
 ## v1.9: A title screen that fits
 
 - Two columns: your character, name, New Game and Leaderboard on the left; colours and choices on the right.
@@ -204,5 +211,4 @@ Cast members currently use generic placeholder sprites with name tags. To swap i
 - HD sprites for the missing looks (Ross's brown shirt, Joey's red shirt, Chandler's green shirt) and for Tag
 - HD hats and carried items for the player
 - Dedicated HD fronts for the other neighborhoods (they currently reuse recoloured Village facades), and Montauk's beach house
-- London's bus and cab and the Vegas cab at the new car scale (those roads are still narrow)
 - Floor plans for Chandler's office, the studio and the airport

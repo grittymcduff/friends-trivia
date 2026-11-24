@@ -607,28 +607,31 @@ room('studio','Days of Our Lives (Set 4)',22,13,{wall:'wallC',floor:'conc',to:['
 })();
 
 /* ---------------- Postcard trips ---------------- */
-scene('london','London, England',24,14,'walk',{extra(z){
- paint(z,'water',0,0,24,4); for(let x=0;x<24;x++) obj(z,'rail',x,4);
- paint(z,'road',0,9,24,3); paint(z,'laneH',0,10,24,1);
+// v2.0: a real-size road. In London they drive on the left, so the double-decker on the top lane faces right
+// and the black cab at the bottom curb faces left.
+scene('london','London, England',31,17,'walk',{extra(z){
+ paint(z,'water',0,0,31,4); for(let x=0;x<31;x++) obj(z,'rail',x,4);
+ paint(z,'road',0,9,31,5); paint(z,'laneH',0,11,31,1);
  obj(z,'clocktower',2,8); act(z,2,8,{type:'msg',text:"A famous clock tower. It chimes every hour. Joey has taken eleven photos of it, all slightly blurry."}); act(z,3,8,{type:'msg',text:"A famous clock tower. It chimes every hour."});
- obj(z,'phonebox',8,7); act(z,8,7,{type:'msg',text:"A red phone box. Somebody here once called home in a panic about a wedding."});
- obj(z,'bus',13,10); obj(z,'cab',19,10); homeAct(z,19,10,'Back to JFK'); homeAct(z,20,10,'Back to JFK');
- obj(z,'lamp',6,8); obj(z,'lamp',17,8); obj(z,'tree',11,13); obj(z,'tree',22,13);
- paint(z,'grass',0,12,24,2);
- cast(z,'joey_l','Joey',11,7,'down',F('#e8bf9a','#2a1d17','short','#c0262c',{pants:'#2a3a6a'}),{reward:'hat',tags:'joey places',n:5,need:4,
+ obj(z,'phonebox',7,7); act(z,7,7,{type:'msg',text:"A red phone box. Somebody here once called home in a panic about a wedding."});
+ obj(z,'bus',19,10,{dir:1}); act(z,19,10,{type:'msg',text:"A red double-decker bus. Joey rode it around the city four times. He thought it was the same city."});
+ obj(z,'cab',3,13,{dir:-1}); for(let x=3;x<9;x++) homeAct(z,x,13,'Back to JFK');
+ obj(z,'lamp',5,8); obj(z,'lamp',13,8);
+ paint(z,'grass',0,15,31,2);
+ cast(z,'joey_l','Joey',10,6,'down',F('#e8bf9a','#2a1d17','short','#c0262c',{pants:'#2a3a6a'}),{reward:'hat',tags:'joey places',n:5,need:4,
   greet:["Hey! London, baby! Look at my hat! It's got the flag on it! I'm basically British now.","Did you know they call french fries 'chips'? And chips 'crisps'? What do they call crisps? …I gotta sit down."],
   offer:"Five questions, four right, and you get the hat. I bought, like, nine of them.",yes:"Cheerio!",no:"Admire the hat",noReply:"Right? It's a great hat.",
   win:"Brilliant! That's British for 'good.' Here's your hat!",lose:"Aw, bloody… something. Try again, mate!"});
 }});
-scene('vegas','Las Vegas, Nevada',24,14,'nroad',{bg:'#0c0814',extra(z){
- paint(z,'walk',0,9,24,2); paint(z,'walk',0,13,24,1);
+scene('vegas','Las Vegas, Nevada',24,17,'nroad',{bg:'#0c0814',extra(z){
+ paint(z,'walk',0,9,24,2); paint(z,'walk',0,16,24,1);
  obj(z,'building',1,1,{hd:'x_vegas_chapel',signLift:54,signCx:71,signW:90,w:9,h:8,style:'neon',shop:true,awning:'#ff6fb0',signBg:'#1a0a1a',signFg:'#ff9ad0',sign:'WEDDING CHAPEL',doors:[{x:5,kind:'shop'}]});
  msgDoor(z,6,8,"A 24-hour wedding chapel. Two people you know very well got married here after a lot of drinks. Neither remembers it.");
  obj(z,'building',12,1,{hd:'x_vegas_caesars',signLift:46,signCx:70,signW:126,w:12,h:8,style:'neon',shop:true,awning:'#e8b820',signBg:'#1a1a0a',signFg:'#ffd84a',sign:'CAESARS PALACE',doors:[{x:2,kind:'shop'}]});
  msgDoor(z,14,8,"Caesars Palace. Inside, an actor in a gladiator outfit is posing for photos and very much living his dream.");
- obj(z,'cab',19,11,{yellow:true}); homeAct(z,19,11,'Back to JFK'); homeAct(z,20,11,'Back to JFK');
- obj(z,'lamp',11,10); obj(z,'palm',2,13); obj(z,'palm',22,13);
- cast(z,'rachel_v','Rachel',8,11,'down',F('#efc9a8','#4a3426','long','#f4f1ea',{fem:true,outfit:'dress'}),{reward:'veil',tags:'rachel ross',n:5,need:4,
+ obj(z,'cab',16,15,{yellow:true,dir:1}); for(let x=16;x<22;x++) homeAct(z,x,15,'Back to JFK');
+ obj(z,'lamp',11,10); obj(z,'palm',2,16); obj(z,'palm',23,16);
+ cast(z,'rachel_v','Rachel',8,10,'down',F('#efc9a8','#4a3426','long','#f4f1ea',{fem:true,outfit:'dress'}),{reward:'veil',tags:'rachel ross',n:5,need:4,
   greet:["Oh my God. Okay. Don't freak out. I may have gotten married last night. To Ross. In there.","Neither of us remembers it. There's a photo. We're both wearing… sombreros? Why are there sombreros?"],
   offer:"I need a distraction. Five questions, four right, and you can have this veil. I don't know where it came from.",yes:'Distract you',no:'Ask about Ross',noReply:"We are NOT talking about Ross right now.",
   win:"You're amazing! Take the veil. Take it far away from me.",lose:"Okay, that didn't help at all. Try again before I find Ross!"});
@@ -769,8 +772,8 @@ dress('airport',[
  ['luggage',5,9,{tone:'#3a5a8a'},"Someone's luggage. The tag says 'BING.' It is extremely overpacked."],['luggage',18,10,{tone:'#c0573a'}],
  ['kcounter',11,7,{w:2,tone:'#6b4226'},"An airport coffee kiosk. It's fine. It's not Central Perk."],['trash',6,7],['trash',17,7],['plant',24,10],['plant',12,3]]);
 dress('london',[
- ['bench',14,6],['bench',20,6],['postbox',16,7,{},"A red postbox. You could mail a postcard home. Joey has mailed eleven, all to himself."],
- ['planter',5,5],['planter',18,5],['tree',2,13,{park:true}],['tree',6,13,{park:true}],['tree',16,13,{park:true}]]);
+ ['bench',12,6],['bench',16,6],['postbox',14,7,{},"A red postbox. You could mail a postcard home. Joey has mailed eleven, all to himself."],
+ ['planter',4,5],['planter',17,5],['tree',2,16,{park:true}],['tree',9,16,{park:true}],['tree',16,16,{park:true}],['tree',23,16,{park:true}],['tree',29,16,{park:true}]]);
 dress('barbados',[
  ['towel',4,10,{w:2,tone:'#e05a7a'}],['umbrella',5,9,{tone:'#d9534f'},"A beach umbrella. Under it, a paperback called 'Fossils of the Caribbean.' Ross has been here."],
  ['towel',16,8,{w:2,tone:'#5b9bd5'}],['umbrella',17,7,{tone:'#5b9bd5'}],
