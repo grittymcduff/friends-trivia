@@ -661,7 +661,7 @@ const mf=m=>440*Math.pow(2,(m-69)/12);
 function musicBus(){if(music.bus)return music.bus;const comp=AC.createDynamicsCompressor(),g=AC.createGain(),rv=AC.createConvolver(),rg=AC.createGain(),sr=AC.sampleRate,len=sr*1.8,ir=AC.createBuffer(2,len,sr);
  for(let c=0;c<2;c++){const d=ir.getChannelData(c);for(let i=0;i<len;i++)d[i]=(Math.random()*2-1)*Math.pow(1-i/len,3)}rv.buffer=ir;rg.gain.value=.22;g.gain.value=.55;
  g.connect(comp);g.connect(rv);rv.connect(rg);rg.connect(comp);comp.connect(AC.destination);return music.bus=g}
-let noiseBuf=null;function noise(){if(noiseBuf)return noiseBuf;const sr=AC.sampleRate,b=AC.createBuffer(1,sr,sr),d=b.getChannelData(0);for(let i=0;i<sr;i++)d[i]=Math.random()*2-1;return noiseBuf=b}
+let noiseBuf=null;function noiseBuffer(){if(noiseBuf)return noiseBuf;const sr=AC.sampleRate,b=AC.createBuffer(1,sr,sr),d=b.getChannelData(0);for(let i=0;i<sr;i++)d[i]=Math.random()*2-1;return noiseBuf=b}
 const ksCache={};
 function ksBuf(m,dur,bright){const k=m+'|'+dur+'|'+bright;if(ksCache[k])return ksCache[k];const sr=AC.sampleRate,f=mf(m),Nf=sr/f-.5,N=Math.floor(Nf),fr=Nf-N,len=Math.floor(sr*dur),b=AC.createBuffer(1,len,sr),d=b.getChannelData(0);
  // Karplus–Strong with a fractional delay so every string is in tune (period = Nf + the half sample the averaging adds)
@@ -680,7 +680,7 @@ function bass(m,t,v,d=.45){const o=AC.createOscillator(),o2=AC.createOscillator(
  f.type='lowpass';f.frequency.setValueAtTime(900,t);f.frequency.exponentialRampToValueAtTime(180,t+d);g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(v,t+.01);g.gain.exponentialRampToValueAtTime(.0001,t+d);
  o.connect(f);o2.connect(f);f.connect(g);o.start(t);o2.start(t);o.stop(t+d+.05);o2.stop(t+d+.05)}
 function drum(kind,t,v){if(kind==='kick'){const o=AC.createOscillator(),g=out(t,v);o.frequency.setValueAtTime(130,t);o.frequency.exponentialRampToValueAtTime(42,t+.12);g.gain.setValueAtTime(v,t);g.gain.exponentialRampToValueAtTime(.0001,t+.18);o.connect(g);o.start(t);o.stop(t+.2);return}
- const s=AC.createBufferSource(),f=AC.createBiquadFilter(),g=out(t,v);s.buffer=noise();const P={snare:['bandpass',2200,.14],brush:['bandpass',3200,.26],hat:['highpass',7500,.035],shaker:['highpass',5200,.06],ride:['highpass',6000,.3],bells:['highpass',8000,.14]}[kind];
+ const s=AC.createBufferSource(),f=AC.createBiquadFilter(),g=out(t,v);s.buffer=noiseBuffer();const P={snare:['bandpass',2200,.14],brush:['bandpass',3200,.26],hat:['highpass',7500,.035],shaker:['highpass',5200,.06],ride:['highpass',6000,.3],bells:['highpass',8000,.14]}[kind];
  f.type=P[0];f.frequency.value=P[1];g.gain.setValueAtTime(kind==='brush'||kind==='shaker'?0:v,t);if(kind==='brush'||kind==='shaker')g.gain.linearRampToValueAtTime(v,t+.02);g.gain.exponentialRampToValueAtTime(.0001,t+P[2]);
  s.connect(f).connect(g);s.start(t,Math.random()*.5);s.stop(t+P[2]+.02);if(kind==='bells')bell(98,t,v*.4,.15,[[1,1],[1.5,.6]])}
 function voicing(c,lo){return c.q.map(i=>{let n=c.r+i;while(n<lo)n+=12;return n})}

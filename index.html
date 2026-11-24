@@ -206,6 +206,31 @@ kbd{background:#fff;border:1px solid #2a1a3a;border-radius:3px;padding:0 4px;fon
 #game.touch #dlg{left:138px;right:136px}
 #game.touch #hudBtns{bottom:auto;top:40px}
 #ab button{width:50px;height:50px;border-radius:50%;opacity:.6;font-size:16px}
+
+/* ===== v1.9.7: one look for every panel: cream paper in a wood frame, pixel lettering ===== */
+@font-face{font-family:'Pixelify Sans';font-weight:400;font-display:swap;src:url(fonts/pixelify-sans-latin-400-normal.woff2) format('woff2')}
+@font-face{font-family:'Pixelify Sans';font-weight:600;font-display:swap;src:url(fonts/pixelify-sans-latin-600-normal.woff2) format('woff2')}
+@font-face{font-family:'Pixelify Sans';font-weight:700 900;font-display:swap;src:url(fonts/pixelify-sans-latin-700-normal.woff2) format('woff2')}
+#game{font-family:'Pixelify Sans',ui-monospace,Menlo,Consolas,monospace;color:#2e1d12}
+.box{background:linear-gradient(#fdf3dc,#f8e9c8);border:3px solid #3a2414;border-radius:9px;
+ box-shadow:inset 0 0 0 3px #b9814a,inset 0 0 0 5px #f9ecd0,0 4px 0 rgba(0,0,0,.4)}
+button{font-family:inherit;border:2px solid #3a2414;background:linear-gradient(#fff8e4,#f3e0b6);color:#2e1d12;box-shadow:0 2px 0 #3a2414;letter-spacing:.01em}
+button:hover:not(:disabled){background:linear-gradient(#fff1c2,#ffd97a)}
+#hudBtns button{background:linear-gradient(#fff8e4,#f3e0b6);opacity:.95}
+#zoneTag{background:linear-gradient(#8a5a32,#6e4424);color:#fff1d0;border-color:#2e1a0c;box-shadow:inset 0 0 0 2px #a8743f,0 3px 0 rgba(0,0,0,.4);letter-spacing:.03em}
+#counts{color:#2e1d12}
+#dlg{font-size:14px;line-height:1.45}
+#dlgName{background:linear-gradient(#8a5a32,#6e4424);color:#fff1d0;border-color:#2e1a0c;font-size:12px;letter-spacing:.03em}
+#tvQ,#vsQ{font-size:17px;font-weight:600}
+#tvOpts button,#vsOptsA button{font-size:14px;font-weight:600}
+#tvOpts button b,#vsOptsA button b{background:#8a5a32}
+#tvName{font-size:20px}
+h2{letter-spacing:.02em}
+select{font-family:inherit!important}
+input{font-family:inherit!important}
+#tvProg i{border-color:#3a2414}
+.mz{border-color:#3a2414}
+#mapGrid{border-color:#3a2414}
 </style></head><body>
 <div id="wrap"><div id="holder"><div id="game">
  <canvas id="cv"></canvas>
@@ -2107,7 +2132,7 @@ const mf=m=>440*Math.pow(2,(m-69)/12);
 function musicBus(){if(music.bus)return music.bus;const comp=AC.createDynamicsCompressor(),g=AC.createGain(),rv=AC.createConvolver(),rg=AC.createGain(),sr=AC.sampleRate,len=sr*1.8,ir=AC.createBuffer(2,len,sr);
  for(let c=0;c<2;c++){const d=ir.getChannelData(c);for(let i=0;i<len;i++)d[i]=(Math.random()*2-1)*Math.pow(1-i/len,3)}rv.buffer=ir;rg.gain.value=.22;g.gain.value=.55;
  g.connect(comp);g.connect(rv);rv.connect(rg);rg.connect(comp);comp.connect(AC.destination);return music.bus=g}
-let noiseBuf=null;function noise(){if(noiseBuf)return noiseBuf;const sr=AC.sampleRate,b=AC.createBuffer(1,sr,sr),d=b.getChannelData(0);for(let i=0;i<sr;i++)d[i]=Math.random()*2-1;return noiseBuf=b}
+let noiseBuf=null;function noiseBuffer(){if(noiseBuf)return noiseBuf;const sr=AC.sampleRate,b=AC.createBuffer(1,sr,sr),d=b.getChannelData(0);for(let i=0;i<sr;i++)d[i]=Math.random()*2-1;return noiseBuf=b}
 const ksCache={};
 function ksBuf(m,dur,bright){const k=m+'|'+dur+'|'+bright;if(ksCache[k])return ksCache[k];const sr=AC.sampleRate,f=mf(m),Nf=sr/f-.5,N=Math.floor(Nf),fr=Nf-N,len=Math.floor(sr*dur),b=AC.createBuffer(1,len,sr),d=b.getChannelData(0);
  // Karplus–Strong with a fractional delay so every string is in tune (period = Nf + the half sample the averaging adds)
@@ -2126,7 +2151,7 @@ function bass(m,t,v,d=.45){const o=AC.createOscillator(),o2=AC.createOscillator(
  f.type='lowpass';f.frequency.setValueAtTime(900,t);f.frequency.exponentialRampToValueAtTime(180,t+d);g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(v,t+.01);g.gain.exponentialRampToValueAtTime(.0001,t+d);
  o.connect(f);o2.connect(f);f.connect(g);o.start(t);o2.start(t);o.stop(t+d+.05);o2.stop(t+d+.05)}
 function drum(kind,t,v){if(kind==='kick'){const o=AC.createOscillator(),g=out(t,v);o.frequency.setValueAtTime(130,t);o.frequency.exponentialRampToValueAtTime(42,t+.12);g.gain.setValueAtTime(v,t);g.gain.exponentialRampToValueAtTime(.0001,t+.18);o.connect(g);o.start(t);o.stop(t+.2);return}
- const s=AC.createBufferSource(),f=AC.createBiquadFilter(),g=out(t,v);s.buffer=noise();const P={snare:['bandpass',2200,.14],brush:['bandpass',3200,.26],hat:['highpass',7500,.035],shaker:['highpass',5200,.06],ride:['highpass',6000,.3],bells:['highpass',8000,.14]}[kind];
+ const s=AC.createBufferSource(),f=AC.createBiquadFilter(),g=out(t,v);s.buffer=noiseBuffer();const P={snare:['bandpass',2200,.14],brush:['bandpass',3200,.26],hat:['highpass',7500,.035],shaker:['highpass',5200,.06],ride:['highpass',6000,.3],bells:['highpass',8000,.14]}[kind];
  f.type=P[0];f.frequency.value=P[1];g.gain.setValueAtTime(kind==='brush'||kind==='shaker'?0:v,t);if(kind==='brush'||kind==='shaker')g.gain.linearRampToValueAtTime(v,t+.02);g.gain.exponentialRampToValueAtTime(.0001,t+P[2]);
  s.connect(f).connect(g);s.start(t,Math.random()*.5);s.stop(t+P[2]+.02);if(kind==='bells')bell(98,t,v*.4,.15,[[1,1],[1.5,.6]])}
 function voicing(c,lo){return c.q.map(i=>{let n=c.r+i;while(n<lo)n+=12;return n})}
