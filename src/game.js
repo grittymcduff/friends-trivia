@@ -910,7 +910,44 @@ function itemCount(){return Object.keys(S.items).length}
 function openSubway(){state='menu';const n=itemCount();$('#subway').classList.remove('hidden');
  $('#subList').innerHTML=STOPS.map(st=>{const here=Zn.id===st.id,lock=st.need&&n<st.need;return`<button data-id="${st.id}" ${here||lock?'disabled':''}><b>${esc(st.name)}${here?' · you are here':''}</b><small>${lock?`🔒 Collect ${st.need} items to unlock (you have ${n})`:esc(st.sub)}</small></button>`}).join('');
  $('#subList').querySelectorAll('button').forEach(b=>b.onclick=()=>{const z=ZONES[b.dataset.id],sp=z.subwaySpawn;closePanels();travel((b.dataset.id==='airport'?'🚆  AirTrain to ':'🚇  Next stop: ')+z.name,b.dataset.id,sp[0],sp[1],sp[2])})}
-function travel(text,to,x,y,dir){state='fade';const t=$('#travel');$('#travelText').textContent=text;t.classList.add('on');SFX.door();setTimeout(()=>beep(523,.18,'triangle',.05),300);setTimeout(()=>beep(659,.18,'triangle',.05),550);
+/* v1.9.1: a short clip when you take the subway: a '90s silver train rushes through the station */
+function subwayClip(label,line,onCovered,onDone){const t=$('#travel'),cv=$('#travelCv'),g=cv.getContext('2d'),W=cv.width,H=cv.height;t.classList.add('on','clip');$('#travelText').textContent=label;
+ const T0=performance.now(),DUR=2300,carW=230,cars=4,trainW=cars*carW,col=line.col;let covered=false;
+ const P=(c,x,y,w,h)=>{g.fillStyle=c;g.fillRect(Math.round(x),Math.round(y),Math.round(w),Math.round(h))};
+ function frame(now){const k=Math.min(1,(now-T0)/DUR);g.imageSmoothingEnabled=false;
+  // station: tiled wall, mosaic band, platform edge
+  P('#d9d2bf',0,0,W,H);for(let y=0;y<150;y+=10)for(let x=(y/10%2)*10;x<W;x+=20)P('#cfc7b2',x,y,10,10);
+  P('#3a5a7a',0,26,W,14);for(let x=0;x<W;x+=12)P('#c9a24a',x+3,30,6,6);
+  P('#20202a',0,46,W,26);g.fillStyle='#f4f1ea';g.font='bold 16px ui-monospace,Menlo,monospace';g.textAlign='center';g.textBaseline='middle';
+  for(let x=W/4;x<W;x+=W/2)g.fillText(line.stop,x,59);
+  for(let x=20;x<W;x+=70){P('#6a5a4a',x,72,10,98);P('#8a7a6a',x,72,3,98)}
+  P('#2a2a30',0,150,W,70);P('#1a1a20',0,214,W,6);for(let x=0;x<W;x+=18)P('#4a3a2a',x,206,10,4);
+  P('#9a9a9e',0,218,W,52);P('#f2c230',0,218,W,6);for(let x=0;x<W;x+=8)P('#c99a10',x,220,4,2);
+  // the train: enters from the right, fast, eases out to the left
+  const e=k<.5?2*k*k:1-Math.pow(-2*k+2,2)/2,x0=W+40-(W+trainW+80)*e;
+  for(let c=0;c<cars;c++){const x=x0+c*carW;if(x>W||x+carW<0)continue;
+   P('#b8bcc4',x,96,carW-8,112);P('#d6d9df',x,96,carW-8,6);for(let r=0;r<6;r++)P('#a6aab2',x,128+r*12,carW-8,2);
+   for(let w=0;w<4;w++){const wx=x+14+w*52;P('#2a3040',wx,110,34,26);P('#f4e9b0',wx+2,112,30,10);P('#e8dc9a',wx+2,122,30,12)}
+   for(const d of[44,150]){P('#8a8e96',x+d,104,22,96);P('#2a3040',x+d+3,110,16,30)}
+   P('#3a3a40',x+carW-8,104,8,96);P('#1a1a1e',x+10,200,carW-28,8);
+   for(const wx of[x+30,x+carW-50]){g.fillStyle='#222';g.beginPath();g.arc(wx,208,8,0,7);g.fill()}
+   if(c===0){g.fillStyle=col;g.beginPath();g.arc(x+20,150,13,0,7);g.fill();g.fillStyle='#fff';g.font='bold 15px Helvetica,Arial,sans-serif';g.fillText(line.id,x+20,151);P('#fff6c0',x+2,180,8,8)}
+  }
+  // speed streaks and sparks while it rushes past
+  const sp=Math.sin(k*Math.PI);if(sp>.3){g.globalAlpha=sp*.35;for(let i=0;i<14;i++)P('#ffffff',(i*97+now*.9)%W,100+((i*37)%100),40,2);g.globalAlpha=1;
+   for(let i=0;i<5;i++)if(Math.random()<.6)P('#ffd84a',x0+20+Math.random()*trainW*.9,208+Math.random()*6,3,2)}
+  if(!covered&&k>.45){covered=true;onCovered()}
+  if(k<1)requestAnimationFrame(frame);else{t.classList.remove('on','clip');onDone()}}
+ requestAnimationFrame(frame);
+ // a rumble that rises and fades
+ try{if(AC){const n=AC.createBufferSource(),b=AC.createBuffer(1,AC.sampleRate*2.3,AC.sampleRate),d=b.getChannelData(0);for(let i=0;i<d.length;i++){const q=i/d.length;d[i]=(Math.random()*2-1)*Math.sin(Math.PI*q)*.25}
+  n.buffer=b;const f=AC.createBiquadFilter();f.type='lowpass';f.frequency.value=380;n.connect(f).connect(AC.destination);n.start()}}catch(e){}
+ setTimeout(()=>beep(880,.12,'square',.03),1500);setTimeout(()=>beep(698,.2,'square',.03),1650)}
+const SUBWAY_LINES={village:{id:'6',col:'#2a9a4a',stop:'BLEECKER ST'},midtown:{id:'N',col:'#f2c230',stop:'5 AV / 59 ST'},soho:{id:'C',col:'#2a5ab8',stop:'SPRING ST'},
+ uptown:{id:'B',col:'#f07a1a',stop:'81 ST – MUSEUM'},queens:{id:'7',col:'#9a3aa8',stop:'QUEENSBORO PLAZA'},airport:{id:'✈',col:'#3a6aa8',stop:'JFK AIRTRAIN'}};
+function travel(text,to,x,y,dir){if(SUBWAY_LINES[to]){state='fade';SFX.door();
+  subwayClip(text,SUBWAY_LINES[to],()=>loadZone(to,x,y,dir),()=>{state='world';const intro=INTROS[to];if(intro&&!S.talked[to+'Intro']){S.talked[to+'Intro']=1;save();say(intro)}});return}
+ state='fade';const t=$('#travel');$('#travelText').textContent=text;t.classList.add('on');SFX.door();setTimeout(()=>beep(523,.18,'triangle',.05),300);setTimeout(()=>beep(659,.18,'triangle',.05),550);
  setTimeout(()=>{loadZone(to,x,y,dir);},700);setTimeout(()=>{t.classList.remove('on');state='world';const intro=INTROS[to];if(intro&&!S.talked[to+'Intro']){S.talked[to+'Intro']=1;save();say(intro)}},1600)}
 
 /* ===================== Easter eggs ===================== */

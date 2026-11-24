@@ -16,11 +16,11 @@ from PIL import Image
 V = Path(__file__).resolve().parent.parent / "sprites" / "village"
 PX = 8
 # facade -> (width in tiles, door x, sign (signLift, signCx, signW) or None)
-LIB = {
-    "n1_brownstone": (6, 3, None), "n2_brick": (6, 2, None), "n3_central_perk": (8, 3, (46, 47, 84)),
-    "n4_brick_ross": (8, 4, None), "n5_brownstone": (6, 2, None), "n6_rays_pizza": (6, 2, (44, 48, 56)),
-    "s1_lucille_lortel": (8, 4, (54, 63, 80)), "s2_brownstone": (6, 3, None), "s3_village_cigars": (6, 3, (40, 60, 52)),
-    "s4_brick_phoebe": (8, 3, None), "s5_brownstone_wide": (12, 5, None),
+LIB = {   # door x = the tile under the door painted on each front (measured from the art)
+    "n1_brownstone": (6, 1, None), "n2_brick": (6, 1, None), "n3_central_perk": (8, 1, (46, 47, 84)),
+    "n4_brick_ross": (8, 1, None), "n5_brownstone": (6, 1, None), "n6_rays_pizza": (6, 1, (44, 48, 56)),
+    "s1_lucille_lortel": (8, 4, (54, 63, 80)), "s2_brownstone": (6, 1, None), "s3_village_cigars": (6, 1, (40, 60, 52)),
+    "s4_brick_phoebe": (8, 1, None), "s5_brownstone_wide": (12, 1, None),
 }
 # name: (width in tiles, [facades left to right], (hue shift deg, saturation x, brightness x), index of the facade holding the main door)
 BUILDINGS = {
@@ -83,7 +83,7 @@ def main():
             tw = LIB[p][0] * sx
             piece = im.resize((round(tw * 16 * PX), im.height), Image.LANCZOS)
             canvas.alpha_composite(piece, (round(x * 16 * PX), H - im.height))
-            doors.append(round(x + LIB[p][1] * sx))
+            doors.append(int(x + (LIB[p][1] + .5) * sx))
             if LIB[p][2] and sign is None:
                 lift, cx, sw = LIB[p][2]
                 sign = [lift, round(x * 16 + cx * sx), round(sw * sx)]

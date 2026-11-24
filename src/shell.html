@@ -93,6 +93,7 @@ kbd{background:#fff;border:1px solid #2a1a3a;border-radius:3px;padding:0 4px;fon
 #travel{position:absolute;inset:0;background:#120a1a;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .3s}
 #travel.on{opacity:1}
 #travelText{color:#fff3c4;font-size:20px;font-weight:900;letter-spacing:.02em;animation:slide 1.4s linear infinite}
+#travelCv{position:absolute;inset:0;width:100%;height:100%;image-rendering:pixelated;display:none}#travel.clip #travelCv{display:block}#travel.clip #travelText{position:absolute;top:8%;animation:none;background:rgba(10,8,16,.75);padding:6px 14px;border-radius:6px;border:2px solid #f2c230}
 @keyframes slide{0%{transform:translateX(-20px)}50%{transform:translateX(20px)}100%{transform:translateX(-20px)}}
 #credits{position:absolute;inset:20px;padding:18px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:8px;overflow:auto}
 #credits h2{margin:0;font-family:Georgia,serif;font-size:26px;color:#5b3a8c}
@@ -180,7 +181,7 @@ kbd{background:#fff;border:1px solid #2a1a3a;border-radius:3px;padding:0 4px;fon
   <div id="shareRow"><b>Share your score:</b> <input id="myCode" readonly><button id="btnCopy">Copy</button></div>
   <div><b>Add a friend's score:</b> <input id="importBox" placeholder="Paste a TOWTG1: code"><button id="btnImport">Add</button></div>
   <div id="importMsg"></div><small class="muted">Score: 100 per story item, 150 per superfan extra, 50 per sighting, 5 per correct answer, +500 for finishing.</small></div>
- <div id="travel"><div id="travelText"></div></div>
+ <div id="travel"><canvas id="travelCv" width="480" height="270"></canvas><div id="travelText"></div></div>
  <div id="title">
   <div id="tBox" class="box">
    <h1>The One With <span>The Trivia Game</span></h1>
