@@ -20,7 +20,7 @@ A private, Pokémon-style pixel-art trivia adventure set in Friends' Greenwich V
 
 ## v2.0.1: Tidier streets
 
-- The game always opens in the Far view so the whole block is on screen. The zoom button still changes it.
+- The game opens in the Normal view (Far could lag on slower machines). The zoom button still switches to Far.
 - People walking the sidewalks now step properly instead of gliding.
 - Cast easter eggs happen where they did on the show: the turkey head and the Holiday Armadillo at Monica's, Joey in all of Chandler's clothes and Chandler in a box at Joey & Chandler's, and PIVOT! at Ross's. They swap the regular character's look instead of adding a second copy of them.
 - Only one easter egg can show up per visit, and ones you've already found come back less often. The street keeps the outdoor ones: the runaway duck, Joey's "Porsche" and Joey the tourist.

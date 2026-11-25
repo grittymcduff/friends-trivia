@@ -1458,7 +1458,7 @@ let last=performance.now(),saveT=0;
 function loop(now){const dt=Math.min(.05,(now-last)/1000);last=now;clock+=dt;if(((clock*4)|0)!==loop.k){loop.k=(clock*4)|0;checkChapter()}
  if(Zn&&S&&state!=='title'){updPlayer(dt);updNpcs(dt);updTaxis(dt);updWalkers(dt);updDialog(dt);saveT+=dt;if(saveT>5){saveT=0;save()}draw()}
  syncTouch();requestAnimationFrame(loop)}
-setZoom(1,true);   // v2.0: always open in Far so the whole block is on screen; the zoom button still changes it
+setZoom(2,true);   // v2.0.5: always open in Normal (Far draws much more of the street each frame and can lag); the zoom button still changes it
 fit();setupTitle();setupTouch();loadCustomSprites();loadHD();loadPlayerArt();loadVillageArt();loadInteriorArt();loadNightArt();
 // title-screen backdrop: render the village behind the menu
 player.spr=charSprites(lookFromPick());loadZone('village',15,10,'up',true);state='title';
