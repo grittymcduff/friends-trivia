@@ -231,13 +231,14 @@ input{font-family:inherit!important}
 #tvProg i{border-color:#3a2414}
 .mz{border-color:#3a2414}
 #mapGrid{border-color:#3a2414}
+#musVolBox{display:inline-flex;align-items:center;gap:4px;font-size:11px;padding:3px 7px;background:linear-gradient(#fff8e4,#f3e0b6);border:2px solid #6b4426;border-radius:8px;box-shadow:0 2px 0 #4a2e18;opacity:.95;color:#3b2414}#musVol{width:64px;height:12px;accent-color:#8a5a2a;margin:0}
 </style></head><body>
 <div id="wrap"><div id="holder"><div id="game">
  <canvas id="cv"></canvas>
  <div id="hud" class="hidden">
   <div id="zoneTag" class="box">Greenwich Village</div>
   <div id="counts" class="box"><span title="Collectibles">🏆 <b id="cntItems">0/12</b></span><span title="Correct answers">⭐ <b id="cntStars">0</b></span></div>
-  <div id="hudBtns"><button id="btnMap">🗺 Map (M)</button><button id="btnColl">🏆 Shelf (C)</button><button id="btnBoard">🏅</button><button id="btnHelp">❔</button><button id="btnZoom">🔍 Normal</button><button id="btnSnd">🔊</button></div>
+  <div id="hudBtns"><button id="btnMap">🗺 Map (M)</button><button id="btnColl">🏆 Shelf (C)</button><button id="btnBoard">🏅</button><button id="btnHelp">❔</button><button id="btnZoom">🔍 Normal</button><button id="btnSnd">🔊</button><label id="musVolBox" title="Music volume">🎵<input id="musVol" type="range" min="0" max="100" step="1"></label></div>
  </div>
  <div id="toast" class="box"></div>
  <div id="dlg" class="box hidden"><div id="dlgName"></div><div id="dlgText"></div><div id="dlgChoices"></div><div id="dlgMore">▼</div></div>

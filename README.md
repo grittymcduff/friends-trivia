@@ -4,6 +4,12 @@ A private, Pokémon-style pixel-art trivia adventure set in Friends' Greenwich V
 
 **Play:** open `index.html` in a browser, or turn on GitHub Pages for this repo (Settings → Pages → deploy from `main`, root folder).
 
+## v2.0.7: Quieter hints, music volume
+
+- Door outlines and EXIT / TO JFK signs are softer and smaller, and they sit in the scene's depth order: an outline is just above its building, so people, lamp posts and cars in front of it draw over it.
+- A 🎵 music volume slider sits next to the sound button; it starts at 15 and remembers your setting.
+- Each area's music plays for two minutes, then fades out. It starts again when you go somewhere with a different tune.
+
 ## v2.0.6: Doors for new players
 
 - Every door you can walk into has a soft, pulsing gold outline around the door painted on the building (`tools/door_rects.py` records where each door is drawn on every street front).

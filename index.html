@@ -231,13 +231,14 @@ input{font-family:inherit!important}
 #tvProg i{border-color:#3a2414}
 .mz{border-color:#3a2414}
 #mapGrid{border-color:#3a2414}
+#musVolBox{display:inline-flex;align-items:center;gap:4px;font-size:11px;padding:3px 7px;background:linear-gradient(#fff8e4,#f3e0b6);border:2px solid #6b4426;border-radius:8px;box-shadow:0 2px 0 #4a2e18;opacity:.95;color:#3b2414}#musVol{width:64px;height:12px;accent-color:#8a5a2a;margin:0}
 </style></head><body>
 <div id="wrap"><div id="holder"><div id="game">
  <canvas id="cv"></canvas>
  <div id="hud" class="hidden">
   <div id="zoneTag" class="box">Greenwich Village</div>
   <div id="counts" class="box"><span title="Collectibles">🏆 <b id="cntItems">0/12</b></span><span title="Correct answers">⭐ <b id="cntStars">0</b></span></div>
-  <div id="hudBtns"><button id="btnMap">🗺 Map (M)</button><button id="btnColl">🏆 Shelf (C)</button><button id="btnBoard">🏅</button><button id="btnHelp">❔</button><button id="btnZoom">🔍 Normal</button><button id="btnSnd">🔊</button></div>
+  <div id="hudBtns"><button id="btnMap">🗺 Map (M)</button><button id="btnColl">🏆 Shelf (C)</button><button id="btnBoard">🏅</button><button id="btnHelp">❔</button><button id="btnZoom">🔍 Normal</button><button id="btnSnd">🔊</button><label id="musVolBox" title="Music volume">🎵<input id="musVol" type="range" min="0" max="100" step="1"></label></div>
  </div>
  <div id="toast" class="box"></div>
  <div id="dlg" class="box hidden"><div id="dlgName"></div><div id="dlgText"></div><div id="dlgChoices"></div><div id="dlgMore">▼</div></div>
@@ -2175,7 +2176,7 @@ const TUNE_PIECE={village:'village',perk:'perk',home:'home',city:'city',travel:'
 const music={name:null,P:null,step:0,next:0,bus:null};
 const mf=m=>440*Math.pow(2,(m-69)/12);
 function musicBus(){if(music.bus)return music.bus;const comp=AC.createDynamicsCompressor(),g=AC.createGain(),rv=AC.createConvolver(),rg=AC.createGain(),sr=AC.sampleRate,len=sr*1.8,ir=AC.createBuffer(2,len,sr);
- for(let c=0;c<2;c++){const d=ir.getChannelData(c);for(let i=0;i<len;i++)d[i]=(Math.random()*2-1)*Math.pow(1-i/len,3)}rv.buffer=ir;rg.gain.value=.22;g.gain.value=.55;
+ for(let c=0;c<2;c++){const d=ir.getChannelData(c);for(let i=0;i<len;i++)d[i]=(Math.random()*2-1)*Math.pow(1-i/len,3)}rv.buffer=ir;rg.gain.value=.22;g.gain.value=musicVol/100;music.gainNode=g;
  g.connect(comp);g.connect(rv);rv.connect(rg);rg.connect(comp);comp.connect(AC.destination);return music.bus=g}
 let noiseBuf=null;function noiseBuffer(){if(noiseBuf)return noiseBuf;const sr=AC.sampleRate,b=AC.createBuffer(1,sr,sr),d=b.getChannelData(0);for(let i=0;i<sr;i++)d[i]=Math.random()*2-1;return noiseBuf=b}
 const ksCache={};
@@ -2228,9 +2229,17 @@ function playStep(P,bar,st,t,loop){const c=P.chords[bar],spb=60/P.bpm/4,beat=st%
  else if(P.style==='holiday'){const v=voicing(c,60);if(st%4===2)v.forEach(n=>bell(n,t,.03,.5,[[1,1],[2,.2]]));if(st===0||st===8)bass(c.r-12,t,.26,.4);if(st%2===0)drum('bells',t,.04);if(st===0||st===8)drum('kick',t,.2)}
  if(mel&&mel.length)for(const[,m,len]of mel){const d=len*spb*1.3;
   if(P.lead==='gtr')pluck(m,t,.13,Math.max(.8,d+.6),.5);else if(P.lead==='gtr2'){pluck(m,t,.14,Math.max(.8,d+.5),.62);pluck(m-12,t+.004,.06,Math.max(.8,d+.5),.5)}else if(P.lead==='vibes')vibes(m,t,.07,Math.max(.9,d+.5));else if(P.lead==='steel')bell(m,t,.08,Math.max(.6,d),[[1,1],[2,.3],[3,.1]]);else bell(m,t,.07,Math.max(.8,d+.4))}}
+// v2.0.7: music volume 0-100 (default 15, saved), and each area's music fades out after two minutes;
+// it starts again when you go somewhere with a different tune
+let musicVol=15;try{const v=localStorage.getItem('friendsTrivia_musicVol');if(v!==null&&!isNaN(+v))musicVol=Math.max(0,Math.min(100,+v))}catch(e){}
+const MUSIC_PLAY=120,MUSIC_FADE=8;
+function setMusicVol(v){musicVol=v;try{localStorage.setItem('friendsTrivia_musicVol',v)}catch(e){}if(music.gainNode&&!music.faded){music.gainNode.gain.cancelScheduledValues(AC.currentTime);music.gainNode.gain.setTargetAtTime(v/100,AC.currentTime,.05)}}
 function setTune(name){let key=TUNE_PIECE[name]||'city';const sea=season();if(sea==='winter'&&new Date().getMonth()===11&&(key==='village'||key==='city'))key='holiday';
- if(music.name===key)return;music.name=key;music.P=PIECES[key];music.step=0;if(AC)music.next=AC.currentTime+.2}
+ if(music.name===key)return;music.name=key;music.P=PIECES[key];music.step=0;music.t0=null;if(AC){music.next=AC.currentTime+.2;if(music.gainNode){music.gainNode.gain.cancelScheduledValues(AC.currentTime);music.gainNode.gain.setTargetAtTime(musicVol/100,AC.currentTime,.1)}}music.faded=false}
 function musicTick(){if(!AC||!music.P||muted||state==='title')return;const P=music.P,spb=60/P.bpm/4;if(music.next<AC.currentTime)music.next=AC.currentTime+.05;
+ if(music.t0==null)music.t0=AC.currentTime;const el=AC.currentTime-music.t0;
+ if(el>MUSIC_PLAY&&!music.faded&&music.gainNode){music.faded=true;const gn=music.gainNode.gain;gn.cancelScheduledValues(AC.currentTime);gn.setValueAtTime(gn.value,AC.currentTime);gn.linearRampToValueAtTime(0,AC.currentTime+MUSIC_FADE)}
+ if(el>MUSIC_PLAY+MUSIC_FADE)return;
  while(music.next<AC.currentTime+.25){const st=music.step%16,bar=(music.step>>4)%8,loop=music.step>>7;const sw=(P.swing&&(st%4===2))?P.swing*spb*.66:0;
   try{playStep(P,bar,st,music.next+sw,loop)}catch(e){}music.next+=spb;music.step++}}
 setInterval(musicTick,60);
@@ -2626,22 +2635,23 @@ function doorGroups(){if(Zn._dg)return Zn._dg;const gs=[];for(const d of [...Zn.
  // trips: the cab or boat that takes you back to JFK gets a sign too
  for(const t of [...Zn.acts].filter(a=>a.type==='fly').sort((a,b)=>a.y-b.y||a.x-b.x)){const g=gs.find(g=>g.fly&&g.y===t.y&&g.x1===t.x-1);if(g)g.x1=t.x;else gs.push({x0:t.x,x1:t.x,y:t.y,fly:true,exit:true})}
  return Zn._dg=gs}
-function drawDoorHints(){const p=.5+.5*Math.sin(clock*3.2);ctx.save();
+function doorHintEntries(L){const p=.5+.5*Math.sin(clock*2.6);
  for(const g of doorGroups()){let x=g.x0*16,w=(g.x1-g.x0+1)*16;const y=g.y*16;
-  if(g.exit){const cx=x+w/2,sy=(g.fly?y-38:y-15)+Math.sin(clock*3.2)*1.2,lab=g.fly?'TO JFK':'EXIT',bw=g.fly?34:24,col=g.fly?'#2a6fd0':'#d8302a';
-   if(!g.fly){ctx.globalAlpha=.25+.2*p;ctx.fillStyle='#ff5a4a';ctx.fillRect(x+1,y+1,w-2,14)}   // glow on the mat
-   ctx.globalAlpha=1;ctx.fillStyle='#14182a';ctx.fillRect(cx-bw/2-.5,sy-5.5,bw+1,11);ctx.fillStyle=col;ctx.fillRect(cx-bw/2,sy-5,bw,10);
-   ctx.fillStyle='#fff';ctx.font="700 7px 'Pixelify Sans', monospace";ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(lab,cx,sy+.5);
-   ctx.fillStyle=col;ctx.beginPath();ctx.moveTo(cx-3,sy+6);ctx.lineTo(cx+3,sy+6);ctx.lineTo(cx,sy+9.5);ctx.closePath();ctx.fill()}
+  if(g.exit){const cx=x+w/2,sy=(g.fly?y-36:y-13)+Math.sin(clock*2.6)*.8,lab=g.fly?'TO JFK':'EXIT',bw=g.fly?28:19,col=g.fly?'#3b6fb8':'#b8423a';
+   if(!g.fly)L.push({y:-1e6,d:()=>{ctx.globalAlpha=.1+.08*p;ctx.fillStyle='#ff6a5a';ctx.fillRect(x+1,y+1,w-2,14);ctx.globalAlpha=1}});   // faint glow on the mat, floor level
+   // the sign sits behind anyone standing just above the mat, and behind anything in front of the cab
+   L.push({y:g.fly?y+17.3:y-6,d:()=>{ctx.globalAlpha=.88;ctx.fillStyle='#1a1c28';ctx.fillRect(cx-bw/2-.5,sy-4.5,bw+1,9);ctx.fillStyle=col;ctx.fillRect(cx-bw/2,sy-4,bw,8);
+    ctx.fillStyle='#fff';ctx.font="700 5.5px 'Pixelify Sans', monospace";ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(lab,cx,sy+.4);
+    ctx.fillStyle=col;ctx.beginPath();ctx.moveTo(cx-2.2,sy+4.5);ctx.lineTo(cx+2.2,sy+4.5);ctx.lineTo(cx,sy+7);ctx.closePath();ctx.fill();ctx.globalAlpha=1}})}
   else{let rx=x+1,rw=w-2,top=y-12,h=26;
-   // street fronts: outline the door that's actually painted there (nearest one to the entry)
    const b=g.b!==undefined?g.b:(g.b=Zn.objs.find(o=>o.kind==='building'&&o.hd&&DOOR_ART[o.hd]&&g.x0>=o.x&&g.x1<o.x+o.w&&g.y===o.y+o.h-1)||null);
    if(b){const im=hdFacades[b.hd],k=im?b.w/(im.width/128):1,cx0=(g.x0+g.x1+1)/2-b.x;let best=null,bd=9;
     for(const r of DOOR_ART[b.hd]){const dd=Math.abs((r[0]+r[1])/2*k-cx0);if(dd<bd){bd=dd;best=r}}
     if(best&&bd<1.6){const by=(b.y+b.h)*16;rx=b.x*16+best[0]*k*16-1;rw=(best[1]-best[0])*k*16+2;top=by-best[2]*16-1;h=(best[2]-best[3])*16+2}}
-   x=rx;w=rw+2;ctx.globalAlpha=.55+.4*p;ctx.strokeStyle='#ffd56a';ctx.lineWidth=1.6;ctx.shadowColor='#ffcf5a';ctx.shadowBlur=6;
-   ctx.beginPath();if(ctx.roundRect)ctx.roundRect(x,top,w-2,h,3);else ctx.rect(x,top,w-2,h);ctx.stroke();ctx.shadowBlur=0}}
- ctx.restore();ctx.globalAlpha=1}
+   // just above its building (or the wall it's in), below everyone on the sidewalk
+   const key=b?(b.y+b.h)*16+.05:y+.05;
+   L.push({y:key,d:()=>{ctx.save();ctx.globalAlpha=.22+.22*p;ctx.strokeStyle='#ffd978';ctx.lineWidth=1;ctx.shadowColor='#ffcf5a';ctx.shadowBlur=3;
+    ctx.beginPath();if(ctx.roundRect)ctx.roundRect(rx,top,rw,h,2.5);else ctx.rect(rx,top,rw,h);ctx.stroke();ctx.restore()}})}}}
 function drawAmbient(cx,cy,vw,vh,indoor,dt){if(indoor)return;const d=darkness(),sea=season(),T=clock;
  // December lights along the rooflines
  if(sea==='winter'&&new Date().getMonth()===11)for(const o of Zn.objs)if(o.kind==='building'&&o.hd&&hdFacades[o.hd]){const im=hdFacades[o.hd],w=o.w*16,h=im.height/8,top=(o.y+o.h)*16-h+5;
@@ -2835,9 +2845,9 @@ function draw(){ctx.setTransform(1,0,0,1,0,0);ctx.fillStyle=Zn.bg;ctx.fillRect(0
  for(const n of npcs)L.push({y:n.py+16+.3,d:()=>drawChar2(n,n.spr,n.dir,n.moving?(n.t<.5?1+((n.x+n.y)&1):0):0,n.px,n.py,n.sit||n.seated)});
  L.push({y:player.py+16+.6,d:()=>drawChar2(null,player.spr,player.dir,player.moving?(player.t<.55?1+player.step:0):0,player.px,player.py,player.sit)});
  for(const w of walkers){if(!vis(w.x-8,w.row*16-24,32,40))continue;L.push({y:w.row*16+16+.2,d:()=>drawChar2(null,w.spr,w.dir<0?'left':'right',w.moving?[1,0,2,0][(w.t*7|0)%4]:0,w.x,w.row*16,false)})}
+ doorHintEntries(L);
  L.sort((a,b)=>a.y-b.y);for(const e of L)e.d();
  {const now=performance.now(),dt=Math.min(.05,(now-(ambT||now))/1000);ambT=now;drawAmbient(cx,cy,vw,vh,indoor,dt)}
- drawDoorHints();
  // screen-space text
  const k2=SC/2;ctx.setTransform(k2*RS,0,0,k2*RS,0,0);
  const W2=(wx,wy)=>[(wx-cx)*2,(wy-cy)*2];
@@ -2912,7 +2922,7 @@ $('#btnMap').onclick=()=>{if(state==='world')openMap();else if(state==='menu')cl
 $('#mapP').querySelector('.close').onclick=closePanels;
 $('#btnColl').onclick=()=>{if(state==='world')openColl();else if(state==='menu')closePanels()};
 $('#btnHelp').onclick=()=>{if(state==='world')openHelp()};
-$('#btnSnd').onclick=toggleMute;
+$('#btnSnd').onclick=toggleMute;{const r=$('#musVol');if(r){r.value=musicVol;r.oninput=()=>setMusicVol(+r.value)}}
 $('#btnZoom').onclick=()=>cycleZoom();
 $('#btnBoard').onclick=()=>{if(state==='world')openBoard()};$('#btnBoardT').onclick=()=>openBoard(true);$('#boardClose').onclick=closeBoard;
 $('#btnCopy').onclick=()=>{const t=$('#myCode');t.select();let ok=false;try{navigator.clipboard.writeText(t.value).then(()=>{$('#importMsg').textContent='Copied! Text it to her (or paste it anywhere).'}).catch(()=>{$('#importMsg').textContent='Select the code above and copy it.'});ok=true}catch(e){}if(!ok)$('#importMsg').textContent='Select the code above and copy it.'};
