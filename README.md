@@ -4,6 +4,12 @@ A private, Pokémon-style pixel-art trivia adventure set in Friends' Greenwich V
 
 **Play:** open `index.html` in a browser, or turn on GitHub Pages for this repo (Settings → Pages → deploy from `main`, root folder).
 
+## v2.0.9: Ambience
+
+- Each place has a quiet background sound under the music: street noise in the Village, SoHo, Uptown and Queens, a busier street in Midtown and Vegas, a coffee shop in Central Perk, diner chatter at Moondance, a public-space murmur in the museum, Bloomingdale's, Ralph Lauren, Rachel's office and the studio, and a terminal at JFK. The apartments and the hallway hear the street faintly through the window. Barbados and Montauk stay quiet for now.
+- A distant church bell rings now and then in the Village and Uptown, and the subway clip has a real train going by.
+- Sounds come from ElevenLabs clips levelled and loop-joined by `tools/prep_ambience.py` into `sounds/`. They sit about 4–5 dB under the music at its default volume, keep playing after the music fades, and turn off with the sound button (N).
+
 ## v2.0.8: Off the curb
 
 - Street furniture on the sidewalk next to a road (lamp posts, street-name poles, hydrants, news boxes, tree pits) stands back from the curb instead of on the edge of the asphalt, and poles beside a north–south avenue step away from it sideways.

@@ -754,6 +754,35 @@ function playStep(P,bar,st,t,loop){const c=P.chords[bar],spb=60/P.bpm/4,beat=st%
 let musicVol=15;try{const v=localStorage.getItem('friendsTrivia_musicVol');if(v!==null&&!isNaN(+v))musicVol=Math.max(0,Math.min(100,+v))}catch(e){}
 const MUSIC_PLAY=120,MUSIC_FADE=8;
 function setMusicVol(v){musicVol=v;try{localStorage.setItem('friendsTrivia_musicVol',v)}catch(e){}if(music.gainNode&&!music.faded){music.gainNode.gain.cancelScheduledValues(AC.currentTime);music.gainNode.gain.setTargetAtTime(v/100,AC.currentTime,.05)}}
+/* v2.0.9: ambience. A quiet looping bed per place (ElevenLabs clips levelled by tools/prep_ambience.py),
+   apartments hear the street faintly through the window, a church bell now and then in the Village and
+   uptown, and the train in the subway clip. It sits under the music, keeps going after the music fades,
+   and follows the sound on/off (N). */
+const AMB_LEVEL=.28;
+const AMB={village:['street',1],soho:['city',1],uptown:['city',.9],midtown:['busy',.85],queens:['city',.8],
+ perk:['coffee',1],diner:['diner',1],museum:['public',1],bloomies:['public',1],ralph:['public',.8],office:['public',.55],studio:['public',.55],
+ airport:['terminal',.75],london:['city',.7],vegas:['busy',.75],
+ hall:['street',.35,1],monica:['street',.3,1],joey:['street',.3,1],rossapt:['street',.3,1],phoebe:['street',.3,1]};
+const BELL_ZONES=new Set(['village','uptown']);
+const amb={want:null,cur:null,bufs:{},loading:{},nextBell:0};
+function ambBuf(n){if(amb.bufs[n])return amb.bufs[n];if(!amb.loading[n]&&AC){amb.loading[n]=true;
+ fetch('sounds/amb_'+n+'.mp3').then(r=>r.arrayBuffer()).then(b=>AC.decodeAudioData(b)).then(d=>{amb.bufs[n]=d}).catch(()=>{})}return null}
+function setAmbience(zone){amb.want=AMB[zone]?zone:null}
+function ambStop(c,t=1.2){if(!c)return;const now=AC.currentTime;c.g.gain.cancelScheduledValues(now);c.g.gain.setValueAtTime(c.g.gain.value,now);c.g.gain.linearRampToValueAtTime(0,now+t);try{c.src.stop(now+t+.05)}catch(e){}}
+function ambOneShot(n,v,pan){const b=ambBuf(n);if(!b||muted)return;const s=AC.createBufferSource(),g=AC.createGain(),p=AC.createStereoPanner?AC.createStereoPanner():null;s.buffer=b;g.gain.value=v*AMB_LEVEL;
+ if(p){p.pan.value=pan||0;s.connect(g).connect(p).connect(AC.destination)}else s.connect(g).connect(AC.destination);s.start();return {s,g}}
+function ambTick(){if(!AC)return;if(!amb.pre){amb.pre=1;ambBuf('subway')}const want=(!muted&&state!=='title')?amb.want:null,spec=want&&AMB[want];
+ const key=spec?spec[0]+(spec[2]?'~':''):null;
+ if((amb.cur&&amb.cur.key)!==key||(amb.cur&&spec&&amb.cur.v!==spec[1])){
+  if(!key){ambStop(amb.cur);amb.cur=null}
+  else{const b=ambBuf(spec[0]);if(b){ambStop(amb.cur);const src=AC.createBufferSource(),g=AC.createGain();src.buffer=b;src.loop=true;g.gain.value=0;
+   let node=src;if(spec[2]){const f=AC.createBiquadFilter();f.type='lowpass';f.frequency.value=650;node=src.connect(f)}node.connect(g).connect(AC.destination);
+   src.start(0,Math.random()*b.duration);g.gain.linearRampToValueAtTime(spec[1]*AMB_LEVEL,AC.currentTime+1.6);amb.cur={src,g,key,v:spec[1]}}}}
+ // the odd distant church bell
+ if(want&&BELL_ZONES.has(want)&&!muted){const now=AC.currentTime;if(!amb.nextBell)amb.nextBell=now+40+Math.random()*60;
+  if(now>amb.nextBell){ambOneShot('bell',.55,Math.random()*1.2-.6);amb.nextBell=now+90+Math.random()*120}}else amb.nextBell=0;
+ if(want&&BELL_ZONES.has(want))ambBuf('bell')}
+setInterval(ambTick,250);
 function setTune(name){let key=TUNE_PIECE[name]||'city';const sea=season();if(sea==='winter'&&new Date().getMonth()===11&&(key==='village'||key==='city'))key='holiday';
  if(music.name===key)return;music.name=key;music.P=PIECES[key];music.step=0;music.t0=null;if(AC){music.next=AC.currentTime+.2;if(music.gainNode){music.gainNode.gain.cancelScheduledValues(AC.currentTime);music.gainNode.gain.setTargetAtTime(musicVol/100,AC.currentTime,.1)}}music.faded=false}
 function musicTick(){if(!AC||!music.P||muted||state==='title')return;const P=music.P,spb=60/P.bpm/4;if(music.next<AC.currentTime)music.next=AC.currentTime+.05;
@@ -800,7 +829,7 @@ function loadZone(id,x,y,dir,nosave){Zn=ZONES[id];const eggNpcs=spawnEggs(nosave
  npcs=Zn.npcs.map(n=>Object.assign({},n,{px:n.x*16,py:n.y*16,home:{x:n.x,y:n.y,dir:n.dir},moving:false,t:0,wait:.5+R()*3,spr:charSprites(n.look,n.id)}));
  for(const e of eggNpcs)if(!npcs.some(n=>n.x===e.x&&n.y===e.y))npcs.push(Object.assign(e,{px:e.x*16,py:e.y*16,home:{x:e.x,y:e.y,dir:e.dir},moving:false,t:0,wait:1+R()*3,spr:charSprites(e.look)}));
  for(const e of EGGS)if(e.swap&&eggsHere.includes(e.id)){const n=npcs.find(q=>q.id===e.swap.npc);if(n){n.look=Object.assign({},n.look,e.look);n.spr=charSprites(n.look);n.egg=e.id}}
- if(S&&S.items)addFinaleCast();setTune(Zn.tune||'city');
+ if(S&&S.items)addFinaleCast();setTune(Zn.tune||'city');setAmbience(Zn.id);
  taxis=[];let k=0;for(const tr of Zn.taxiRows)for(let i=0;i<tr.n;i++){const taxi=(k++%3)!==2;taxis.push({row:tr.row,dir:tr.dir,x:(i+.3+R()*.4)*Zn.w*16/tr.n,sp:44+R()*16,honk:0,taxi,model:taxi?(k%2?'90':''):CAR_MODELS[k%4],col:taxi?'#f2c230':['#3b6fb6','#8f2f2f','#6a8f4a','#c9c9cf'][k%4],
   rows:tr.dir<0?[tr.row-1,tr.row]:[tr.row-1,tr.row],by:Zn.laneY?(tr.dir<0?Zn.laneY-3:Zn.laneY+38):tr.row*16+17})}
  player.x=player.fx=x;player.y=player.fy=y;player.px=x*16;player.py=y*16;player.dir=dir;player.moving=false;player.sit=null;clickPath=null;clickMark=null;
@@ -1225,6 +1254,7 @@ function openSubway(){state='menu';const n=itemCount();$('#subway').classList.re
 /* v1.9.1: a short clip when you take the subway: a '90s silver train rushes through the station */
 function subwayClip(label,line,onCovered,onDone){const t=$('#travel'),cv=$('#travelCv'),g=cv.getContext('2d'),W=cv.width,H=cv.height;t.classList.add('on','clip');$('#travelText').textContent=label;
  const T0=performance.now(),DUR=2300,carW=230,cars=4,trainW=cars*carW,col=line.col;let covered=false;
+ {const sh=AC&&ambOneShot('subway',1.6,0);if(sh){const n=AC.currentTime;sh.g.gain.setValueAtTime(sh.g.gain.value,n+DUR/1000+.2);sh.g.gain.linearRampToValueAtTime(0,n+DUR/1000+1.4);sh.s.stop(n+DUR/1000+1.5)}}
  const P=(c,x,y,w,h)=>{g.fillStyle=c;g.fillRect(Math.round(x),Math.round(y),Math.round(w),Math.round(h))};
  function frame(now){const k=Math.min(1,(now-T0)/DUR);g.imageSmoothingEnabled=false;
   // station: tiled wall, mosaic band, platform edge
