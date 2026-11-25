@@ -6,7 +6,8 @@ A private, Pokémon-style pixel-art trivia adventure set in Friends' Greenwich V
 
 ## v2.0.8: Off the curb
 
-- Lamp posts and street-name poles on the sidewalk next to a road now stand half a tile back from the curb instead of on the edge of the asphalt.
+- Street furniture on the sidewalk next to a road (lamp posts, street-name poles, hydrants, news boxes, tree pits) stands back from the curb instead of on the edge of the asphalt, and poles beside a north–south avenue step away from it sideways.
+- A few tall fronts on the south side of a street had rooflines reaching over the sidewalk and hid people walking there; they now stop at the sidewalk.
 
 ## v2.0.7: Quieter hints, music volume
 

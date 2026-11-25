@@ -2623,7 +2623,11 @@ function walkerLook(){const r=a=>a[(Math.random()*a.length)|0];const fem=Math.ra
  return{player:true,skin:r(SKINS),hair:r(HAIRS),style:fem?r(['long','ponytail','puffy','shaggy']):r(['shaggy','spiky','buzz','bald']),freckles:Math.random()<.2,
   shirt:r(['#3a5a8a','#8a3a3a','#5a7a4a','#c9a24a','#6a4a8a','#2a2a30','#c0573a','#e8e4d8','#4a6a7a']),pants:r(['#2b2b30','#3b4a6b','#5a4a3a','#3a3a44']),outfit:fem?r(OUTFITS):'pants'}}
 function spawnWalkers(){walkers=[];flakes=[];if(!Zn.taxiRows||!Zn.taxiRows.length)return;
- const rows=[9,19].filter(r=>r<Zn.h&&Zn.g.slice(r*Zn.w,(r+1)*Zn.w).filter(t=>t==='walk').length>Zn.w*.6);
+ // v2.0.8: a walker row has to be open sidewalk, not sidewalk tiles hidden under a building's front
+ const artTop=o=>{const im=o.hd&&hdFacades[o.hd];return im?(o.y+o.h)*16-facadeH(o,im):o.y*16};
+ const covered=(x,r)=>Zn.objs.some(o=>o.kind==='building'&&o.y>r&&x>=o.x&&x<o.x+o.w&&artTop(o)<(r+1)*16-2);
+ const open=r=>{if(r>=Zn.h)return false;let n=0;for(let x=0;x<Zn.w;x++)if(Zn.g[r*Zn.w+x]==='walk'&&!blocked(x,r)&&!covered(x,r))n++;return n>Zn.w*.6};
+ const rows=[[9,10].find(open),[19,18].find(open)].filter(r=>r!==undefined);
  for(const r of rows){const n=Math.max(2,Math.round(Zn.w/13));for(let i=0;i<n;i++)walkers.push({x:(i+Math.random()*.6)*Zn.w*16/n,row:r,dir:Math.random()<.5?-1:1,sp:15+Math.random()*10,spr:charSprites(walkerLook()),t:Math.random()*3,moving:true})}}
 function updWalkers(dt){const W=Zn.w*16;for(const w of walkers){
  // they stop politely if you're standing right in front of them
@@ -2631,9 +2635,16 @@ function updWalkers(dt){const W=Zn.w*16;for(const w of walkers){
  w.moving=!blocked;if(w.moving){w.x+=w.dir*w.sp*dt;w.t+=dt}if(w.x>W+30)w.x=-30;if(w.x<-30)w.x=W+30}}
 /* v2.0.6: help for new players. Doors you can walk into get a soft pulsing gold outline; ways out of a room
    get a little red EXIT sign with an arrow pointing at the mat. Doors side by side are treated as one. */
-// v2.0.8: lamp posts and street-name poles on the sidewalk row right above a road stand back from the
-// curb (half a tile in), instead of on the very edge of the asphalt
-function curbLift(o){if(o.kind!=='lamp'&&o.kind!=='sign')return 0;const y=o.y+1;if(y>=Zn.h)return 0;return ROADT.has(Zn.g[y*Zn.w+o.x])?7:0}
+// v2.0.8: street furniture on the sidewalk row right above a road (lamps, sign poles, hydrants, news boxes,
+// tree pits…) stands back from the curb instead of on the very edge of the asphalt
+const CURB_LIFT={lamp:7,sign:7,hydrant:7,news:7,mailbox:7,postbox:7,trash:7,meter:7,bench:6,planter:6,tree:5};
+const roadAt=(x,y)=>x>=0&&y>=0&&x<Zn.w&&y<Zn.h&&ROADT.has(Zn.g[y*Zn.w+x]);
+// v2.0.8: a few fronts on the south side of a street are taller than the others and their roofline
+// reached up over the sidewalk, hiding anyone walking there; those are squeezed to stop at the sidewalk
+function facadeH(o,im){const h=im.height/8;if(o.y<1||Zn.g[(o.y-1)*Zn.w+o.x]!=='walk')return h;const by=(o.y+o.h)*16,lim=by-(o.y*16-2);return Math.min(h,lim)}
+function curbLift(o){const k=CURB_LIFT[o.kind];return k&&roadAt(o.x,o.y+1)?k:0}
+// same idea beside a north–south avenue: step away from the road sideways
+function curbSide(o){const k=CURB_LIFT[o.kind];if(!k||o.kind==='tree')return 0;return roadAt(o.x-1,o.y)?k-1:roadAt(o.x+1,o.y)?-(k-1):0}
 function doorGroups(){if(Zn._dg)return Zn._dg;const gs=[];for(const d of [...Zn.doors].sort((a,b)=>a.y-b.y||a.x-b.x)){const g=gs.find(g=>g.y===d.y&&g.to===d.to&&g.x1===d.x-1);if(g)g.x1=d.x;else gs.push({x0:d.x,x1:d.x,y:d.y,to:d.to,exit:d.dir==='down'})}
  // trips: the cab or boat that takes you back to JFK gets a sign too
  for(const t of [...Zn.acts].filter(a=>a.type==='fly').sort((a,b)=>a.y-b.y||a.x-b.x)){const g=gs.find(g=>g.fly&&g.y===t.y&&g.x1===t.x-1);if(g)g.x1=t.x;else gs.push({x0:t.x,x1:t.x,y:t.y,fly:true,exit:true})}
@@ -2650,21 +2661,21 @@ function doorHintEntries(L){const p=.5+.5*Math.sin(clock*2.6);
    const b=g.b!==undefined?g.b:(g.b=Zn.objs.find(o=>o.kind==='building'&&o.hd&&DOOR_ART[o.hd]&&g.x0>=o.x&&g.x1<o.x+o.w&&g.y===o.y+o.h-1)||null);
    if(b){const im=hdFacades[b.hd],k=im?b.w/(im.width/128):1,cx0=(g.x0+g.x1+1)/2-b.x;let best=null,bd=9;
     for(const r of DOOR_ART[b.hd]){const dd=Math.abs((r[0]+r[1])/2*k-cx0);if(dd<bd){bd=dd;best=r}}
-    if(best&&bd<1.6){const by=(b.y+b.h)*16;rx=b.x*16+best[0]*k*16-1;rw=(best[1]-best[0])*k*16+2;top=by-best[2]*16-1;h=(best[2]-best[3])*16+2}}
+    if(best&&bd<1.6){const by=(b.y+b.h)*16,ky=im?facadeH(b,im)/(im.height/8):1;rx=b.x*16+best[0]*k*16-1;rw=(best[1]-best[0])*k*16+2;top=by-best[2]*16*ky-1;h=(best[2]-best[3])*16*ky+2}}
    // just above its building (or the wall it's in), below everyone on the sidewalk
    const key=b?(b.y+b.h)*16+.05:y+.05;
    L.push({y:key,d:()=>{ctx.save();ctx.globalAlpha=.22+.22*p;ctx.strokeStyle='#ffd978';ctx.lineWidth=1;ctx.shadowColor='#ffcf5a';ctx.shadowBlur=3;
     ctx.beginPath();if(ctx.roundRect)ctx.roundRect(rx,top,rw,h,2.5);else ctx.rect(rx,top,rw,h);ctx.stroke();ctx.restore()}})}}}
 function drawAmbient(cx,cy,vw,vh,indoor,dt){if(indoor)return;const d=darkness(),sea=season(),T=clock;
  // December lights along the rooflines
- if(sea==='winter'&&new Date().getMonth()===11)for(const o of Zn.objs)if(o.kind==='building'&&o.hd&&hdFacades[o.hd]){const im=hdFacades[o.hd],w=o.w*16,h=im.height/8,top=(o.y+o.h)*16-h+5;
+ if(sea==='winter'&&new Date().getMonth()===11)for(const o of Zn.objs)if(o.kind==='building'&&o.hd&&hdFacades[o.hd]){const im=hdFacades[o.hd],w=o.w*16,h=facadeH(o,im),top=(o.y+o.h)*16-h+5;
   if(o.x*16>cx+vw||o.x*16+w<cx)continue;const cols=['#ff4a4a','#4aff7a','#ffd84a','#5aa8ff'];
   ctx.strokeStyle='rgba(30,30,30,.6)';ctx.lineWidth=.5;ctx.beginPath();for(let x=0;x<=w;x+=2){const y=top+Math.sin(x/w*Math.PI*Math.max(2,o.w/3)*1)*1.5+1.5;x?ctx.lineTo(o.x*16+x,y):ctx.moveTo(o.x*16+x,y)}ctx.stroke();
   for(let x=3,i=0;x<w;x+=6,i++){const y=top+Math.sin(x/w*Math.PI*Math.max(2,o.w/3))*1.5+2.2,on=.55+.45*Math.sin(T*3+i*1.7);ctx.globalAlpha=on;ctx.fillStyle=cols[i%4];ctx.fillRect(o.x*16+x-.8,y-.8,1.6,1.6)}ctx.globalAlpha=1}
  if(d>0){ctx.save();ctx.globalCompositeOperation='multiply';ctx.fillStyle=`rgba(46,56,120,${Math.min(.85,d*1.5)})`;ctx.fillRect(cx-2,cy-2,vw+4,vh+4);ctx.restore();
   const a=Math.min(1,d*1.9);
   // lit windows
-  for(const o of Zn.objs)if(o.kind==='building'&&o.hd&&nightFacades[o.hd]&&hdFacades[o.hd]){const im=hdFacades[o.hd],w=o.w*16,h=im.height/8,by=(o.y+o.h)*16;if(o.x*16>cx+vw||o.x*16+w<cx)continue;
+  for(const o of Zn.objs)if(o.kind==='building'&&o.hd&&nightFacades[o.hd]&&hdFacades[o.hd]){const im=hdFacades[o.hd],w=o.w*16,h=facadeH(o,im),by=(o.y+o.h)*16;if(o.x*16>cx+vw||o.x*16+w<cx)continue;
    ctx.globalAlpha=a;ctx.imageSmoothingEnabled=true;ctx.drawImage(nightFacades[o.hd],o.x*16,by-h,w,h);ctx.imageSmoothingEnabled=false}
   ctx.globalAlpha=1;ctx.save();ctx.globalCompositeOperation='lighter';
   const glow=(x,y,r,c)=>{const g=ctx.createRadialGradient(x,y,0,x,y,r);g.addColorStop(0,c);g.addColorStop(1,'rgba(0,0,0,0)');ctx.fillStyle=g;ctx.fillRect(x-r,y-r,r*2,r*2)};
@@ -2830,10 +2841,10 @@ function draw(){ctx.setTransform(1,0,0,1,0,0);ctx.fillStyle=Zn.bg;ctx.fillRect(0
    L.push({y:(o.y+fh)*16,d:()=>drawHDProp(hi,cx,by,!['stanchion','mic','coatrack','floorlamp','palm','clocktower','column'].includes(o.kind),isp.flip||(o.flip&&!isp.flip))});continue}
   if(o.low||o.kind==='wallsign'||o.kind==='menu'||o.kind==='window'||o.kind==='frame'||o.kind==='walldoor'||o.kind==='bigwindow'||o.kind==='board'||o.kind==='towel'||o.kind==='poster'||o.kind==='banner'){ctx.drawImage(s.c,dx,dy);continue}
   const fh=o.kind==='building'?o.h:(['subway','dino','fountain'].includes(o.kind)?2:1);const hp=hdProps[o.kind];
-  if(o.kind==='building'&&o.hd&&hdFacades[o.hd]){const im=hdFacades[o.hd],w=o.w*16,h=im.height/8,by=(o.y+o.h)*16;
+  if(o.kind==='building'&&o.hd&&hdFacades[o.hd]){const im=hdFacades[o.hd],w=o.w*16,h=facadeH(o,im),by=(o.y+o.h)*16;
    L.push({y:(o.y+fh)*16,d:()=>{ctx.imageSmoothingEnabled=true;ctx.imageSmoothingQuality='high';ctx.drawImage(im,o.x*16,by-h,w,h);ctx.imageSmoothingEnabled=false}});continue}
   const vk=o.kind==='tree'&&o.park?'tree_park':o.kind,vp=hdVProps[vk];
-  if(vp&&o.kind!=='car'){const cx=dx+s.c.width/2,by=dy+s.c.height-curbLift(o),shadow=!['fence','sign','subway','barricade'].includes(o.kind);
+  if(vp&&o.kind!=='car'){const cx=dx+s.c.width/2+curbSide(o),by=dy+s.c.height-curbLift(o),shadow=!['fence','sign','subway','barricade'].includes(o.kind);
    if(o.kind==='barricade'){L.push({y:(o.y+fh)*16,d:()=>drawHDProp(vp,cx,by,true)});continue}
    L.push({y:(o.y+fh)*16,d:()=>drawHDProp(vp,cx,by,shadow)});continue}
   // v2.0: the London bus and the trip cabs at real-world size (bus art faces left, cab art faces right)
@@ -2859,7 +2870,7 @@ function draw(){ctx.setTransform(1,0,0,1,0,0);ctx.fillStyle=Zn.bg;ctx.fillRect(0
  for(const o of Zn.objs){if(o.kind==='building'&&o.sign){const hdS=o.hd&&hdFacades[o.hd]&&o.signLift;const[sx,sy]=hdS?W2(o.x*16+o.signCx,(o.y+o.h)*16-o.signLift):W2((o.x+(o.shopW||o.w)/2)*16,(o.y+o.h)*16-32+6.5);if(sx<-200||sx>640/k2+200)continue;ctx.font='bold 11px ui-monospace,Menlo,Consolas,monospace';if(hdS&&o.plate){const tw=Math.min(ctx.measureText(o.sign).width,o.signW*2)+16;ctx.fillStyle=o.signBg||'#1a1a1a';ctx.fillRect(sx-tw/2,sy-9,tw,17);ctx.strokeStyle='#c9a24a';ctx.lineWidth=1;ctx.strokeRect(sx-tw/2+.5,sy-8.5,tw-1,16)}ctx.fillStyle=o.signFg||'#f4e9c8';ctx.fillText(o.sign,sx,sy,hdS?o.signW*2:((o.shopW||o.w)*16-6)*2)}
   else if(o.kind==='walldoor'&&o.num&&hdIn.walldoor){const[sx,sy]=W2(o.x*16+8,o.y*16-18+8.5);ctx.font='bold 8px ui-monospace,Menlo,monospace';ctx.fillStyle='#e8c860';ctx.fillText(o.num,sx,sy)}
   else if(o.kind==='wallsign'){const[sx,sy]=W2((o.x+o.w/2)*16,13);ctx.font='italic bold 22px Georgia,serif';ctx.fillStyle='#f3e1b0';ctx.fillText(o.text,sx,sy)}
-  else if(o.kind==='sign'){const[sx,sy]=W2(o.x*16+8,o.y*16-22-curbLift(o));ctx.font='bold 9px ui-monospace,Menlo,monospace';const w=ctx.measureText(o.text).width+8;ctx.fillStyle='#2f7a4a';ctx.fillRect(sx-w/2,sy-7,w,14);ctx.strokeStyle='#fff';ctx.lineWidth=1;ctx.strokeRect(sx-w/2+1.5,sy-5.5,w-3,11);ctx.fillStyle='#fff';ctx.fillText(o.text,sx,sy+.5)}
+  else if(o.kind==='sign'){const[sx,sy]=W2(o.x*16+8+curbSide(o),o.y*16-22-curbLift(o));ctx.font='bold 9px ui-monospace,Menlo,monospace';const w=ctx.measureText(o.text).width+8;ctx.fillStyle='#2f7a4a';ctx.fillRect(sx-w/2,sy-7,w,14);ctx.strokeStyle='#fff';ctx.lineWidth=1;ctx.strokeRect(sx-w/2+1.5,sy-5.5,w-3,11);ctx.fillStyle='#fff';ctx.fillText(o.text,sx,sy+.5)}
   else if(o.kind==='gatedesk'){const[sx,sy]=W2(o.x*16+16,o.y*16-10);ctx.font='bold 9px ui-monospace,Menlo,monospace';const w=ctx.measureText(o.text).width+10;ctx.fillStyle='#1a2a4a';ctx.fillRect(sx-w/2,sy-7,w,14);ctx.fillStyle='#ffd84a';ctx.fillText(o.text,sx,sy+.5)}
   else if(o.kind==='subway'){const[sx,sy]=W2(o.x*16+16,o.y*16-6);ctx.font='bold 9px ui-monospace,Menlo,monospace';const w=ctx.measureText(o.text).width+10;ctx.fillStyle='#1c1c22';ctx.fillRect(sx-w/2,sy-7,w,14);ctx.fillStyle='#fff';ctx.fillText(o.text,sx,sy+.5)}}
  ctx.setTransform(RS,0,0,RS,0,0);const W3=(wx,wy)=>[(wx-cx)*SC,(wy-cy)*SC];
