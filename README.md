@@ -4,6 +4,12 @@ A private, Pokémon-style pixel-art trivia adventure set in Friends' Greenwich V
 
 **Play:** open `index.html` in a browser, or turn on GitHub Pages for this repo (Settings → Pages → deploy from `main`, root folder).
 
+## v2.2: Tidier controls
+
+- One row at the top right: **? Help**, **Map**, **Shelf** and the trophy/star count. Sound, music volume and zoom moved into a **Settings ▾** drop-down under the count (tap anywhere else to close it).
+- The leaderboard buttons are gone for now.
+- On phones and tablets the joystick appears wherever you put your thumb on the game and disappears when you let go; a quick tap still walks there or talks. Steering no longer scrolls, bounces or swipes the page.
+
 ## v2.1.2: Loading screen
 
 - A short loading screen with a progress bar covers the game until all the HD art has loaded (20 seconds at most), so the old placeholder sprites never flash up on a fresh visit.

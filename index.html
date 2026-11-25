@@ -240,14 +240,32 @@ input{font-family:inherit!important}
 #loadCover{position:fixed;inset:0;z-index:9999;background:#1c1428;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;transition:opacity .5s;font-family:'Pixelify Sans',monospace;color:#f6e6c4}
 #loadCover.gone{opacity:0;pointer-events:none}#loadCover h1{margin:0;font:700 30px Georgia,serif;color:#b79ae6}#loadCover h1 b{color:#f0954a}
 #loadCover .bar{width:260px;height:12px;border:2px solid #f6e6c4;border-radius:7px;overflow:hidden}#loadBar{height:100%;width:0;background:#ffcf3a;transition:width .2s}#loadCover p{margin:0;font-size:13px;opacity:.8}
+#topRow{position:absolute;right:8px;top:8px;display:flex;gap:4px;align-items:stretch;pointer-events:auto;z-index:5}
+#topRow button{font-size:11px;padding:3px 8px;background:linear-gradient(#fff8e4,#f3e0b6)}
+#topRow #btnHelp{font-size:11px;padding:3px 8px;color:#3b2414;background:linear-gradient(#ffe9a8,#f7cf62);box-shadow:0 0 0 2px #ffd86a,0 2px 0 #4a2e18}
+#topRow #counts{position:static;margin:0}
+#btnSet{position:absolute;right:8px;top:38px;font-size:10.5px;padding:3px 8px;background:linear-gradient(#fff8e4,#f3e0b6);pointer-events:auto;z-index:5}
+#setMenu{position:absolute;right:8px;top:62px;display:flex;flex-direction:column;gap:5px;padding:7px;pointer-events:auto;z-index:6;min-width:150px}
+#setMenu button{font-size:11px;padding:4px 8px;text-align:left;background:linear-gradient(#fff8e4,#f3e0b6)}
+#setMenu #musVolBox{display:flex;justify-content:space-between;box-shadow:none}
+#objTag{max-width:40%}
+#joy{display:none;left:0;top:0;bottom:auto;margin:-55px 0 0 -55px}#joy.on{display:block}
+#game.touch #touch #ab{bottom:16px}
+html,body{overscroll-behavior:none}#game,#game canvas{touch-action:none}
 </style></head><body><div id="loadCover"><h1>The One With <b>The Trivia Game</b></h1><div class="bar"><div id="loadBar"></div></div><p>Pouring the coffee…</p></div>
 <div id="wrap"><div id="holder"><div id="game">
  <canvas id="cv"></canvas>
  <div id="hud" class="hidden">
   <div id="zoneTag" class="box">Greenwich Village</div>
   <div id="objTag" class="box hidden" title="Your next story step (click to see the season)"><b id="objSea"></b><span id="objGoal"></span><i id="objHop"></i></div>
-  <div id="counts" class="box"><span title="Collectibles">🏆 <b id="cntItems">0/12</b></span><span title="Correct answers">⭐ <b id="cntStars">0</b></span></div>
-  <div id="hudBtns"><button id="btnMap">🗺 Map (M)</button><button id="btnColl">🏆 Shelf (C)</button><button id="btnBoard">🏅</button><button id="btnHelp">❔</button><button id="btnZoom">🔍 Normal</button><button id="btnSnd">🔊</button><label id="musVolBox" title="Music volume">🎵<input id="musVol" type="range" min="0" max="100" step="1"></label></div>
+  <div id="topRow"><button id="btnHelp" title="How to play"><b>?</b> Help</button><button id="btnMap" title="Map (M)">🗺 Map</button><button id="btnColl" title="Shelf (C)">🏆 Shelf</button>
+   <div id="counts" class="box"><span title="Collectibles">🏆 <b id="cntItems">0/12</b></span><span title="Correct answers">⭐ <b id="cntStars">0</b></span></div></div>
+  <button id="btnSet" title="Settings">⚙︎ Settings ▾</button>
+  <div id="setMenu" class="box hidden">
+   <button id="btnSnd">🔊 Sound on</button>
+   <label id="musVolBox" title="Music volume">🎵 Music<input id="musVol" type="range" min="0" max="100" step="1"></label>
+   <button id="btnZoom">🔍 Normal</button>
+  </div>
  </div>
  <div id="toast" class="box"></div>
  <div id="storyBanner" class="box"><b id="sbSea"></b><span id="sbGoal"></span></div>
@@ -298,7 +316,7 @@ input{font-family:inherit!important}
     <div id="tLeft">
      <canvas id="preview" width="140" height="72"></canvas>
      <input id="pName" maxlength="14" placeholder="Your name">
-     <div id="tBtns"><button id="btnNew">New Game ▶</button><button id="btnVsT">👥 Couch Versus</button><button id="btnBoardT">🏅 Leaderboard</button></div>
+     <div id="tBtns"><button id="btnNew">New Game ▶</button><button id="btnVsT">👥 Couch Versus</button></div>
     </div>
     <div id="tRight">
      <div class="row"><label>Shirt</label><div class="sw" id="pShirt"></div></div>
@@ -2810,7 +2828,7 @@ function onCanvasClick(e){if(state!=='world'||!Zn)return;if(player.sit){standUp(
  // characters are drawn a little taller than their tile, so also check the tile below the click
  let tgt=interactableAt(tx,ty);if(!tgt&&npcAt(tx,ty+1)){ty++;tgt=npcAt(tx,ty)}
  if(tgt&&!(isDoor(tx,ty)&&!npcAt(tx,ty)))planPath(tx,ty,true);else planPath(tx,ty,false)}
-cv.addEventListener('pointerdown',e=>{if(e.button!==undefined&&e.button!==0)return;onCanvasClick(e)});
+cv.addEventListener('pointerdown',e=>{if(e.button!==undefined&&e.button!==0)return;if(coarse&&e.pointerType!=='mouse')return;onCanvasClick(e)});
 
 /* ===================== Interact & couch ===================== */
 function interact(){if(player.sit){standUp();return}if(player.moving)return;
@@ -3304,19 +3322,28 @@ addEventListener('keydown',e=>{if(e.target.tagName==='INPUT')return;keys[e.key]=
  else if(state==='vs'&&VS&&VS.qs&&!VS.over&&/^Digit[1-4]$/.test(e.code))vsAnswer(+e.code.slice(5)-1)});
 addEventListener('keyup',e=>{keys[e.key]=false;if(KMAP[e.code])popDir(KMAP[e.code])});
 addEventListener('blur',()=>{dirStack=[];for(const k in keys)keys[k]=false});
-function toggleMute(){muted=!muted;$('#btnSnd').textContent=muted?'🔇':'🔊';toast(muted?'Sound off':'Sound on')}
+function toggleMute(){muted=!muted;$('#btnSnd').textContent=muted?'🔇 Sound off':'🔊 Sound on';toast(muted?'Sound off':'Sound on')}
 let coarse=false,lastTS='';function syncTouch(){const k=state+coarse;if(k===lastTS)return;lastTS=k;$('#touch').classList.toggle('hidden',!coarse||!['world','dialog','fade'].includes(state))}
 function setupTouch(){coarse=matchMedia('(pointer:coarse)').matches;$('#game').classList.toggle('touch',coarse);
- // Virtual joystick: drag the knob; the strongest axis picks the direction (always normal walking speed)
- const base=$('#joy'),knob=$('#joyKnob');let jid=null,jdir=null;
+ // v2.2: the joystick appears wherever you put your thumb on the game and disappears when you let go.
+ // A quick tap without dragging is still a tap (walk there / talk).
+ const base=$('#joy'),knob=$('#joyKnob'),gm=$('#game');let jid=null,jdir=null,c0=null,t0=0,moved=false,down=null;
  const setDir=d=>{if(d===jdir)return;if(jdir)popDir(jdir);jdir=d;if(d){if(state==='dialog')moveSel(d==='up'||d==='left'?-1:1);else{pushDir(d);clickPath=null}}};
- const move=e=>{const r=base.getBoundingClientRect(),cx=r.left+r.width/2,cy=r.top+r.height/2,R=r.width/2;let dx=e.clientX-cx,dy=e.clientY-cy;const dist=Math.hypot(dx,dy),max=R*.62;
-  if(dist>max){dx*=max/dist;dy*=max/dist}const k=r.width/110;knob.style.transform=`translate(${dx/k}px,${dy/k}px)`;
+ const R=55,toGame=e=>{const r=gm.getBoundingClientRect(),k=r.width/640;return[(e.clientX-r.left)/k,(e.clientY-r.top)/k,k]};
+ const move=e=>{const[x,y]=toGame(e);let dx=x-c0[0],dy=y-c0[1];const dist=Math.hypot(dx,dy);if(dist>8)moved=true;const max=R*.62;
+  if(dist>max){dx*=max/dist;dy*=max/dist}knob.style.transform=`translate(${dx}px,${dy}px)`;
   setDir(dist<R*.22?null:Math.abs(dx)>Math.abs(dy)?(dx>0?'right':'left'):(dy>0?'down':'up'))};
- const end=e=>{if(e.pointerId!==jid)return;jid=null;knob.style.transform='';setDir(null);base.classList.remove('on')};
- base.addEventListener('pointerdown',e=>{e.preventDefault();jid=e.pointerId;try{base.setPointerCapture(jid)}catch(_){}base.classList.add('on');move(e)});
- base.addEventListener('pointermove',e=>{if(e.pointerId===jid){e.preventDefault();move(e)}});
- base.addEventListener('pointerup',end);base.addEventListener('pointercancel',end);base.addEventListener('lostpointercapture',end);
+ const end=e=>{if(e.pointerId!==jid)return;jid=null;knob.style.transform='';setDir(null);base.classList.remove('on');
+  if(!moved&&performance.now()-t0<350&&down)onCanvasClick(down);down=null};
+ cv.addEventListener('pointerdown',e=>{if(!coarse||e.pointerType==='mouse')return;e.preventDefault();e.stopImmediatePropagation();
+  if(state!=='world'){onCanvasClick(e);return}
+  jid=e.pointerId;try{cv.setPointerCapture(jid)}catch(_){}const[x,y]=toGame(e);c0=[x,y];t0=performance.now();moved=false;down={clientX:e.clientX,clientY:e.clientY};
+  base.style.left=x+'px';base.style.top=y+'px';base.classList.add('on');knob.style.transform=''},{capture:true});
+ cv.addEventListener('pointermove',e=>{if(e.pointerId===jid){e.preventDefault();move(e)}});
+ cv.addEventListener('pointerup',end);cv.addEventListener('pointercancel',end);cv.addEventListener('lostpointercapture',end);
+ // keep the page itself from scrolling, bouncing or swiping back while steering
+ for(const ev of['touchstart','touchmove'])cv.addEventListener(ev,e=>e.preventDefault(),{passive:false});
+ document.addEventListener('touchmove',e=>{if(!e.target.closest('#coll,#help,#mapP,#board,#title,#triv,.scroll'))e.preventDefault()},{passive:false});
  $('#btnA').addEventListener('pointerdown',e=>{e.preventDefault();pressA()});$('#btnB').addEventListener('pointerdown',e=>{e.preventDefault();pressB()})}
 $('#dlg').addEventListener('click',()=>{if(state==='dialog'&&!(dCur&&dCur.choices))dlgAdvance()});
 $('#tvNext').onclick=nextQ;
@@ -3327,7 +3354,9 @@ $('#btnColl').onclick=()=>{if(state==='world')openColl();else if(state==='menu')
 $('#btnHelp').onclick=()=>{if(state==='world')openHelp()};
 $('#btnSnd').onclick=toggleMute;$('#objTag').onclick=()=>{if(STORY_ON()&&state==='world'&&!storyState().done)showSeasonCard(storyState().s)};{const r=$('#musVol');if(r){r.value=musicVol;r.oninput=()=>setMusicVol(+r.value)}}
 $('#btnZoom').onclick=()=>cycleZoom();
-$('#btnBoard').onclick=()=>{if(state==='world')openBoard()};$('#btnBoardT').onclick=()=>openBoard(true);$('#boardClose').onclick=closeBoard;
+$('#boardClose').onclick=closeBoard;   // v2.2: leaderboard buttons removed (a live one may come later)
+$('#btnSet').onclick=e=>{e.stopPropagation();$('#setMenu').classList.toggle('hidden')};
+document.addEventListener('pointerdown',e=>{const m=$('#setMenu');if(!m.classList.contains('hidden')&&!m.contains(e.target)&&e.target.id!=='btnSet')m.classList.add('hidden')});
 $('#btnCopy').onclick=()=>{const t=$('#myCode');t.select();let ok=false;try{navigator.clipboard.writeText(t.value).then(()=>{$('#importMsg').textContent='Copied! Text it to her (or paste it anywhere).'}).catch(()=>{$('#importMsg').textContent='Select the code above and copy it.'});ok=true}catch(e){}if(!ok)$('#importMsg').textContent='Select the code above and copy it.'};
 $('#btnImport').onclick=()=>{const m=importCode($('#importBox').value);$('#importBox').value='';openBoard(state!=='menu');$('#importMsg').textContent=m};
 document.querySelectorAll('.close').forEach(b=>b.onclick=closePanels);

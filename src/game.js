@@ -991,7 +991,7 @@ function onCanvasClick(e){if(state!=='world'||!Zn)return;if(player.sit){standUp(
  // characters are drawn a little taller than their tile, so also check the tile below the click
  let tgt=interactableAt(tx,ty);if(!tgt&&npcAt(tx,ty+1)){ty++;tgt=npcAt(tx,ty)}
  if(tgt&&!(isDoor(tx,ty)&&!npcAt(tx,ty)))planPath(tx,ty,true);else planPath(tx,ty,false)}
-cv.addEventListener('pointerdown',e=>{if(e.button!==undefined&&e.button!==0)return;onCanvasClick(e)});
+cv.addEventListener('pointerdown',e=>{if(e.button!==undefined&&e.button!==0)return;if(coarse&&e.pointerType!=='mouse')return;onCanvasClick(e)});
 
 /* ===================== Interact & couch ===================== */
 function interact(){if(player.sit){standUp();return}if(player.moving)return;
@@ -1485,19 +1485,28 @@ addEventListener('keydown',e=>{if(e.target.tagName==='INPUT')return;keys[e.key]=
  else if(state==='vs'&&VS&&VS.qs&&!VS.over&&/^Digit[1-4]$/.test(e.code))vsAnswer(+e.code.slice(5)-1)});
 addEventListener('keyup',e=>{keys[e.key]=false;if(KMAP[e.code])popDir(KMAP[e.code])});
 addEventListener('blur',()=>{dirStack=[];for(const k in keys)keys[k]=false});
-function toggleMute(){muted=!muted;$('#btnSnd').textContent=muted?'🔇':'🔊';toast(muted?'Sound off':'Sound on')}
+function toggleMute(){muted=!muted;$('#btnSnd').textContent=muted?'🔇 Sound off':'🔊 Sound on';toast(muted?'Sound off':'Sound on')}
 let coarse=false,lastTS='';function syncTouch(){const k=state+coarse;if(k===lastTS)return;lastTS=k;$('#touch').classList.toggle('hidden',!coarse||!['world','dialog','fade'].includes(state))}
 function setupTouch(){coarse=matchMedia('(pointer:coarse)').matches;$('#game').classList.toggle('touch',coarse);
- // Virtual joystick: drag the knob; the strongest axis picks the direction (always normal walking speed)
- const base=$('#joy'),knob=$('#joyKnob');let jid=null,jdir=null;
+ // v2.2: the joystick appears wherever you put your thumb on the game and disappears when you let go.
+ // A quick tap without dragging is still a tap (walk there / talk).
+ const base=$('#joy'),knob=$('#joyKnob'),gm=$('#game');let jid=null,jdir=null,c0=null,t0=0,moved=false,down=null;
  const setDir=d=>{if(d===jdir)return;if(jdir)popDir(jdir);jdir=d;if(d){if(state==='dialog')moveSel(d==='up'||d==='left'?-1:1);else{pushDir(d);clickPath=null}}};
- const move=e=>{const r=base.getBoundingClientRect(),cx=r.left+r.width/2,cy=r.top+r.height/2,R=r.width/2;let dx=e.clientX-cx,dy=e.clientY-cy;const dist=Math.hypot(dx,dy),max=R*.62;
-  if(dist>max){dx*=max/dist;dy*=max/dist}const k=r.width/110;knob.style.transform=`translate(${dx/k}px,${dy/k}px)`;
+ const R=55,toGame=e=>{const r=gm.getBoundingClientRect(),k=r.width/640;return[(e.clientX-r.left)/k,(e.clientY-r.top)/k,k]};
+ const move=e=>{const[x,y]=toGame(e);let dx=x-c0[0],dy=y-c0[1];const dist=Math.hypot(dx,dy);if(dist>8)moved=true;const max=R*.62;
+  if(dist>max){dx*=max/dist;dy*=max/dist}knob.style.transform=`translate(${dx}px,${dy}px)`;
   setDir(dist<R*.22?null:Math.abs(dx)>Math.abs(dy)?(dx>0?'right':'left'):(dy>0?'down':'up'))};
- const end=e=>{if(e.pointerId!==jid)return;jid=null;knob.style.transform='';setDir(null);base.classList.remove('on')};
- base.addEventListener('pointerdown',e=>{e.preventDefault();jid=e.pointerId;try{base.setPointerCapture(jid)}catch(_){}base.classList.add('on');move(e)});
- base.addEventListener('pointermove',e=>{if(e.pointerId===jid){e.preventDefault();move(e)}});
- base.addEventListener('pointerup',end);base.addEventListener('pointercancel',end);base.addEventListener('lostpointercapture',end);
+ const end=e=>{if(e.pointerId!==jid)return;jid=null;knob.style.transform='';setDir(null);base.classList.remove('on');
+  if(!moved&&performance.now()-t0<350&&down)onCanvasClick(down);down=null};
+ cv.addEventListener('pointerdown',e=>{if(!coarse||e.pointerType==='mouse')return;e.preventDefault();e.stopImmediatePropagation();
+  if(state!=='world'){onCanvasClick(e);return}
+  jid=e.pointerId;try{cv.setPointerCapture(jid)}catch(_){}const[x,y]=toGame(e);c0=[x,y];t0=performance.now();moved=false;down={clientX:e.clientX,clientY:e.clientY};
+  base.style.left=x+'px';base.style.top=y+'px';base.classList.add('on');knob.style.transform=''},{capture:true});
+ cv.addEventListener('pointermove',e=>{if(e.pointerId===jid){e.preventDefault();move(e)}});
+ cv.addEventListener('pointerup',end);cv.addEventListener('pointercancel',end);cv.addEventListener('lostpointercapture',end);
+ // keep the page itself from scrolling, bouncing or swiping back while steering
+ for(const ev of['touchstart','touchmove'])cv.addEventListener(ev,e=>e.preventDefault(),{passive:false});
+ document.addEventListener('touchmove',e=>{if(!e.target.closest('#coll,#help,#mapP,#board,#title,#triv,.scroll'))e.preventDefault()},{passive:false});
  $('#btnA').addEventListener('pointerdown',e=>{e.preventDefault();pressA()});$('#btnB').addEventListener('pointerdown',e=>{e.preventDefault();pressB()})}
 $('#dlg').addEventListener('click',()=>{if(state==='dialog'&&!(dCur&&dCur.choices))dlgAdvance()});
 $('#tvNext').onclick=nextQ;
@@ -1508,7 +1517,9 @@ $('#btnColl').onclick=()=>{if(state==='world')openColl();else if(state==='menu')
 $('#btnHelp').onclick=()=>{if(state==='world')openHelp()};
 $('#btnSnd').onclick=toggleMute;$('#objTag').onclick=()=>{if(STORY_ON()&&state==='world'&&!storyState().done)showSeasonCard(storyState().s)};{const r=$('#musVol');if(r){r.value=musicVol;r.oninput=()=>setMusicVol(+r.value)}}
 $('#btnZoom').onclick=()=>cycleZoom();
-$('#btnBoard').onclick=()=>{if(state==='world')openBoard()};$('#btnBoardT').onclick=()=>openBoard(true);$('#boardClose').onclick=closeBoard;
+$('#boardClose').onclick=closeBoard;   // v2.2: leaderboard buttons removed (a live one may come later)
+$('#btnSet').onclick=e=>{e.stopPropagation();$('#setMenu').classList.toggle('hidden')};
+document.addEventListener('pointerdown',e=>{const m=$('#setMenu');if(!m.classList.contains('hidden')&&!m.contains(e.target)&&e.target.id!=='btnSet')m.classList.add('hidden')});
 $('#btnCopy').onclick=()=>{const t=$('#myCode');t.select();let ok=false;try{navigator.clipboard.writeText(t.value).then(()=>{$('#importMsg').textContent='Copied! Text it to her (or paste it anywhere).'}).catch(()=>{$('#importMsg').textContent='Select the code above and copy it.'});ok=true}catch(e){}if(!ok)$('#importMsg').textContent='Select the code above and copy it.'};
 $('#btnImport').onclick=()=>{const m=importCode($('#importBox').value);$('#importBox').value='';openBoard(state!=='menu');$('#importMsg').textContent=m};
 document.querySelectorAll('.close').forEach(b=>b.onclick=closePanels);

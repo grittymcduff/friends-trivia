@@ -240,14 +240,32 @@ input{font-family:inherit!important}
 #loadCover{position:fixed;inset:0;z-index:9999;background:#1c1428;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;transition:opacity .5s;font-family:'Pixelify Sans',monospace;color:#f6e6c4}
 #loadCover.gone{opacity:0;pointer-events:none}#loadCover h1{margin:0;font:700 30px Georgia,serif;color:#b79ae6}#loadCover h1 b{color:#f0954a}
 #loadCover .bar{width:260px;height:12px;border:2px solid #f6e6c4;border-radius:7px;overflow:hidden}#loadBar{height:100%;width:0;background:#ffcf3a;transition:width .2s}#loadCover p{margin:0;font-size:13px;opacity:.8}
+#topRow{position:absolute;right:8px;top:8px;display:flex;gap:4px;align-items:stretch;pointer-events:auto;z-index:5}
+#topRow button{font-size:11px;padding:3px 8px;background:linear-gradient(#fff8e4,#f3e0b6)}
+#topRow #btnHelp{font-size:11px;padding:3px 8px;color:#3b2414;background:linear-gradient(#ffe9a8,#f7cf62);box-shadow:0 0 0 2px #ffd86a,0 2px 0 #4a2e18}
+#topRow #counts{position:static;margin:0}
+#btnSet{position:absolute;right:8px;top:38px;font-size:10.5px;padding:3px 8px;background:linear-gradient(#fff8e4,#f3e0b6);pointer-events:auto;z-index:5}
+#setMenu{position:absolute;right:8px;top:62px;display:flex;flex-direction:column;gap:5px;padding:7px;pointer-events:auto;z-index:6;min-width:150px}
+#setMenu button{font-size:11px;padding:4px 8px;text-align:left;background:linear-gradient(#fff8e4,#f3e0b6)}
+#setMenu #musVolBox{display:flex;justify-content:space-between;box-shadow:none}
+#objTag{max-width:40%}
+#joy{display:none;left:0;top:0;bottom:auto;margin:-55px 0 0 -55px}#joy.on{display:block}
+#game.touch #touch #ab{bottom:16px}
+html,body{overscroll-behavior:none}#game,#game canvas{touch-action:none}
 </style></head><body><div id="loadCover"><h1>The One With <b>The Trivia Game</b></h1><div class="bar"><div id="loadBar"></div></div><p>Pouring the coffee…</p></div>
 <div id="wrap"><div id="holder"><div id="game">
  <canvas id="cv"></canvas>
  <div id="hud" class="hidden">
   <div id="zoneTag" class="box">Greenwich Village</div>
   <div id="objTag" class="box hidden" title="Your next story step (click to see the season)"><b id="objSea"></b><span id="objGoal"></span><i id="objHop"></i></div>
-  <div id="counts" class="box"><span title="Collectibles">🏆 <b id="cntItems">0/12</b></span><span title="Correct answers">⭐ <b id="cntStars">0</b></span></div>
-  <div id="hudBtns"><button id="btnMap">🗺 Map (M)</button><button id="btnColl">🏆 Shelf (C)</button><button id="btnBoard">🏅</button><button id="btnHelp">❔</button><button id="btnZoom">🔍 Normal</button><button id="btnSnd">🔊</button><label id="musVolBox" title="Music volume">🎵<input id="musVol" type="range" min="0" max="100" step="1"></label></div>
+  <div id="topRow"><button id="btnHelp" title="How to play"><b>?</b> Help</button><button id="btnMap" title="Map (M)">🗺 Map</button><button id="btnColl" title="Shelf (C)">🏆 Shelf</button>
+   <div id="counts" class="box"><span title="Collectibles">🏆 <b id="cntItems">0/12</b></span><span title="Correct answers">⭐ <b id="cntStars">0</b></span></div></div>
+  <button id="btnSet" title="Settings">⚙︎ Settings ▾</button>
+  <div id="setMenu" class="box hidden">
+   <button id="btnSnd">🔊 Sound on</button>
+   <label id="musVolBox" title="Music volume">🎵 Music<input id="musVol" type="range" min="0" max="100" step="1"></label>
+   <button id="btnZoom">🔍 Normal</button>
+  </div>
  </div>
  <div id="toast" class="box"></div>
  <div id="storyBanner" class="box"><b id="sbSea"></b><span id="sbGoal"></span></div>
@@ -298,7 +316,7 @@ input{font-family:inherit!important}
     <div id="tLeft">
      <canvas id="preview" width="140" height="72"></canvas>
      <input id="pName" maxlength="14" placeholder="Your name">
-     <div id="tBtns"><button id="btnNew">New Game ▶</button><button id="btnVsT">👥 Couch Versus</button><button id="btnBoardT">🏅 Leaderboard</button></div>
+     <div id="tBtns"><button id="btnNew">New Game ▶</button><button id="btnVsT">👥 Couch Versus</button></div>
     </div>
     <div id="tRight">
      <div class="row"><label>Shirt</label><div class="sw" id="pShirt"></div></div>
