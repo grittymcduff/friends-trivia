@@ -4,6 +4,15 @@ A private, Pokémon-style pixel-art trivia adventure set in Friends' Greenwich V
 
 **Play:** open `index.html` in a browser, or turn on GitHub Pages for this repo (Settings → Pages → deploy from `main`, root folder).
 
+## v2.1: Story mode
+
+- New **Mode** choice on the title screen: **Story (Seasons 1–10)** or **Free Play**. Free Play is the game exactly as before; saves from earlier versions open in Free Play.
+- Story mode walks through the whole series, one season at a time, with four steps per season built on that season's big moments: Rachel in her wedding dress, Marcel, the blackout, the prom video, "we were on a break", the beach house, the embryos bet, London, the sandwich, Vegas, the proposal, the Holiday Armadillo, the wedding, the red sweater, Emma, Tulsa, Barbados, the wedding in the snow, the left phalange, and one last coffee on the couch.
+- Steps happen by talking to someone, using something, or just walking somewhere. Many have a short quiz drawn only from that season's episodes, and some hand you a keepsake. A season card opens each season (click the objective box to see it again).
+- **Where to go next:** a box under the neighborhood name shows the season, the goal and the next hop ("Take the subway to Queens", "Fly to Las Vegas"). A gold ! sits over the person you need, a gold arrowhead over the door, subway stairs or gate that leads there, and an arrow on the edge of the screen points the way when it's off screen. The map shows the goal too.
+- 59 new questions, so every season has at least 12 of its own (`ep:` tags give each question its season; "which season" questions are left out of story quizzes so they don't give the answer away).
+- `src/story.js` holds the seasons and the step and guidance code. The airport is open from the start in Story mode. Ross now stands beside the costume trunk in his apartment so the trunk can be opened, and the TO JFK sign only shows on the ride home, not on the departure gates.
+
 ## v2.0.9: Ambience
 
 - Each place has a quiet background sound under the music: street noise in the Village, SoHo, Uptown and Queens, a busier street in Midtown and Vegas, a coffee shop in Central Perk, diner chatter at Moondance, a public-space murmur in the museum, Bloomingdale's, Ralph Lauren, Rachel's office and the studio, and a terminal at JFK. The apartments and the hallway hear the street faintly through the window. Barbados and Montauk stay quiet for now.

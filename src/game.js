@@ -795,9 +795,9 @@ setInterval(musicTick,60);
 
 /* ===================== Save ===================== */
 let S=null;
-function freshSave(name,look){return{v:1,name,look,items:{},stars:0,seen:{},zone:'village',x:15,y:10,dir:'up',talked:{},diff:pick.diff||'fan'}}
+function freshSave(name,look){return{v:1,mode:pick.mode||'story',story:{s:0,k:0},name,look,items:{},stars:0,seen:{},zone:'village',x:15,y:10,dir:'up',talked:{},diff:pick.diff||'fan'}}
 const DIFFS=[['casual','Casual','Mostly well-known moments. Great for a warm-up.'],['fan','Fan','The full mix, tough questions included.'],['super','Super Fan','Deep cuts only: cameos, quotes, seasons, ages. Worth more stars.']];
-const qTags=q=>q.t.split(' ');const qStars=q=>{const t=qTags(q);return t.includes('sf')?3:t.includes('hard')?2:1};
+const qTags=q=>q._t||(q._t=(()=>{const t=q.t.split(' '),m=q.ep&&/Season (\d+)/.exec(q.ep);if(m)t.push('s'+m[1]);return t})());const qStars=q=>{const t=qTags(q);return t.includes('sf')?3:t.includes('hard')?2:1};
 function diffNote(d){return(DIFFS.find(x=>x[0]===d)||DIFFS[1])[2]}
 function diffButtons(id,cur,onPick){const el=$(id);if(!el)return;el.innerHTML=DIFFS.map(([k,l])=>`<button data-k="${k}" title="${esc(diffNote(k))}" class="${k===cur?'on':''}">${l}</button>`).join('');el.querySelectorAll('button').forEach(b=>b.onclick=()=>{SFX.sel();onPick(b.dataset.k)})}
 function setupHelpDiff(){if(!S)return;S.diff=S.diff||'fan';diffButtons('#hDiff',S.diff,k=>{S.diff=k;save();setupHelpDiff()});$('#hDiffNote').textContent=diffNote(S.diff)}
@@ -833,7 +833,7 @@ function loadZone(id,x,y,dir,nosave){Zn=ZONES[id];const eggNpcs=spawnEggs(nosave
  taxis=[];let k=0;for(const tr of Zn.taxiRows)for(let i=0;i<tr.n;i++){const taxi=(k++%3)!==2;taxis.push({row:tr.row,dir:tr.dir,x:(i+.3+R()*.4)*Zn.w*16/tr.n,sp:44+R()*16,honk:0,taxi,model:taxi?(k%2?'90':''):CAR_MODELS[k%4],col:taxi?'#f2c230':['#3b6fb6','#8f2f2f','#6a8f4a','#c9c9cf'][k%4],
   rows:tr.dir<0?[tr.row-1,tr.row]:[tr.row-1,tr.row],by:Zn.laneY?(tr.dir<0?Zn.laneY-3:Zn.laneY+38):tr.row*16+17})}
  player.x=player.fx=x;player.y=player.fy=y;player.px=x*16;player.py=y*16;player.dir=dir;player.moving=false;player.sit=null;clickPath=null;clickMark=null;
- $('#zoneTag').textContent=Zn.name;spawnWalkers();if(!nosave){S.zone=id;save()}}
+ $('#zoneTag').textContent=Zn.name;spawnWalkers();updObjective();if(!nosave){S.zone=id;save()}}
 function taxiAt(x,y){return taxis.some(t=>t.rows.includes(y)&&x*16<t.x+CAR_LEN&&x*16+16>t.x)}
 function npcAt(x,y,skip){return npcs.find(n=>n!==skip&&n.x===x&&n.y===y)}
 function blocked(x,y){if(x<0||y<0||x>=Zn.w||y>=Zn.h)return true;return!!(solid[y*Zn.w+x]||npcAt(x,y)||taxiAt(x,y))}
@@ -949,7 +949,7 @@ function giveItem(id){if(S.items[id])return;S.items[id]=Date.now();save();updHud
 function collectAct(a){if(S.items[a.item]){say(a.have.split('\n'));return}
  const ch=shuffle(a.answers.map((t,i)=>({label:t,fn:()=>{if(i===0){giveItem(a.item);say([{text:a.win},{text:`(${ITEM(a.item).name} added to your shelf. Press C to see it.)`}])}else say([{text:a.lose}])}})));
  say([...a.lines.map(t=>({text:t})),{text:a.q,choices:ch}])}
-function talkTo(n){if(!n.seated)n.dir=OPP[player.dir];(TALK[n.talk]||(n.script?TALK.cast:TALK.townie))(n)}
+function talkTo(n){if(!n.seated)n.dir=OPP[player.dir];const sp=storyMatchNpc(n);if(sp){storyRun(sp,n.name?n:Object.assign({},n,{name:sp.who}));return}(TALK[n.talk]||(n.script?TALK.cast:TALK.townie))(n)}
 
 /* ===================== Click / tap to move ===================== */
 let clickPath=null,clickMark=null;
@@ -983,6 +983,7 @@ function interact(){if(player.sit){standUp();return}if(player.moving)return;
  const[dx,dy]=DIRS[player.dir],tx=player.x+dx,ty=player.y+dy;
  const n=npcAt(tx,ty);if(n){talkTo(n);return}
  const a=Zn.acts.find(a=>a.x===tx&&a.y===ty);if(!a)return;
+ {const sp=storyMatchAct(a);if(sp){storyRun(sp,null);return}}
  if(a.type==='msg'){
   // v1.9.5: sometimes someone's home after all, and they've got a question for you
   const key=Zn.id+':'+a.x+','+a.y;S.knock=S.knock||{};const today=new Date().toDateString();
@@ -1015,7 +1016,7 @@ function standUp(){const s=player.sit;if(!s)return;let tx=s.x,ty=s.y+1;if(blocke
 /* ===================== Trivia ===================== */
 let TV=null;
 function startTrivia(o){const tags=o.tags==='all'?null:o.tags.split(' '),d=S.diff||'fan',sfDeck=!!tags&&tags.includes('sf');
- let pool=QB.map((q,i)=>Object.assign({i},q)).filter(q=>!tags||tags.some(t=>qTags(q).includes(t)));
+ let pool=QB.map((q,i)=>Object.assign({i},q)).filter(q=>(!tags||tags.some(t=>qTags(q).includes(t)))&&!(o.not&&o.not.some(t=>qTags(q).includes(t))));
  // Difficulty: Casual drops tough + Super Fan questions, Fan drops Super Fan ones, Super Fan puts them first.
  // Only trim when enough questions are left to fill the round.
  const trim=f=>{const p=pool.filter(f);if(p.length>=o.n)pool=p};
@@ -1078,7 +1079,7 @@ function endTrivia(){const won=TV.score>=TV.need;$('#tvBody').classList.add('hid
  h+=`<button id="tvDone">Continue ▶</button>`;r.innerHTML=h;
  const ac=$('#awardCv');if(ac){const g=ac.getContext('2d');art(g,itemArt(TV.reward),0,0,64,64)}
  $('#tvDone').onclick=closeTrivia;TV.finished=true;if($('#tvRP'))tvPortrait($('#tvRP'),TV.who);updHud();save()}
-function closeTrivia(){$('#triv').classList.add('hidden');state='world';const a=TV&&TV.after;TV=null;if(a)a();else{const n=itemCount();if(finaleReady()&&!S.items.key&&!S.talked.finaleHint){S.talked.finaleHint=1;save();say(["You've found everything! Your phone buzzes: a text from Monica.","'Central Perk. The orange couch. Everybody's waiting. Don't be late!'"]);addFinaleCast()}else if(n>=10&&!S.talked.airportHint){S.talked.airportHint=1;save();say(["10 collectibles! The AirTrain to JFK Airport is now open on the subway map. Flights to London, Las Vegas, Barbados and Montauk await."])}else if(n===8&&!S.talked.subwayHint){S.talked.subwayHint=1;save();say(["The Village is all yours! Take the subway at Bleecker St to explore the rest of the city."])}}}
+function closeTrivia(){$('#triv').classList.add('hidden');state='world';const a=TV&&TV.after,won=!!(TV&&TV.score>=TV.need);TV=null;if(a)a(won);else if(STORY_ON())updObjective();else{const n=itemCount();if(finaleReady()&&!S.items.key&&!S.talked.finaleHint){S.talked.finaleHint=1;save();say(["You've found everything! Your phone buzzes: a text from Monica.","'Central Perk. The orange couch. Everybody's waiting. Don't be late!'"]);addFinaleCast()}else if(n>=10&&!S.talked.airportHint){S.talked.airportHint=1;save();say(["10 collectibles! The AirTrain to JFK Airport is now open on the subway map. Flights to London, Las Vegas, Barbados and Montauk await."])}else if(n===8&&!S.talked.subwayHint){S.talked.subwayHint=1;save();say(["The Village is all yours! Take the subway at Bleecker St to explore the rest of the city."])}}}
 
 
 /* ===================== v1.9.3: the story in chapters, and the map ===================== */
@@ -1102,10 +1103,10 @@ const CHAPTERS=[
 function chapterNow(){let c=0;while(c<CHAPTERS.length-1&&CHAPTERS[c].done())c++;return c}
 function showChapter(c){const ch=CHAPTERS[c];$('#chapNum').textContent=`Chapter ${c+1}`;$('#chapT').textContent=ch.t;$('#chapTx').textContent=ch.tx;
  const el=$('#chapCard');el.classList.add('on');const prev=state;state='card';SFX.ok();el.onclick=()=>{el.classList.remove('on');state=prev==='card'?'world':prev}}
-function checkChapter(){if(!S||state!=='world')return;if(S.chapter==null){S.chapter=chapterNow();save();return}
+function checkChapter(){if(!S||state!=='world')return;if(STORY_ON()){storyTick();return}if(S.chapter==null){S.chapter=chapterNow();save();return}
  const c=chapterNow();if(c>S.chapter){S.chapter=c;save();showChapter(c)}}
 function openMap(){if(state==='world')openMap.sel=null;state='menu';const here=HOOD_OF_ZONE[Zn.id];const ch=S.chapter||0;
- $('#mapCh').textContent=`Chapter ${ch+1}: ${CHAPTERS[ch].t} · ${CHAPTERS[ch].goal()}`;
+ $('#mapCh').textContent=STORY_ON()?(storyState().done?'Story complete!':`Season ${storyState().s+1}: ${STORY[storyState().s].t} · ${storyGoalText()}`+(storyStep()?` (${ZONES[storyStep().z].name})`:'')):`Chapter ${ch+1}: ${CHAPTERS[ch].t} · ${CHAPTERS[ch].goal()}`;
  const sel=openMap.sel&&HOODS.some(h=>h.id===openMap.sel)?openMap.sel:here;
  const info=id=>{const h=HOODS.find(q=>q.id===id),its=ITEMS.filter(i=>hoodOfItem(i)===id),miss=its.filter(i=>!S.items[i.id]),lock=id==='trips'&&itemCount()<10;
   return`<h3>${esc(h.name)}</h3><div>${esc(h.sub)}</div>`+(lock?`<p>🔒 Collect 10 keepsakes to unlock the airport (you have ${itemCount()}).</p>`:miss.length?`<p><b>Still to find (${miss.length})</b></p><ul>${miss.map(i=>`<li>${i.bonus?'✨ ':''}${esc(i.hint||i.from)}</li>`).join('')}</ul>`:'<p>✅ Everything here is on your shelf.</p>')};
@@ -1196,7 +1197,7 @@ function curbLift(o){const k=CURB_LIFT[o.kind];return k&&roadAt(o.x,o.y+1)?k:0}
 function curbSide(o){const k=CURB_LIFT[o.kind];if(!k||o.kind==='tree')return 0;return roadAt(o.x-1,o.y)?k-1:roadAt(o.x+1,o.y)?-(k-1):0}
 function doorGroups(){if(Zn._dg)return Zn._dg;const gs=[];for(const d of [...Zn.doors].sort((a,b)=>a.y-b.y||a.x-b.x)){const g=gs.find(g=>g.y===d.y&&g.to===d.to&&g.x1===d.x-1);if(g)g.x1=d.x;else gs.push({x0:d.x,x1:d.x,y:d.y,to:d.to,exit:d.dir==='down'})}
  // trips: the cab or boat that takes you back to JFK gets a sign too
- for(const t of [...Zn.acts].filter(a=>a.type==='fly').sort((a,b)=>a.y-b.y||a.x-b.x)){const g=gs.find(g=>g.fly&&g.y===t.y&&g.x1===t.x-1);if(g)g.x1=t.x;else gs.push({x0:t.x,x1:t.x,y:t.y,fly:true,exit:true})}
+ for(const t of [...Zn.acts].filter(a=>a.type==='fly'&&a.to==='airport').sort((a,b)=>a.y-b.y||a.x-b.x)){const g=gs.find(g=>g.fly&&g.y===t.y&&g.x1===t.x-1);if(g)g.x1=t.x;else gs.push({x0:t.x,x1:t.x,y:t.y,fly:true,exit:true})}
  return Zn._dg=gs}
 function doorHintEntries(L){const p=.5+.5*Math.sin(clock*2.6);
  for(const g of doorGroups()){let x=g.x0*16,w=(g.x1-g.x0+1)*16;const y=g.y*16;
@@ -1249,7 +1250,7 @@ const STOPS=[{id:'village',name:'Greenwich Village',sub:'Bleecker St · Central 
  {id:'queens',name:'Queens',sub:'Queensboro Plaza · Silvercup Studios'},{id:'airport',name:'JFK Airport',sub:'AirTrain · flights to London, Vegas, Barbados, Montauk',need:10}];
 function itemCount(){return Object.keys(S.items).length}
 function openSubway(){state='menu';const n=itemCount();$('#subway').classList.remove('hidden');
- $('#subList').innerHTML=STOPS.map(st=>{const here=Zn.id===st.id,lock=st.need&&n<st.need;return`<button data-id="${st.id}" ${here||lock?'disabled':''}><b>${esc(st.name)}${here?' · you are here':''}</b><small>${lock?`🔒 Collect ${st.need} items to unlock (you have ${n})`:esc(st.sub)}</small></button>`}).join('');
+ $('#subList').innerHTML=STOPS.map(st=>{const here=Zn.id===st.id,lock=st.need&&n<st.need&&!STORY_ON();return`<button data-id="${st.id}" ${here||lock?'disabled':''}><b>${esc(st.name)}${here?' · you are here':''}</b><small>${lock?`🔒 Collect ${st.need} items to unlock (you have ${n})`:esc(st.sub)}</small></button>`}).join('');
  $('#subList').querySelectorAll('button').forEach(b=>b.onclick=()=>{const z=ZONES[b.dataset.id],sp=z.subwaySpawn;closePanels();travel((b.dataset.id==='airport'?'🚆  AirTrain to ':'🚇  Next stop: ')+z.name,b.dataset.id,sp[0],sp[1],sp[2])})}
 /* v1.9.1: a short clip when you take the subway: a '90s silver train rushes through the station */
 function subwayClip(label,line,onCovered,onDone){const t=$('#travel'),cv=$('#travelCv'),g=cv.getContext('2d'),W=cv.width,H=cv.height;t.classList.add('on','clip');$('#travelText').textContent=label;
@@ -1416,6 +1417,7 @@ function draw(){ctx.setTransform(1,0,0,1,0,0);ctx.fillStyle=Zn.bg;ctx.fillRect(0
  const k2=SC/2;ctx.setTransform(k2*RS,0,0,k2*RS,0,0);
  const W2=(wx,wy)=>[(wx-cx)*2,(wy-cy)*2];
  ctx.textAlign='center';ctx.textBaseline='middle';
+
  for(const n of npcs)if(n.busker){for(let i=0;i<2;i++){const ph=(clock*.6+i*.5)%1,[sx,sy]=W2(n.px+10+i*6+Math.sin(ph*6)*3,n.py-12-ph*18);ctx.globalAlpha=1-ph;ctx.font='bold 12px serif';ctx.fillStyle='#2a1a3a';ctx.fillText(i?'♫':'♪',sx,sy)}ctx.globalAlpha=1}
  for(const o of Zn.objs){if(o.kind==='building'&&o.sign){const hdS=o.hd&&hdFacades[o.hd]&&o.signLift;const[sx,sy]=hdS?W2(o.x*16+o.signCx,(o.y+o.h)*16-o.signLift):W2((o.x+(o.shopW||o.w)/2)*16,(o.y+o.h)*16-32+6.5);if(sx<-200||sx>640/k2+200)continue;ctx.font='bold 11px ui-monospace,Menlo,Consolas,monospace';if(hdS&&o.plate){const tw=Math.min(ctx.measureText(o.sign).width,o.signW*2)+16;ctx.fillStyle=o.signBg||'#1a1a1a';ctx.fillRect(sx-tw/2,sy-9,tw,17);ctx.strokeStyle='#c9a24a';ctx.lineWidth=1;ctx.strokeRect(sx-tw/2+.5,sy-8.5,tw-1,16)}ctx.fillStyle=o.signFg||'#f4e9c8';ctx.fillText(o.sign,sx,sy,hdS?o.signW*2:((o.shopW||o.w)*16-6)*2)}
   else if(o.kind==='walldoor'&&o.num&&hdIn.walldoor){const[sx,sy]=W2(o.x*16+8,o.y*16-18+8.5);ctx.font='bold 8px ui-monospace,Menlo,monospace';ctx.fillStyle='#e8c860';ctx.fillText(o.num,sx,sy)}
@@ -1429,6 +1431,7 @@ function draw(){ctx.setTransform(1,0,0,1,0,0);ctx.fillStyle=Zn.bg;ctx.fillRect(0
   if(n.reward&&!S.items[n.reward]){const b=Math.sin(clock*4)*2;ctx.fillStyle='#ffd84a';rr(sx+w/2-2,sy-20+b,14,14,7);ctx.fill();ctx.fillStyle='#3a2a10';ctx.font='bold 11px ui-monospace,monospace';ctx.fillText('?',sx+w/2+5,sy-13+b)}}
  for(const n of npcs){if(n.cast||!n.quiz||n.asked)continue;const[sx,sy]=W3(n.px+8,n.py-16);const b=Math.sin(clock*4+n.x)*2;ctx.fillStyle='#ffffff';rr(sx-6,sy-7+b,12,12,6);ctx.fill();ctx.fillStyle='#5b3a8c';ctx.font='bold 10px ui-monospace,monospace';ctx.fillText('?',sx,sy-1+b)}
  for(const t of taxis)if(t.honk>1.2){const[sx,sy]=W3(t.x+CAR_LEN/2,t.by-40);ctx.font='bold 11px ui-monospace,monospace';ctx.fillStyle='#fff';rr(sx-24,sy-9,48,17,6);ctx.fill();ctx.fillStyle='#c0262c';ctx.fillText('HONK!',sx,sy)}
+ ctx.setTransform(k2*RS,0,0,k2*RS,0,0);try{drawStoryMarker(W2,k2)}catch(e){}
  ctx.textAlign='left'}
 function rr(x,y,w,h,r){ctx.beginPath();ctx.moveTo(x+r,y);ctx.arcTo(x+w,y,x+w,y+h,r);ctx.arcTo(x+w,y+h,x,y+h,r);ctx.arcTo(x,y+h,x,y,r);ctx.arcTo(x,y,x+w,y,r);ctx.closePath()}
 function curb(x,y){const R2=(xx,yy)=>xx>=0&&yy>=0&&xx<Zn.w&&yy<Zn.h&&ROADT.has(gAt(xx,yy));const X=x*16,Y=y*16;
@@ -1486,7 +1489,7 @@ $('#btnMap').onclick=()=>{if(state==='world')openMap();else if(state==='menu')cl
 $('#mapP').querySelector('.close').onclick=closePanels;
 $('#btnColl').onclick=()=>{if(state==='world')openColl();else if(state==='menu')closePanels()};
 $('#btnHelp').onclick=()=>{if(state==='world')openHelp()};
-$('#btnSnd').onclick=toggleMute;{const r=$('#musVol');if(r){r.value=musicVol;r.oninput=()=>setMusicVol(+r.value)}}
+$('#btnSnd').onclick=toggleMute;$('#objTag').onclick=()=>{if(STORY_ON()&&state==='world'&&!storyState().done)showSeasonCard(storyState().s)};{const r=$('#musVol');if(r){r.value=musicVol;r.oninput=()=>setMusicVol(+r.value)}}
 $('#btnZoom').onclick=()=>cycleZoom();
 $('#btnBoard').onclick=()=>{if(state==='world')openBoard()};$('#btnBoardT').onclick=()=>openBoard(true);$('#boardClose').onclick=closeBoard;
 $('#btnCopy').onclick=()=>{const t=$('#myCode');t.select();let ok=false;try{navigator.clipboard.writeText(t.value).then(()=>{$('#importMsg').textContent='Copied! Text it to her (or paste it anywhere).'}).catch(()=>{$('#importMsg').textContent='Select the code above and copy it.'});ok=true}catch(e){}if(!ok)$('#importMsg').textContent='Select the code above and copy it.'};
@@ -1495,7 +1498,7 @@ document.querySelectorAll('.close').forEach(b=>b.onclick=closePanels);
 
 /* ===================== Title & boot ===================== */
 const SHIRTS=['#d9534f','#f0ad4e','#5cb85c','#5b9bd5','#8e6bbf','#e07aa0'],SKINS=['#f1c9a5','#e0ac7e','#c68a5a','#8d5a3b','#5e3a26'],HAIRS=['#2a1d17','#4a3426','#7a4b2a','#c9a253','#b5462a'],STYLES=['long','ponytail','puffy','shaggy','spiky','buzz','bald'],FRECKLES=['no freckles','freckles'],OUTFITS=['pants','skirt','dress'];
-let pick={shirt:3,skin:0,hair:2,style:0,freckles:0,outfit:0,diff:'fan'};
+let pick={shirt:3,skin:0,hair:2,style:0,freckles:0,outfit:0,diff:'fan',mode:'story'};
 function lookFromPick(){return{player:true,skin:SKINS[pick.skin],hair:HAIRS[pick.hair],style:STYLES[pick.style],shirt:SHIRTS[pick.shirt],pants:'#3b4a6b',freckles:pick.freckles===1,outfit:OUTFITS[pick.outfit]}}
 function drawPreview(){const c=$('#preview'),g=c.getContext('2d');g.imageSmoothingEnabled=false;g.clearRect(0,0,c.width,c.height);const sp=charSprites(lookFromPick());const w=sp.hd?Math.round(72*HD_CW/HD_CH):48;art(g,sp.down[0],0,0,w,72);art(g,sp.right[0],w+8,0,w,72)}
 function setupTitle(){const sw=(id,arr,key,isCol=true)=>{$(id).innerHTML=arr.map((v,i)=>`<button data-i="${i}" class="${i===pick[key]?'on':''}" ${isCol?`style="background:${v}"`:''}>${isCol?'':v}</button>`).join('');
@@ -1508,10 +1511,11 @@ function setupTitle(){const sw=(id,arr,key,isCol=true)=>{$(id).innerHTML=arr.map
  dd('#pBuild',FRECKLES.map((t,i)=>[i,cap(t)]),pick.freckles,v=>{pick.freckles=+v;setupTitle()});
  dd('#pOutfit',OUTFITS.map((t,i)=>[i,cap(t)]),pick.outfit,v=>{pick.outfit=+v;setupTitle()});
  dd('#pDiff',DIFFS.map(([k,l])=>[k,l]),pick.diff,v=>{pick.diff=v;setupTitle()});
+ dd('#pMode',[['story','Story (Seasons 1–10)'],['free','Free Play']],pick.mode,v=>{pick.mode=v;setupTitle()});
  $('#pDiffNote').textContent=diffNote(pick.diff);drawPreview();
  const st=loadStore(),list=Object.values(st.saves).sort((a,b)=>(b.updated||0)-(a.updated||0));
  // saved players: one drop-down and a Continue button, however many there are
- $('#profList').innerHTML=list.length?`<div class="pl">Saved players</div><div id="contRow"><select id="pCont">${list.map(p=>`<option value="${esc(p.name)}">${esc(p.name)} · ${Object.keys(p.items||{}).length}/${ITEMS.length} · ${p.stars||0}★</option>`).join('')}</select><button id="btnCont">Continue ▶</button></div>`:'';
+ $('#profList').innerHTML=list.length?`<div class="pl">Saved players</div><div id="contRow"><select id="pCont">${list.map(p=>`<option value="${esc(p.name)}">${esc(p.name)} · ${p.mode==='story'?(p.story&&p.story.done?'Story done':'Story S'+((p.story&&p.story.s||0)+1)):'Free Play'} · ${Object.keys(p.items||{}).length}/${ITEMS.length} · ${p.stars||0}★</option>`).join('')}</select><button id="btnCont">Continue ▶</button></div>`:'';
  if(list.length)$('#btnCont').onclick=()=>{const p=loadStore().saves[$('#pCont').value];if(p)begin(p,false)}}
 function begin(s,isNew){try{AC=AC||new(window.AudioContext||window.webkitAudioContext)();AC.resume();music.next=AC.currentTime+.2}catch(e){}S=s;S.equip=S.equip||{};S.eggs=S.eggs||{};refreshPlayer();$('#title').classList.add('hidden');$('#hud').classList.remove('hidden');
  // v1.8 widened the streets by three rows; saves from before then are moved to match
@@ -1520,6 +1524,7 @@ function begin(s,isNew){try{AC=AC||new(window.AudioContext||window.webkitAudioCo
  if(solid[player.y*Zn.w+player.x]){let best=null;for(let r=1;r<12&&!best;r++)for(let dy=-r;dy<=r&&!best;dy++)for(let dx=-r;dx<=r;dx++){const x=player.x+dx,y=player.y+dy;if(x>=0&&y>=0&&x<Zn.w&&y<Zn.h&&!solid[y*Zn.w+x]){best=[x,y];break}}
   if(best){player.x=player.fx=best[0];player.y=player.fy=best[1];player.px=best[0]*16;player.py=best[1]*16}}
  state='world';updHud();
+ if(isNew&&S.mode==='story'){say([{text:`Welcome to New York, ${S.name}!`},{text:"This is Story mode: the whole show, one season at a time. The gold arrow and the box under the neighborhood name always show where to go next."},{text:"Arrows or WASD to move (hold Shift to hurry). Space to talk. C opens your shelf, and M opens the map."}]);save();showSeasonCard(0);updObjective();return}
  if(isNew)say([{text:`Welcome to the Village, ${S.name}!`},{text:"That's Central Perk right in front of you. Walk up to the door to go inside."},{text:"Arrows or WASD to move (hold Shift to hurry). Space to talk. C opens your collectibles shelf, and M opens the map."},{text:"Find people with a ? over their heads. They want to quiz you."}]);
  if(isNew){S.chapter=0;save();const el=$('#chapCard');$('#chapNum').textContent='Chapter 1';$('#chapT').textContent=CHAPTERS[0].t;$('#chapTx').textContent=CHAPTERS[0].tx;el.classList.add('on');SFX.ok();el.onclick=()=>el.classList.remove('on')}}
 $('#btnNew').onclick=()=>{let nm=($('#pName').value||'').trim().slice(0,14)||'Friend';const st=loadStore();if(st.saves[nm]){let k=2;while(st.saves[nm+' '+k])k++;nm=(nm.slice(0,11)+' '+k)}begin(freshSave(nm,lookFromPick()),true)};

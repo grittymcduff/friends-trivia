@@ -385,7 +385,7 @@ room('rossapt',"Ross's Apartment",22,15,{wall:'wallC',to:['village',32,9],exitX:
    win:"You start humming 'The Lion Sleeps Tonight.' Marcel lights up, jumps onto your shoulder and refuses to get down. He's yours now. (Ross says it's fine. Ross is crying a little.)",
    lose:"Marcel turns around and sulks. Wrong song. Very wrong song.",
    have:"Marcel is hanging off the floor lamp. He waves. He's very happy you came back."}});
- cast(z,'ross_h','Ross',9,12,'down',F('#efc9a8','#4a3426','short','#7a8a6a',{pants:'#3b3b4a'}),{reward:'pants',tags:'ross',n:5,need:4,
+ cast(z,'ross_h','Ross',8,12,'right',F('#efc9a8','#4a3426','short','#7a8a6a',{pants:'#3b3b4a'}),{reward:'pants',tags:'ross',n:5,need:4,
   greet:["Oh, hey! Welcome to my apartment. Yes, it's THAT apartment. Ugly Naked Guy's old place. I got it fair and square. Mostly.","I've been wearing my leather pants a lot lately. Big mistake, actually. Long story. Involves lotion and powder."],
   offer:"Five questions about me. Four right and you can have the pants. Please. Take the pants.",yes:'Quiz me',no:'Ask about the pants',noReply:"No. We don't talk about the pants. …Okay, we talk about them a little.",
   win:"You know me better than my own family! Here. The pants. Never put lotion on with them on. Trust me.",lose:"Okay, that's fine. Totally fine. I'm fine! Come back anytime."});

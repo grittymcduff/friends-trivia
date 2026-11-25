@@ -10,7 +10,7 @@ from pathlib import Path
 root = Path(__file__).parent
 src = root / "src"
 out = (src / "shell.html").read_text(encoding="utf-8")
-for marker, name in (("/*QUESTIONS*/", "questions.js"), ("/*MAPS*/", "maps.js"), ("/*DOORART*/", "doorart.js"), ("/*GAME*/", "game.js")):
+for marker, name in (("/*QUESTIONS*/", "questions.js"), ("/*MAPS*/", "maps.js"), ("/*DOORART*/", "doorart.js"), ("/*STORY*/", "story.js"), ("/*GAME*/", "game.js")):
     out = out.replace(marker, (src / name).read_text(encoding="utf-8"))
 (root / "index.html").write_text(out, encoding="utf-8")
 print(f"Built index.html ({len(out):,} bytes)")

@@ -232,11 +232,14 @@ input{font-family:inherit!important}
 .mz{border-color:#3a2414}
 #mapGrid{border-color:#3a2414}
 #musVolBox{display:inline-flex;align-items:center;gap:4px;font-size:11px;padding:3px 7px;background:linear-gradient(#fff8e4,#f3e0b6);border:2px solid #6b4426;border-radius:8px;box-shadow:0 2px 0 #4a2e18;opacity:.95;color:#3b2414}#musVol{width:64px;height:12px;accent-color:#8a5a2a;margin:0}
+#objTag{position:absolute;left:8px;top:40px;max-width:46%;padding:5px 10px;font-size:10.5px;line-height:1.35;display:flex;flex-direction:column;gap:1px;pointer-events:auto;cursor:pointer;color:#2e1d12}
+#objTag b{font-size:9px;letter-spacing:.08em;text-transform:uppercase;color:#8a5a2a}#objTag i{font-style:normal;color:#8a4a12;font-weight:700}#objTag i:empty{display:none}
 </style></head><body>
 <div id="wrap"><div id="holder"><div id="game">
  <canvas id="cv"></canvas>
  <div id="hud" class="hidden">
   <div id="zoneTag" class="box">Greenwich Village</div>
+  <div id="objTag" class="box hidden" title="Your next story step (click to see the season)"><b id="objSea"></b><span id="objGoal"></span><i id="objHop"></i></div>
   <div id="counts" class="box"><span title="Collectibles">🏆 <b id="cntItems">0/12</b></span><span title="Correct answers">⭐ <b id="cntStars">0</b></span></div>
   <div id="hudBtns"><button id="btnMap">🗺 Map (M)</button><button id="btnColl">🏆 Shelf (C)</button><button id="btnBoard">🏅</button><button id="btnHelp">❔</button><button id="btnZoom">🔍 Normal</button><button id="btnSnd">🔊</button><label id="musVolBox" title="Music volume">🎵<input id="musVol" type="range" min="0" max="100" step="1"></label></div>
  </div>
@@ -299,6 +302,7 @@ input{font-family:inherit!important}
       <label>Face<select id="pBuild"></select></label>
       <label>Outfit<select id="pOutfit"></select></label>
       <label>Trivia<select id="pDiff"></select></label>
+      <label>Mode<select id="pMode"></select></label>
      </div>
      <div id="pDiffNote"></div>
      <div id="profList"></div>
@@ -313,6 +317,7 @@ input{font-family:inherit!important}
 /*QUESTIONS*/
 /*MAPS*/
 /*DOORART*/
+/*STORY*/
 /*GAME*/
 </script>
 </body></html>
