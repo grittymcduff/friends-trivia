@@ -4,6 +4,10 @@ A private, Pokémon-style pixel-art trivia adventure set in Friends' Greenwich V
 
 **Play:** open `index.html` in a browser, or turn on GitHub Pages for this repo (Settings → Pages → deploy from `main`, root folder).
 
+## v2.0.8: Off the curb
+
+- Lamp posts and street-name poles on the sidewalk next to a road now stand half a tile back from the curb instead of on the edge of the asphalt.
+
 ## v2.0.7: Quieter hints, music volume
 
 - Door outlines and EXIT / TO JFK signs are softer and smaller, and they sit in the scene's depth order: an outline is just above its building, so people, lamp posts and cars in front of it draw over it.

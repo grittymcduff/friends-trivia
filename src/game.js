@@ -1151,6 +1151,9 @@ function updWalkers(dt){const W=Zn.w*16;for(const w of walkers){
  w.moving=!blocked;if(w.moving){w.x+=w.dir*w.sp*dt;w.t+=dt}if(w.x>W+30)w.x=-30;if(w.x<-30)w.x=W+30}}
 /* v2.0.6: help for new players. Doors you can walk into get a soft pulsing gold outline; ways out of a room
    get a little red EXIT sign with an arrow pointing at the mat. Doors side by side are treated as one. */
+// v2.0.8: lamp posts and street-name poles on the sidewalk row right above a road stand back from the
+// curb (half a tile in), instead of on the very edge of the asphalt
+function curbLift(o){if(o.kind!=='lamp'&&o.kind!=='sign')return 0;const y=o.y+1;if(y>=Zn.h)return 0;return ROADT.has(Zn.g[y*Zn.w+o.x])?7:0}
 function doorGroups(){if(Zn._dg)return Zn._dg;const gs=[];for(const d of [...Zn.doors].sort((a,b)=>a.y-b.y||a.x-b.x)){const g=gs.find(g=>g.y===d.y&&g.to===d.to&&g.x1===d.x-1);if(g)g.x1=d.x;else gs.push({x0:d.x,x1:d.x,y:d.y,to:d.to,exit:d.dir==='down'})}
  // trips: the cab or boat that takes you back to JFK gets a sign too
  for(const t of [...Zn.acts].filter(a=>a.type==='fly').sort((a,b)=>a.y-b.y||a.x-b.x)){const g=gs.find(g=>g.fly&&g.y===t.y&&g.x1===t.x-1);if(g)g.x1=t.x;else gs.push({x0:t.x,x1:t.x,y:t.y,fly:true,exit:true})}
@@ -1350,7 +1353,7 @@ function draw(){ctx.setTransform(1,0,0,1,0,0);ctx.fillStyle=Zn.bg;ctx.fillRect(0
   if(o.kind==='building'&&o.hd&&hdFacades[o.hd]){const im=hdFacades[o.hd],w=o.w*16,h=im.height/8,by=(o.y+o.h)*16;
    L.push({y:(o.y+fh)*16,d:()=>{ctx.imageSmoothingEnabled=true;ctx.imageSmoothingQuality='high';ctx.drawImage(im,o.x*16,by-h,w,h);ctx.imageSmoothingEnabled=false}});continue}
   const vk=o.kind==='tree'&&o.park?'tree_park':o.kind,vp=hdVProps[vk];
-  if(vp&&o.kind!=='car'){const cx=dx+s.c.width/2,by=dy+s.c.height,shadow=!['fence','sign','subway','barricade'].includes(o.kind);
+  if(vp&&o.kind!=='car'){const cx=dx+s.c.width/2,by=dy+s.c.height-curbLift(o),shadow=!['fence','sign','subway','barricade'].includes(o.kind);
    if(o.kind==='barricade'){L.push({y:(o.y+fh)*16,d:()=>drawHDProp(vp,cx,by,true)});continue}
    L.push({y:(o.y+fh)*16,d:()=>drawHDProp(vp,cx,by,shadow)});continue}
   // v2.0: the London bus and the trip cabs at real-world size (bus art faces left, cab art faces right)
@@ -1376,7 +1379,7 @@ function draw(){ctx.setTransform(1,0,0,1,0,0);ctx.fillStyle=Zn.bg;ctx.fillRect(0
  for(const o of Zn.objs){if(o.kind==='building'&&o.sign){const hdS=o.hd&&hdFacades[o.hd]&&o.signLift;const[sx,sy]=hdS?W2(o.x*16+o.signCx,(o.y+o.h)*16-o.signLift):W2((o.x+(o.shopW||o.w)/2)*16,(o.y+o.h)*16-32+6.5);if(sx<-200||sx>640/k2+200)continue;ctx.font='bold 11px ui-monospace,Menlo,Consolas,monospace';if(hdS&&o.plate){const tw=Math.min(ctx.measureText(o.sign).width,o.signW*2)+16;ctx.fillStyle=o.signBg||'#1a1a1a';ctx.fillRect(sx-tw/2,sy-9,tw,17);ctx.strokeStyle='#c9a24a';ctx.lineWidth=1;ctx.strokeRect(sx-tw/2+.5,sy-8.5,tw-1,16)}ctx.fillStyle=o.signFg||'#f4e9c8';ctx.fillText(o.sign,sx,sy,hdS?o.signW*2:((o.shopW||o.w)*16-6)*2)}
   else if(o.kind==='walldoor'&&o.num&&hdIn.walldoor){const[sx,sy]=W2(o.x*16+8,o.y*16-18+8.5);ctx.font='bold 8px ui-monospace,Menlo,monospace';ctx.fillStyle='#e8c860';ctx.fillText(o.num,sx,sy)}
   else if(o.kind==='wallsign'){const[sx,sy]=W2((o.x+o.w/2)*16,13);ctx.font='italic bold 22px Georgia,serif';ctx.fillStyle='#f3e1b0';ctx.fillText(o.text,sx,sy)}
-  else if(o.kind==='sign'){const[sx,sy]=W2(o.x*16+8,o.y*16-22);ctx.font='bold 9px ui-monospace,Menlo,monospace';const w=ctx.measureText(o.text).width+8;ctx.fillStyle='#2f7a4a';ctx.fillRect(sx-w/2,sy-7,w,14);ctx.strokeStyle='#fff';ctx.lineWidth=1;ctx.strokeRect(sx-w/2+1.5,sy-5.5,w-3,11);ctx.fillStyle='#fff';ctx.fillText(o.text,sx,sy+.5)}
+  else if(o.kind==='sign'){const[sx,sy]=W2(o.x*16+8,o.y*16-22-curbLift(o));ctx.font='bold 9px ui-monospace,Menlo,monospace';const w=ctx.measureText(o.text).width+8;ctx.fillStyle='#2f7a4a';ctx.fillRect(sx-w/2,sy-7,w,14);ctx.strokeStyle='#fff';ctx.lineWidth=1;ctx.strokeRect(sx-w/2+1.5,sy-5.5,w-3,11);ctx.fillStyle='#fff';ctx.fillText(o.text,sx,sy+.5)}
   else if(o.kind==='gatedesk'){const[sx,sy]=W2(o.x*16+16,o.y*16-10);ctx.font='bold 9px ui-monospace,Menlo,monospace';const w=ctx.measureText(o.text).width+10;ctx.fillStyle='#1a2a4a';ctx.fillRect(sx-w/2,sy-7,w,14);ctx.fillStyle='#ffd84a';ctx.fillText(o.text,sx,sy+.5)}
   else if(o.kind==='subway'){const[sx,sy]=W2(o.x*16+16,o.y*16-6);ctx.font='bold 9px ui-monospace,Menlo,monospace';const w=ctx.measureText(o.text).width+10;ctx.fillStyle='#1c1c22';ctx.fillRect(sx-w/2,sy-7,w,14);ctx.fillStyle='#fff';ctx.fillText(o.text,sx,sy+.5)}}
  ctx.setTransform(RS,0,0,RS,0,0);const W3=(wx,wy)=>[(wx-cx)*SC,(wy-cy)*SC];
