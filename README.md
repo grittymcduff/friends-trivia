@@ -4,6 +4,10 @@ A private, Pokémon-style pixel-art trivia adventure set in Friends' Greenwich V
 
 **Play:** open `index.html` in a browser, or turn on GitHub Pages for this repo (Settings → Pages → deploy from `main`, root folder).
 
+## v2.1.2: Loading screen
+
+- A short loading screen with a progress bar covers the game until all the HD art has loaded (20 seconds at most), so the old placeholder sprites never flash up on a fresh visit.
+
 ## v2.1.1: Calmer city, clearer story
 
 - Street ambience is at half its old level and comes and goes (20–40 s of city, then a quiet lull). Indoor ambience is at a quarter.

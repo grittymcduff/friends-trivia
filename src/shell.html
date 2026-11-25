@@ -237,7 +237,10 @@ input{font-family:inherit!important}
 #storyBanner{position:absolute;left:50%;bottom:52px;transform:translate(-50%,8px);opacity:0;transition:opacity .35s,transform .35s;pointer-events:none;padding:7px 16px;text-align:center;max-width:70%;border-color:#c9952a;box-shadow:0 0 0 2px #ffd86a,0 4px 14px rgba(0,0,0,.35)}
 #storyBanner.on{opacity:1;transform:translate(-50%,0)}#storyBanner b{display:block;font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:#a06a14}#storyBanner span{font-size:13px;font-weight:700;color:#2e1d12}
 #objTag.pulse{animation:objPulse 1.1s ease-in-out 3}@keyframes objPulse{50%{box-shadow:0 0 0 3px #ffd86a,0 0 16px #ffd86a}}
-</style></head><body>
+#loadCover{position:fixed;inset:0;z-index:9999;background:#1c1428;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;transition:opacity .5s;font-family:'Pixelify Sans',monospace;color:#f6e6c4}
+#loadCover.gone{opacity:0;pointer-events:none}#loadCover h1{margin:0;font:700 30px Georgia,serif;color:#b79ae6}#loadCover h1 b{color:#f0954a}
+#loadCover .bar{width:260px;height:12px;border:2px solid #f6e6c4;border-radius:7px;overflow:hidden}#loadBar{height:100%;width:0;background:#ffcf3a;transition:width .2s}#loadCover p{margin:0;font-size:13px;opacity:.8}
+</style></head><body><div id="loadCover"><h1>The One With <b>The Trivia Game</b></h1><div class="bar"><div id="loadBar"></div></div><p>Pouring the coffee…</p></div>
 <div id="wrap"><div id="holder"><div id="game">
  <canvas id="cv"></canvas>
  <div id="hud" class="hidden">

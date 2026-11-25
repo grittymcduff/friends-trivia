@@ -1,4 +1,12 @@
 'use strict';
+/* v2.1.2: a loading screen until the HD art has arrived, so the old placeholder sprites never flash up.
+   Every image the game starts loading is counted; the cover lifts when they're all in (or after 20 s at most). */
+const ART_LOAD={want:0,got:0,done:false};
+(()=>{const I=window.Image;window.Image=function(w,h){const im=new I(w,h);if(!ART_LOAD.done){ART_LOAD.want++;let c=false;const f=()=>{if(c)return;c=true;ART_LOAD.got++;artProgress()};
+ im.addEventListener('load',f);im.addEventListener('error',f)}return im};window.Image.prototype=I.prototype})();
+function artProgress(){const el=document.getElementById('loadBar');if(el)el.style.width=Math.round(100*ART_LOAD.got/Math.max(1,ART_LOAD.want))+'%';
+ if(!ART_LOAD.done&&ART_LOAD.started&&ART_LOAD.got>=ART_LOAD.want)artReady()}
+function artReady(){if(ART_LOAD.done)return;ART_LOAD.done=true;try{if(state==='title')setupTitle()}catch(e){}const c=document.getElementById('loadCover');if(c){c.classList.add('gone');setTimeout(()=>c.remove(),600)}}
 /* =====================================================================
  *  The One With The Trivia Game: engine
  *  Sections: core helpers · art (tiles, buildings, props, characters, items) ·
@@ -1555,5 +1563,6 @@ fit();setupTitle();setupTouch();loadCustomSprites();loadHD();loadPlayerArt();loa
 player.spr=charSprites(lookFromPick());loadZone('village',15,10,'up',true);state='title';
 (function titleBg(){if(state!=='title')return;clock+=.016;updNpcs(.016);updTaxis(.016);drawTitleBg();requestAnimationFrame(titleBg)})();
 function drawTitleBg(){const sv=S;S={items:{},stars:0};player.px=15*16;player.py=10*16;draw();S=sv}
+ART_LOAD.started=true;artProgress();setTimeout(artReady,20000);
 requestAnimationFrame(loop);
 window.__game={get state(){return state},get S(){return S},get player(){return player},get npcs(){return npcs},get zone(){return Zn&&Zn.id},interact,pressA,answer,warp,openColl,closePanels,startTrivia,sitCouch};
