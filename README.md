@@ -4,6 +4,13 @@ A private, Pokémon-style pixel-art trivia adventure set in Friends' Greenwich V
 
 **Play:** open `index.html` in a browser, or turn on GitHub Pages for this repo (Settings → Pages → deploy from `main`, root folder).
 
+## v2.1.1: Calmer city, clearer story
+
+- Street ambience is at half its old level and comes and goes (20–40 s of city, then a quiet lull). Indoor ambience is at a quarter.
+- The car horn is softer and sounds at most once every 14 seconds.
+- Door outlines are brighter.
+- Story guidance is easier to spot: a banner with the next goal appears for a few seconds whenever the goal changes (and when you load a story game), the goal box glows, a soft gold ring sits on the ground under the person, door or stairs you need, and a small gold arrow at your feet follows the walking route there. It fades away once you're a few steps from the goal.
+
 ## v2.1: Story mode
 
 - New **Mode** choice on the title screen: **Story (Seasons 1–10)** or **Free Play**. Free Play is the game exactly as before; saves from earlier versions open in Free Play.

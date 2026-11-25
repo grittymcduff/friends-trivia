@@ -663,7 +663,7 @@ function drawPic(key){if(picCache[key])return picCache[key];if(PIC_HD[key]&&hdIt
 let AC=null,muted=false;
 function beep(f,d=.08,type='square',v=.035,when=0){if(muted)return;try{AC=AC||new(window.AudioContext||window.webkitAudioContext)();const t=AC.currentTime+when,o=AC.createOscillator(),g=AC.createGain();o.type=type;o.frequency.value=f;g.gain.setValueAtTime(v,t);g.gain.exponentialRampToValueAtTime(.0001,t+d);o.connect(g).connect(AC.destination);o.start(t);o.stop(t+d+.02)}catch(e){}}
 const SFX={blip:()=>beep(900,.02,'square',.015),ok:()=>{beep(660,.08);beep(990,.14,'square',.035,.08)},bad:()=>{beep(220,.2,'sawtooth',.03);beep(180,.2,'sawtooth',.03,.1)},
- door:()=>{beep(330,.06);beep(495,.08,'square',.03,.07)},item:()=>[523,659,784,1047,1319].forEach((f,i)=>beep(f,.14,'triangle',.07,i*.1)),honk:()=>{beep(392,.12,'sawtooth',.025);beep(370,.14,'sawtooth',.025,.16)},bump:()=>beep(110,.05,'square',.02),sel:()=>beep(700,.04,'triangle',.04)};
+ door:()=>{beep(330,.06);beep(495,.08,'square',.03,.07)},item:()=>[523,659,784,1047,1319].forEach((f,i)=>beep(f,.14,'triangle',.07,i*.1)),honk:()=>{beep(392,.11,'square',.012);beep(370,.13,'square',.012,.15)},bump:()=>beep(110,.05,'square',.02),sel:()=>beep(700,.04,'triangle',.04)};
 
 /* ===================== Music: original pieces, synthesized (v1.9.6) =====================
  * Six short loops written for the game, played by small Web Audio instruments: a plucked guitar
@@ -764,6 +764,8 @@ const AMB={village:['street',1],soho:['city',1],uptown:['city',.9],midtown:['bus
  airport:['terminal',.75],london:['city',.7],vegas:['busy',.75],
  hall:['street',.35,1],monica:['street',.3,1],joey:['street',.3,1],rossapt:['street',.3,1],phoebe:['street',.3,1]};
 const BELL_ZONES=new Set(['village','uptown']);
+const AMB_OUT=new Set(['village','soho','uptown','midtown','queens','london','vegas']);   // streets: half level, with quiet gaps
+const ambLevel=z=>AMB[z][1]*AMB_LEVEL*(AMB_OUT.has(z)?.5:.25);
 const amb={want:null,cur:null,bufs:{},loading:{},nextBell:0};
 function ambBuf(n){if(amb.bufs[n])return amb.bufs[n];if(!amb.loading[n]&&AC){amb.loading[n]=true;
  fetch('sounds/amb_'+n+'.mp3').then(r=>r.arrayBuffer()).then(b=>AC.decodeAudioData(b)).then(d=>{amb.bufs[n]=d}).catch(()=>{})}return null}
@@ -777,7 +779,12 @@ function ambTick(){if(!AC)return;if(!amb.pre){amb.pre=1;ambBuf('subway')}const w
   if(!key){ambStop(amb.cur);amb.cur=null}
   else{const b=ambBuf(spec[0]);if(b){ambStop(amb.cur);const src=AC.createBufferSource(),g=AC.createGain();src.buffer=b;src.loop=true;g.gain.value=0;
    let node=src;if(spec[2]){const f=AC.createBiquadFilter();f.type='lowpass';f.frequency.value=650;node=src.connect(f)}node.connect(g).connect(AC.destination);
-   src.start(0,Math.random()*b.duration);g.gain.linearRampToValueAtTime(spec[1]*AMB_LEVEL,AC.currentTime+1.6);amb.cur={src,g,key,v:spec[1]}}}}
+   src.start(0,Math.random()*b.duration);g.gain.linearRampToValueAtTime(ambLevel(want),AC.currentTime+1.6);
+   amb.cur={src,g,key,v:spec[1],out:AMB_OUT.has(want),lvl:ambLevel(want),phase:'on',next:AC.currentTime+20+Math.random()*20}}}}
+ // on the streets the background comes and goes: 20–40 s of city, then a 12–25 s lull
+ if(amb.cur&&amb.cur.out){const c=amb.cur,now=AC.currentTime;if(now>c.next){const gn=c.g.gain;gn.cancelScheduledValues(now);gn.setValueAtTime(gn.value,now);
+  if(c.phase==='on'){gn.linearRampToValueAtTime(c.lvl*.12,now+4);c.phase='off';c.next=now+12+Math.random()*13}
+  else{gn.linearRampToValueAtTime(c.lvl,now+4);c.phase='on';c.next=now+20+Math.random()*20}}}
  // the odd distant church bell
  if(want&&BELL_ZONES.has(want)&&!muted){const now=AC.currentTime;if(!amb.nextBell)amb.nextBell=now+40+Math.random()*60;
   if(now>amb.nextBell){ambOneShot('bell',.55,Math.random()*1.2-.6);amb.nextBell=now+90+Math.random()*120}}else amb.nextBell=0;
@@ -878,9 +885,9 @@ function updTaxis(dt){const W=Zn.w*16;for(const t of taxis){
  const a=t.dir>0?t.x+CAR_LEN:t.x-14,b=t.dir>0?t.x+CAR_LEN+14:t.x;
  const pRow=t.rows.includes(player.y)||(player.moving&&t.rows.includes(player.fy))||t.rows.some(r=>Math.abs(player.py-r*16)<14);
  const p0=Math.min(player.px,player.x*16,player.fx*16),p1=Math.max(player.px,player.x*16,player.fx*16)+16;
- let stop=false;if(pRow&&p1>a&&p0<b){stop=true;if(t.honk<=0&&state==='world'){t.honk=2.2;SFX.honk()}}
+ let stop=false;if(pRow&&p1>a&&p0<b){stop=true;if(t.honk<=0&&state==='world'){t.honk=7;if(clock-(lastHonk||-99)>14){lastHonk=clock;t.honkShow=1.2;SFX.honk()}}}
  for(const o of taxis)if(o!==t&&o.row===t.row&&o.x+CAR_LEN>a&&o.x<b)stop=true;
- if(t.honk>0)t.honk-=dt;if(!stop)t.x+=t.dir*t.sp*dt;
+ if(t.honk>0)t.honk-=dt;if(t.honkShow>0)t.honkShow-=dt;if(!stop)t.x+=t.dir*t.sp*dt;
  if(t.dir>0&&t.x>W+40)t.x=-CAR_LEN-40;if(t.dir<0&&t.x<-CAR_LEN-40)t.x=W+40}}
 
 /* ===================== Dialogue ===================== */
@@ -1214,7 +1221,7 @@ function doorHintEntries(L){const p=.5+.5*Math.sin(clock*2.6);
     if(best&&bd<1.6){const by=(b.y+b.h)*16,ky=im?facadeH(b,im)/(im.height/8):1;rx=b.x*16+best[0]*k*16-1;rw=(best[1]-best[0])*k*16+2;top=by-best[2]*16*ky-1;h=(best[2]-best[3])*16*ky+2}}
    // just above its building (or the wall it's in), below everyone on the sidewalk
    const key=b?(b.y+b.h)*16+.05:y+.05;
-   L.push({y:key,d:()=>{ctx.save();ctx.globalAlpha=.22+.22*p;ctx.strokeStyle='#ffd978';ctx.lineWidth=1;ctx.shadowColor='#ffcf5a';ctx.shadowBlur=3;
+   L.push({y:key,d:()=>{ctx.save();ctx.globalAlpha=.55+.3*p;ctx.strokeStyle='#ffe27a';ctx.lineWidth=1.4;ctx.shadowColor='#ffd24a';ctx.shadowBlur=6;
     ctx.beginPath();if(ctx.roundRect)ctx.roundRect(rx,top,rw,h,2.5);else ctx.rect(rx,top,rw,h);ctx.stroke();ctx.restore()}})}}}
 function drawAmbient(cx,cy,vw,vh,indoor,dt){if(indoor)return;const d=darkness(),sea=season(),T=clock;
  // December lights along the rooflines
@@ -1356,6 +1363,7 @@ function openHelp(){state='menu';setupHelpDiff();$('#help').classList.remove('hi
 
 /* ===================== HUD ===================== */
 function updHud(){if(!S)return;$('#cntItems').textContent=`${Object.keys(S.items).length}/${ITEMS.length}`;$('#cntStars').textContent=S.stars}
+let lastHonk=-99;
 function toast(t){const e=$('#toast');e.textContent=t;e.classList.add('on');clearTimeout(toast.t);toast.t=setTimeout(()=>e.classList.remove('on'),2200)}
 
 /* ===================== Render ===================== */
@@ -1413,6 +1421,7 @@ function draw(){ctx.setTransform(1,0,0,1,0,0);ctx.fillStyle=Zn.bg;ctx.fillRect(0
  doorHintEntries(L);
  L.sort((a,b)=>a.y-b.y);for(const e of L)e.d();
  {const now=performance.now(),dt=Math.min(.05,(now-(ambT||now))/1000);ambT=now;drawAmbient(cx,cy,vw,vh,indoor,dt)}
+ try{drawStoryWorld()}catch(e){}
  // screen-space text
  const k2=SC/2;ctx.setTransform(k2*RS,0,0,k2*RS,0,0);
  const W2=(wx,wy)=>[(wx-cx)*2,(wy-cy)*2];
@@ -1430,7 +1439,7 @@ function draw(){ctx.setTransform(1,0,0,1,0,0);ctx.fillStyle=Zn.bg;ctx.fillRect(0
   ctx.fillStyle='rgba(28,20,40,.82)';rr(sx-w/2,sy-8,w,15,6);ctx.fill();ctx.fillStyle='#fff3c4';ctx.fillText(n.name,sx,sy);
   if(n.reward&&!S.items[n.reward]){const b=Math.sin(clock*4)*2;ctx.fillStyle='#ffd84a';rr(sx+w/2-2,sy-20+b,14,14,7);ctx.fill();ctx.fillStyle='#3a2a10';ctx.font='bold 11px ui-monospace,monospace';ctx.fillText('?',sx+w/2+5,sy-13+b)}}
  for(const n of npcs){if(n.cast||!n.quiz||n.asked)continue;const[sx,sy]=W3(n.px+8,n.py-16);const b=Math.sin(clock*4+n.x)*2;ctx.fillStyle='#ffffff';rr(sx-6,sy-7+b,12,12,6);ctx.fill();ctx.fillStyle='#5b3a8c';ctx.font='bold 10px ui-monospace,monospace';ctx.fillText('?',sx,sy-1+b)}
- for(const t of taxis)if(t.honk>1.2){const[sx,sy]=W3(t.x+CAR_LEN/2,t.by-40);ctx.font='bold 11px ui-monospace,monospace';ctx.fillStyle='#fff';rr(sx-24,sy-9,48,17,6);ctx.fill();ctx.fillStyle='#c0262c';ctx.fillText('HONK!',sx,sy)}
+ for(const t of taxis)if(t.honkShow>0){const[sx,sy]=W3(t.x+CAR_LEN/2,t.by-40);ctx.font='bold 11px ui-monospace,monospace';ctx.fillStyle='#fff';rr(sx-24,sy-9,48,17,6);ctx.fill();ctx.fillStyle='#c0262c';ctx.fillText('HONK!',sx,sy)}
  ctx.setTransform(k2*RS,0,0,k2*RS,0,0);try{drawStoryMarker(W2,k2)}catch(e){}
  ctx.textAlign='left'}
 function rr(x,y,w,h,r){ctx.beginPath();ctx.moveTo(x+r,y);ctx.arcTo(x+w,y,x+w,y+h,r);ctx.arcTo(x+w,y+h,x,y+h,r);ctx.arcTo(x,y+h,x,y,r);ctx.arcTo(x,y,x+w,y,r);ctx.closePath()}
@@ -1524,6 +1533,7 @@ function begin(s,isNew){try{AC=AC||new(window.AudioContext||window.webkitAudioCo
  if(solid[player.y*Zn.w+player.x]){let best=null;for(let r=1;r<12&&!best;r++)for(let dy=-r;dy<=r&&!best;dy++)for(let dx=-r;dx<=r;dx++){const x=player.x+dx,y=player.y+dy;if(x>=0&&y>=0&&x<Zn.w&&y<Zn.h&&!solid[y*Zn.w+x]){best=[x,y];break}}
   if(best){player.x=player.fx=best[0];player.y=player.fy=best[1];player.px=best[0]*16;player.py=best[1]*16}}
  state='world';updHud();
+ if(!isNew&&S.mode==='story')setTimeout(storyBanner,600);
  if(isNew&&S.mode==='story'){say([{text:`Welcome to New York, ${S.name}!`},{text:"This is Story mode: the whole show, one season at a time. The gold arrow and the box under the neighborhood name always show where to go next."},{text:"Arrows or WASD to move (hold Shift to hurry). Space to talk. C opens your shelf, and M opens the map."}]);save();showSeasonCard(0);updObjective();return}
  if(isNew)say([{text:`Welcome to the Village, ${S.name}!`},{text:"That's Central Perk right in front of you. Walk up to the door to go inside."},{text:"Arrows or WASD to move (hold Shift to hurry). Space to talk. C opens your collectibles shelf, and M opens the map."},{text:"Find people with a ? over their heads. They want to quiz you."}]);
  if(isNew){S.chapter=0;save();const el=$('#chapCard');$('#chapNum').textContent='Chapter 1';$('#chapT').textContent=CHAPTERS[0].t;$('#chapTx').textContent=CHAPTERS[0].tx;el.classList.add('on');SFX.ok();el.onclick=()=>el.classList.remove('on')}}

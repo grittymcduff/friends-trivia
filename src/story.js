@@ -170,7 +170,7 @@ function storyState(){if(!S.story)S.story={s:0,k:0};return S.story}
 function storyStep(){if(!STORY_ON())return null;const st=storyState();if(st.done)return null;const sea=STORY[st.s];return sea&&sea.steps[st.k]||null}
 function storyGoalText(){const st=storyState(),p=storyStep();if(st.done)return 'Story complete! Explore as much as you like.';return p?p.goal:''}
 function showSeasonCard(s,pre){const sea=STORY[s];$('#chapNum').textContent=`Season ${s+1}`;$('#chapT').textContent=sea.t;$('#chapTx').textContent=(pre?pre+' ':'')+sea.tx;
- const el=$('#chapCard');el.classList.add('on');const prev=state;state='card';SFX.ok();el.onclick=()=>{el.classList.remove('on');state=prev==='card'?'world':prev;updObjective()}}
+ const el=$('#chapCard');el.classList.add('on');const prev=state;state='card';SFX.ok();el.onclick=()=>{el.classList.remove('on');state=prev==='card'?'world':prev;updObjective();storyBanner()}}
 // did the player just do the current step's thing?
 function storyMatchNpc(n){const p=storyStep();return p&&p.npc&&Zn.id===p.z&&n.id===p.npc?p:null}
 function storyMatchAct(a){const p=storyStep();return p&&p.act&&Zn.id===p.z&&a.type===p.act?p:null}
@@ -188,7 +188,7 @@ function storyAdvance(){const st=storyState();st.k++;const sea=STORY[st.s];
  if(st.k>=sea.steps.length){
   if(st.s>=STORY.length-1){st.done=true;save();updObjective();if(STORY[st.s].steps.some(x=>x.final))setTimeout(()=>{if(typeof showCredits==='function')showCredits()},400);return}
   st.s++;st.k=0;save();showSeasonCard(st.s,`Season ${st.s} complete!`)}
- else{save();toast('Next: '+storyGoalText())}
+ else{save();storyBanner()}
  updObjective()}
 // spot steps happen just by walking there
 // (after it's happened once, you have to step away and come back to start it again)
@@ -236,3 +236,32 @@ function drawStoryMarker(W2,k2){if(!STORY_ON()||state==='title')return;const t=s
  ctx.save();ctx.translate(ax,ay);ctx.rotate(a);const s=1.5+.12*Math.sin(clock*5);ctx.scale(s,s);
  ctx.fillStyle='#2a1a0a';ctx.beginPath();ctx.moveTo(13,0);ctx.lineTo(-7,-10);ctx.lineTo(-3,0);ctx.lineTo(-7,10);ctx.closePath();ctx.fill();
  ctx.fillStyle=col;ctx.beginPath();ctx.moveTo(10,0);ctx.lineTo(-5,-7.5);ctx.lineTo(-1.5,0);ctx.lineTo(-5,7.5);ctx.closePath();ctx.fill();ctx.restore()}
+
+/* v2.1.1: making the way forward easier to see, without shouting.
+   - a banner with the next goal whenever it changes (and when you load a story game)
+   - the goal box glows for a few seconds when it changes
+   - a gold arrow at your feet that follows the actual walking route (around walls and furniture)
+     toward the next goal or the way out; it fades away once you're close
+   - a soft pulsing ring on the ground under the person or place you need */
+function storyBanner(){if(!STORY_ON())return;const st=storyState(),el=$('#storyBanner');if(!el)return;
+ if(st.done){el.classList.remove('on');return}
+ $('#sbSea').textContent=`Season ${st.s+1} · Next`;$('#sbGoal').textContent=storyGoalText();
+ el.classList.remove('on');void el.offsetWidth;el.classList.add('on');clearTimeout(storyBanner.t);storyBanner.t=setTimeout(()=>el.classList.remove('on'),5000);
+ const ob=$('#objTag');if(ob){ob.classList.remove('pulse');void ob.offsetWidth;ob.classList.add('pulse')}}
+const guide={key:'',path:null,at:-9};
+function guidePath(t){const key=Zn.id+':'+player.x+','+player.y+'>'+t.tx+','+t.ty;
+ if(guide.key===key&&clock-guide.at<.6)return guide.path;guide.key=key;guide.at=clock;
+ const near=(x,y)=>Math.abs(x-t.tx)+Math.abs(y-t.ty)<=1;
+ guide.path=(player.x===t.tx&&player.y===t.ty)||near(player.x,player.y)?[]:(bfs(player.x,player.y,(x,y)=>(x===t.tx&&y===t.ty)||near(x,y))||null);return guide.path}
+function drawStoryWorld(){if(!STORY_ON()||state==='title'||!Zn)return;const t=storyTarget();if(!t)return;
+ const p=.5+.5*Math.sin(clock*3);
+ // soft ring on the ground under the goal (or the door / stairs / gate that leads there)
+ const gx=t.tx*16+8,gy=t.ty*16+13;ctx.save();ctx.globalAlpha=.35+.35*p;ctx.strokeStyle='#ffd23a';ctx.lineWidth=1.3;ctx.shadowColor='#ffcf3a';ctx.shadowBlur=6;
+ ctx.beginPath();ctx.ellipse(gx,gy,9+2*p,3.6+.8*p,0,0,Math.PI*2);ctx.stroke();ctx.restore();
+ if(state!=='world'||player.sit)return;
+ const path=guidePath(t),dist=Math.abs(player.x-t.tx)+Math.abs(player.y-t.ty);if(!path||!path.length||dist<=3)return;
+ // aim a few steps down the route, so the arrow turns the corner before you do
+ const w=path[Math.min(3,path.length-1)],px0=player.px+8,py0=player.py+11,a=Math.atan2(w[1]*16+8-py0,w[0]*16+8-px0);
+ const fade=Math.min(1,(dist-3)/3),r=13+1.5*p;ctx.save();ctx.globalAlpha=(.55+.3*p)*fade;ctx.translate(px0+Math.cos(a)*r,py0+Math.sin(a)*r*.6);ctx.rotate(a);
+ ctx.fillStyle='rgba(40,24,8,.85)';ctx.beginPath();ctx.moveTo(6.5,0);ctx.lineTo(-3.5,-5);ctx.lineTo(-1.5,0);ctx.lineTo(-3.5,5);ctx.closePath();ctx.fill();
+ ctx.fillStyle='#ffd23a';ctx.beginPath();ctx.moveTo(5,0);ctx.lineTo(-2.5,-3.6);ctx.lineTo(-.8,0);ctx.lineTo(-2.5,3.6);ctx.closePath();ctx.fill();ctx.restore()}
