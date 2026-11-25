@@ -4,6 +4,11 @@ A private, Pokémon-style pixel-art trivia adventure set in Friends' Greenwich V
 
 **Play:** open `index.html` in a browser, or turn on GitHub Pages for this repo (Settings → Pages → deploy from `main`, root folder).
 
+## v2.0.6: Doors for new players
+
+- Every door you can walk into has a soft, pulsing gold outline around the door painted on the building (`tools/door_rects.py` records where each door is drawn on every street front).
+- Every way out of a room has a red EXIT sign with an arrow pointing at the mat, and the ride home on a trip has a blue TO JFK sign.
+
 ## v2.0.4: Headlights
 
 - At night, moving cars show a glow at each headlight, a soft pool of light on the road just ahead that travels with them, and red tail lights. The old triangle beams are gone.

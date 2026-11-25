@@ -1141,6 +1141,28 @@ function updWalkers(dt){const W=Zn.w*16;for(const w of walkers){
  // they stop politely if you're standing right in front of them
  const ahead=w.dir>0?[w.x+10,w.x+24]:[w.x-10,w.x+6],py=player.py,blocked=Math.abs(py-w.row*16)<12&&player.px+12>ahead[0]&&player.px+4<ahead[1];
  w.moving=!blocked;if(w.moving){w.x+=w.dir*w.sp*dt;w.t+=dt}if(w.x>W+30)w.x=-30;if(w.x<-30)w.x=W+30}}
+/* v2.0.6: help for new players. Doors you can walk into get a soft pulsing gold outline; ways out of a room
+   get a little red EXIT sign with an arrow pointing at the mat. Doors side by side are treated as one. */
+function doorGroups(){if(Zn._dg)return Zn._dg;const gs=[];for(const d of [...Zn.doors].sort((a,b)=>a.y-b.y||a.x-b.x)){const g=gs.find(g=>g.y===d.y&&g.to===d.to&&g.x1===d.x-1);if(g)g.x1=d.x;else gs.push({x0:d.x,x1:d.x,y:d.y,to:d.to,exit:d.dir==='down'})}
+ // trips: the cab or boat that takes you back to JFK gets a sign too
+ for(const t of [...Zn.acts].filter(a=>a.type==='fly').sort((a,b)=>a.y-b.y||a.x-b.x)){const g=gs.find(g=>g.fly&&g.y===t.y&&g.x1===t.x-1);if(g)g.x1=t.x;else gs.push({x0:t.x,x1:t.x,y:t.y,fly:true,exit:true})}
+ return Zn._dg=gs}
+function drawDoorHints(){const p=.5+.5*Math.sin(clock*3.2);ctx.save();
+ for(const g of doorGroups()){let x=g.x0*16,w=(g.x1-g.x0+1)*16;const y=g.y*16;
+  if(g.exit){const cx=x+w/2,sy=(g.fly?y-38:y-15)+Math.sin(clock*3.2)*1.2,lab=g.fly?'TO JFK':'EXIT',bw=g.fly?34:24,col=g.fly?'#2a6fd0':'#d8302a';
+   if(!g.fly){ctx.globalAlpha=.25+.2*p;ctx.fillStyle='#ff5a4a';ctx.fillRect(x+1,y+1,w-2,14)}   // glow on the mat
+   ctx.globalAlpha=1;ctx.fillStyle='#14182a';ctx.fillRect(cx-bw/2-.5,sy-5.5,bw+1,11);ctx.fillStyle=col;ctx.fillRect(cx-bw/2,sy-5,bw,10);
+   ctx.fillStyle='#fff';ctx.font="700 7px 'Pixelify Sans', monospace";ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(lab,cx,sy+.5);
+   ctx.fillStyle=col;ctx.beginPath();ctx.moveTo(cx-3,sy+6);ctx.lineTo(cx+3,sy+6);ctx.lineTo(cx,sy+9.5);ctx.closePath();ctx.fill()}
+  else{let rx=x+1,rw=w-2,top=y-12,h=26;
+   // street fronts: outline the door that's actually painted there (nearest one to the entry)
+   const b=g.b!==undefined?g.b:(g.b=Zn.objs.find(o=>o.kind==='building'&&o.hd&&DOOR_ART[o.hd]&&g.x0>=o.x&&g.x1<o.x+o.w&&g.y===o.y+o.h-1)||null);
+   if(b){const im=hdFacades[b.hd],k=im?b.w/(im.width/128):1,cx0=(g.x0+g.x1+1)/2-b.x;let best=null,bd=9;
+    for(const r of DOOR_ART[b.hd]){const dd=Math.abs((r[0]+r[1])/2*k-cx0);if(dd<bd){bd=dd;best=r}}
+    if(best&&bd<1.6){const by=(b.y+b.h)*16;rx=b.x*16+best[0]*k*16-1;rw=(best[1]-best[0])*k*16+2;top=by-best[2]*16-1;h=(best[2]-best[3])*16+2}}
+   x=rx;w=rw+2;ctx.globalAlpha=.55+.4*p;ctx.strokeStyle='#ffd56a';ctx.lineWidth=1.6;ctx.shadowColor='#ffcf5a';ctx.shadowBlur=6;
+   ctx.beginPath();if(ctx.roundRect)ctx.roundRect(x,top,w-2,h,3);else ctx.rect(x,top,w-2,h);ctx.stroke();ctx.shadowBlur=0}}
+ ctx.restore();ctx.globalAlpha=1}
 function drawAmbient(cx,cy,vw,vh,indoor,dt){if(indoor)return;const d=darkness(),sea=season(),T=clock;
  // December lights along the rooflines
  if(sea==='winter'&&new Date().getMonth()===11)for(const o of Zn.objs)if(o.kind==='building'&&o.hd&&hdFacades[o.hd]){const im=hdFacades[o.hd],w=o.w*16,h=im.height/8,top=(o.y+o.h)*16-h+5;
@@ -1336,6 +1358,7 @@ function draw(){ctx.setTransform(1,0,0,1,0,0);ctx.fillStyle=Zn.bg;ctx.fillRect(0
  for(const w of walkers){if(!vis(w.x-8,w.row*16-24,32,40))continue;L.push({y:w.row*16+16+.2,d:()=>drawChar2(null,w.spr,w.dir<0?'left':'right',w.moving?[1,0,2,0][(w.t*7|0)%4]:0,w.x,w.row*16,false)})}
  L.sort((a,b)=>a.y-b.y);for(const e of L)e.d();
  {const now=performance.now(),dt=Math.min(.05,(now-(ambT||now))/1000);ambT=now;drawAmbient(cx,cy,vw,vh,indoor,dt)}
+ drawDoorHints();
  // screen-space text
  const k2=SC/2;ctx.setTransform(k2*RS,0,0,k2*RS,0,0);
  const W2=(wx,wy)=>[(wx-cx)*2,(wy-cy)*2];
