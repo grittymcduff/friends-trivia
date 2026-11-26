@@ -4,6 +4,12 @@ A private, Pokémon-style pixel-art trivia adventure set in Friends' Greenwich V
 
 **Play:** open `index.html` in a browser, or turn on GitHub Pages for this repo (Settings → Pages → deploy from `main`, root folder).
 
+## v2.2.1: Easier reading
+
+- Dialogue, questions, answers, quotes and fun facts now use Nunito, a clean rounded font (in `fonts/`, OFL licence). The pixel font stays for names, titles and the top buttons.
+- The Help / Map / Shelf row and Settings hide during a quiz so they don't sit on top of the question card.
+- Fixes "fine" showing as "Ane": Pixelify Sans joined "fi" into one odd-looking letter. Letter joins are now off everywhere, and italics use a real italic instead of slanting the pixel font.
+
 ## v2.2: Tidier controls
 
 - One row at the top right: **? Help**, **Map**, **Shelf** and the trophy/star count. Sound, music volume and zoom moved into a **Settings ▾** drop-down under the count (tap anywhere else to close it).
