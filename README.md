@@ -4,6 +4,11 @@ A private, Pokémon-style pixel-art trivia adventure set in Friends' Greenwich V
 
 **Play:** open `index.html` in a browser, or turn on GitHub Pages for this repo (Settings → Pages → deploy from `main`, root folder).
 
+## v2.2.3: Fairer answers, tidier subway
+
+- 34 questions had a right answer that gave itself away (much longer than the others, or the only one with extra detail). Their wrong answers now match it in length and detail.
+- The subway map is a compact two-column list that fits the screen, scrolls on phones if it ever needs to, and hides the top buttons while it's open.
+
 ## v2.2.2: Clearer numbers
 
 - The trophy and star counts, quiz progress, streaks, scores and season labels use Nunito, so a 5 no longer looks like an S.

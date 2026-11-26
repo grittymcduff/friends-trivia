@@ -1506,7 +1506,7 @@ function setupTouch(){coarse=matchMedia('(pointer:coarse)').matches;$('#game').c
  cv.addEventListener('pointerup',end);cv.addEventListener('pointercancel',end);cv.addEventListener('lostpointercapture',end);
  // keep the page itself from scrolling, bouncing or swiping back while steering
  for(const ev of['touchstart','touchmove'])cv.addEventListener(ev,e=>e.preventDefault(),{passive:false});
- document.addEventListener('touchmove',e=>{if(!e.target.closest('#coll,#help,#mapP,#board,#title,#triv,.scroll'))e.preventDefault()},{passive:false});
+ document.addEventListener('touchmove',e=>{if(!e.target.closest('#coll,#help,#mapP,#board,#title,#triv,#subway,#chapCard,#vs,.scroll'))e.preventDefault()},{passive:false});
  $('#btnA').addEventListener('pointerdown',e=>{e.preventDefault();pressA()});$('#btnB').addEventListener('pointerdown',e=>{e.preventDefault();pressB()})}
 $('#dlg').addEventListener('click',()=>{if(state==='dialog'&&!(dCur&&dCur.choices))dlgAdvance()});
 $('#tvNext').onclick=nextQ;
@@ -1565,7 +1565,7 @@ function fit(){const vv=window.visualViewport,w=vv?vv.width:innerWidth,h=vv?vv.h
  const wr=$('#wrap');wr.style.height=h+'px';wr.style.top=(vv?vv.offsetTop:0)+'px'}
 addEventListener('resize',fit);addEventListener('orientationchange',()=>setTimeout(fit,300));if(window.visualViewport){visualViewport.addEventListener('resize',fit);visualViewport.addEventListener('scroll',fit)}
 let last=performance.now(),saveT=0;
-function loop(now){const dt=Math.min(.05,(now-last)/1000);last=now;clock+=dt;{const busy=state==='trivia'||state==='vs';if(busy!==loop.busy){loop.busy=busy;$('#game').classList.toggle('busy',busy);if(busy)$('#setMenu').classList.add('hidden')}}if(((clock*4)|0)!==loop.k){loop.k=(clock*4)|0;checkChapter()}
+function loop(now){const dt=Math.min(.05,(now-last)/1000);last=now;clock+=dt;{const pn=state==='menu'&&!$('#subway').classList.contains('hidden');if(pn!==loop.pn){loop.pn=pn;$('#game').classList.toggle('panel',pn)}}{const busy=state==='trivia'||state==='vs';if(busy!==loop.busy){loop.busy=busy;$('#game').classList.toggle('busy',busy);if(busy)$('#setMenu').classList.add('hidden')}}if(((clock*4)|0)!==loop.k){loop.k=(clock*4)|0;checkChapter()}
  if(Zn&&S&&state!=='title'){updPlayer(dt);updNpcs(dt);updTaxis(dt);updWalkers(dt);updDialog(dt);saveT+=dt;if(saveT>5){saveT=0;save()}draw()}
  syncTouch();requestAnimationFrame(loop)}
 setZoom(2,true);   // v2.0.5: always open in Normal (Far draws much more of the street each frame and can lag); the zoom button still changes it

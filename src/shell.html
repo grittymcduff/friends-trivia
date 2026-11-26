@@ -144,10 +144,10 @@ button:disabled{cursor:default}
 #help p,#help li{font-size:12px;line-height:1.5}
 kbd{background:#fff;border:1px solid #2a1a3a;border-radius:3px;padding:0 4px;font-size:10px;font-weight:800}
 /* Subway, travel, credits */
-#subway{position:absolute;left:90px;right:90px;top:30px;bottom:30px;padding:12px 16px;overflow:auto}
-#subList{display:flex;flex-direction:column;gap:6px}
-#subList button{text-align:left;display:flex;flex-direction:column;gap:2px;padding:7px 10px;font-size:12px;border-left:8px solid #2f6b3a}
-#subList button small{font-size:10px;font-weight:600;color:#5a4a6a}
+#subway{position:absolute;left:60px;right:60px;top:24px;max-height:368px;padding:10px 14px;overflow:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain}
+#subList{display:grid;grid-template-columns:1fr 1fr;gap:6px}#subList button:first-child{grid-column:1/-1}
+#subList button{text-align:left;display:flex;flex-direction:column;gap:2px;padding:6px 10px;font-size:12px;line-height:1.25;border-left:8px solid #2f6b3a}
+#subList button small{font-size:10.5px;font-weight:600;color:#5a4a6a;font-family:'Nunito',system-ui,sans-serif}
 #subList button:disabled{opacity:.6;border-left-color:#9a9aa4;cursor:default}
 #travel{position:absolute;inset:0;background:#120a1a;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .3s}
 #travel.on{opacity:1}
@@ -249,7 +249,7 @@ input{font-family:inherit!important}
 #setMenu button{font-size:11px;padding:4px 8px;text-align:left;background:linear-gradient(#fff8e4,#f3e0b6)}
 #setMenu #musVolBox{display:flex;justify-content:space-between;box-shadow:none}
 #objTag{max-width:40%}
-#game.busy #topRow,#game.busy #btnSet{display:none}
+#game.busy #topRow,#game.busy #btnSet,#game.panel #topRow,#game.panel #btnSet{display:none}
 #joy{display:none;left:0;top:0;bottom:auto;margin:-55px 0 0 -55px}#joy.on{display:block}
 #game.touch #touch #ab{bottom:16px}
 html,body{overscroll-behavior:none}#game,#game canvas{touch-action:none}
