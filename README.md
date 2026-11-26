@@ -4,6 +4,10 @@ A private, Pokémon-style pixel-art trivia adventure set in Friends' Greenwich V
 
 **Play:** open `index.html` in a browser, or turn on GitHub Pages for this repo (Settings → Pages → deploy from `main`, root folder).
 
+## v2.2.4: Sideways on phones
+
+- Holding a phone upright shows a "Turn your phone sideways to play" screen; the game appears as soon as it's turned. iPhones can't be forced to rotate from a web page, so this is the prompt instead. On Android the first tap also goes full screen and locks landscape where the browser allows it.
+
 ## v2.2.3: Fairer answers, tidier subway
 
 - 34 questions had a right answer that gave itself away (much longer than the others, or the only one with extra detail). Their wrong answers now match it in length and detail.

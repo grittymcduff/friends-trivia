@@ -1574,6 +1574,10 @@ fit();setupTitle();setupTouch();loadCustomSprites();loadHD();loadPlayerArt();loa
 player.spr=charSprites(lookFromPick());loadZone('village',15,10,'up',true);state='title';
 (function titleBg(){if(state!=='title')return;clock+=.016;updNpcs(.016);updTaxis(.016);drawTitleBg();requestAnimationFrame(titleBg)})();
 function drawTitleBg(){const sv=S;S={items:{},stars:0};player.px=15*16;player.py=10*16;draw();S=sv}
+// v2.2.4: phones play sideways. iPhones can't be forced to rotate, so portrait shows a "turn your phone" screen;
+// on Android, the first tap also asks for full screen and locks landscape where the browser allows it
+document.addEventListener('pointerdown',function once(){document.removeEventListener('pointerdown',once,true);if(!matchMedia('(pointer:coarse)').matches)return;
+ const el=document.documentElement;try{const r=el.requestFullscreen&&el.requestFullscreen({navigationUI:'hide'});if(r&&r.then)r.then(()=>screen.orientation&&screen.orientation.lock&&screen.orientation.lock('landscape').catch(()=>{})).catch(()=>{})}catch(e){}},true);
 ART_LOAD.started=true;artProgress();setTimeout(artReady,20000);
 requestAnimationFrame(loop);
 window.__game={get state(){return state},get S(){return S},get player(){return player},get npcs(){return npcs},get zone(){return Zn&&Zn.id},interact,pressA,answer,warp,openColl,closePanels,startTrivia,sitCouch};

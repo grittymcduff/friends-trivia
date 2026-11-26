@@ -273,7 +273,12 @@ html,body{overscroll-behavior:none}#game,#game canvas{touch-action:none}
 /* v2.2.2: numbers read better in Nunito (the pixel 5 looked like an S): counts, progress, streaks and scores */
 #counts,#counts b,#tvProg,#tvStreak,#tvRes .score,#vs .score,#objTag b,#storyBanner b{font-family:'Nunito',system-ui,sans-serif;font-variant-numeric:tabular-nums}
 #counts{font-weight:800}#tvRes .score{font-weight:900}
-</style></head><body><div id="loadCover"><h1>The One With <b>The Trivia Game</b></h1><div class="bar"><div id="loadBar"></div></div><p>Pouring the coffee…</p></div>
+#rotate{display:none;position:fixed;inset:0;z-index:10000;background:radial-gradient(ellipse at center,#3a2456 0%,#140c1e 78%);color:#f6e6c4;flex-direction:column;align-items:center;justify-content:center;gap:18px;text-align:center;padding:30px;font-family:'Nunito',system-ui,sans-serif}
+#rotate h2{margin:0;font:700 24px Georgia,serif;color:#b79ae6}#rotate h2 b{color:#f0954a}#rotate p{margin:0;font-size:16px;font-weight:700;line-height:1.4;max-width:280px}
+#rotate .ph{width:54px;height:92px;border:5px solid #f6e6c4;border-radius:12px;position:relative;animation:rot 2.4s ease-in-out infinite}#rotate .ph::after{content:'';position:absolute;left:50%;bottom:5px;width:12px;height:3px;margin-left:-6px;border-radius:2px;background:#f6e6c4}
+@keyframes rot{0%,20%{transform:rotate(0)}50%,80%{transform:rotate(-90deg)}100%{transform:rotate(0)}}
+@media (orientation:portrait) and (pointer:coarse) and (max-width:900px){#rotate{display:flex}}
+</style></head><body><div id="rotate"><h2>The One With <b>The Trivia Game</b></h2><div class="ph"></div><p>Turn your phone sideways to play.</p></div><div id="loadCover"><h1>The One With <b>The Trivia Game</b></h1><div class="bar"><div id="loadBar"></div></div><p>Pouring the coffee…</p></div>
 <div id="wrap"><div id="holder"><div id="game">
  <canvas id="cv"></canvas>
  <div id="hud" class="hidden">
@@ -3432,6 +3437,10 @@ fit();setupTitle();setupTouch();loadCustomSprites();loadHD();loadPlayerArt();loa
 player.spr=charSprites(lookFromPick());loadZone('village',15,10,'up',true);state='title';
 (function titleBg(){if(state!=='title')return;clock+=.016;updNpcs(.016);updTaxis(.016);drawTitleBg();requestAnimationFrame(titleBg)})();
 function drawTitleBg(){const sv=S;S={items:{},stars:0};player.px=15*16;player.py=10*16;draw();S=sv}
+// v2.2.4: phones play sideways. iPhones can't be forced to rotate, so portrait shows a "turn your phone" screen;
+// on Android, the first tap also asks for full screen and locks landscape where the browser allows it
+document.addEventListener('pointerdown',function once(){document.removeEventListener('pointerdown',once,true);if(!matchMedia('(pointer:coarse)').matches)return;
+ const el=document.documentElement;try{const r=el.requestFullscreen&&el.requestFullscreen({navigationUI:'hide'});if(r&&r.then)r.then(()=>screen.orientation&&screen.orientation.lock&&screen.orientation.lock('landscape').catch(()=>{})).catch(()=>{})}catch(e){}},true);
 ART_LOAD.started=true;artProgress();setTimeout(artReady,20000);
 requestAnimationFrame(loop);
 window.__game={get state(){return state},get S(){return S},get player(){return player},get npcs(){return npcs},get zone(){return Zn&&Zn.id},interact,pressA,answer,warp,openColl,closePanels,startTrivia,sitCouch};
