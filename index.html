@@ -270,6 +270,9 @@ html,body{overscroll-behavior:none}#game,#game canvas{touch-action:none}
 #tvNeed{font-weight:700}
 #tvSay,#tvRes .rsay{font-weight:700}
 #tvFact{font-size:13.5px;line-height:1.45}
+/* v2.2.2: numbers read better in Nunito (the pixel 5 looked like an S): counts, progress, streaks and scores */
+#counts,#counts b,#tvProg,#tvStreak,#tvRes .score,#vs .score,#objTag b,#storyBanner b{font-family:'Nunito',system-ui,sans-serif;font-variant-numeric:tabular-nums}
+#counts{font-weight:800}#tvRes .score{font-weight:900}
 </style></head><body><div id="loadCover"><h1>The One With <b>The Trivia Game</b></h1><div class="bar"><div id="loadBar"></div></div><p>Pouring the coffee…</p></div>
 <div id="wrap"><div id="holder"><div id="game">
  <canvas id="cv"></canvas>

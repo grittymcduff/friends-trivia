@@ -4,6 +4,10 @@ A private, Pokémon-style pixel-art trivia adventure set in Friends' Greenwich V
 
 **Play:** open `index.html` in a browser, or turn on GitHub Pages for this repo (Settings → Pages → deploy from `main`, root folder).
 
+## v2.2.2: Clearer numbers
+
+- The trophy and star counts, quiz progress, streaks, scores and season labels use Nunito, so a 5 no longer looks like an S.
+
 ## v2.2.1: Easier reading
 
 - Dialogue, questions, answers, quotes and fun facts now use Nunito, a clean rounded font (in `fonts/`, OFL licence). The pixel font stays for names, titles and the top buttons.
